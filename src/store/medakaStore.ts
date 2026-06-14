@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Medaka, BreedingRecord, MedakaPhoto, MedakaTrait } from "@/types/medaka";
+import { mockMedakas, mockBreedingRecords } from "@/lib/mockData";
 
 interface MedakaStore {
   medakas: Medaka[];
@@ -34,8 +35,8 @@ export interface LineageNode {
 export const useMedakaStore = create<MedakaStore>()(
   persist(
     (set, get) => ({
-      medakas: [],
-      breedingRecords: [],
+      medakas: mockMedakas,
+      breedingRecords: mockBreedingRecords,
 
       addMedaka: (medaka) =>
         set((s) => ({ medakas: [...s.medakas, medaka] })),
@@ -122,6 +123,16 @@ export const useMedakaStore = create<MedakaStore>()(
         };
       },
     }),
-    { name: "medaka-storage" }
+    {
+      name: "medaka-storage",
+      merge: (persisted: unknown, current) => {
+        const p = persisted as Partial<MedakaStore>;
+        return {
+          ...current,
+          medakas: p?.medakas?.length ? p.medakas : current.medakas,
+          breedingRecords: p?.breedingRecords?.length ? p.breedingRecords : current.breedingRecords,
+        };
+      },
+    }
   )
 );

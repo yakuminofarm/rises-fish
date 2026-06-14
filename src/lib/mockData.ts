@@ -1,20 +1,18 @@
-import { Medaka, NewsItem, Product, ColumnArticle, Breeder } from "@/types/medaka";
+import { Medaka, BreedingRecord, NewsItem, Product, ColumnArticle, Breeder } from "@/types/medaka";
 
 // ──────────────────────────────────────
 // 実写メダカ写真 (提供素材 + Unsplash)
 // ──────────────────────────────────────
 const MEDAKA_PHOTOS = {
-  // 提供素材
-  heroGroup: "/medaka/hero-group.png",   // 複数品種の群泳
-  miyuki:    "/medaka/miyuki.png",        // 幹之クローズアップ
-  sapphire:  "/medaka/sapphire.png",      // サファイア系クローズアップ
-  kotei:     "/medaka/kotei.png",         // 紅帝・楊貴妃系クローズアップ
-  // Unsplash 補完素材
+  heroGroup: "/medaka/hero-group.png",
+  miyuki:    "/medaka/miyuki.png",
+  sapphire:  "/medaka/sapphire.png",
+  kotei:     "/medaka/kotei.png",
+  eggBearing:"/medaka/egg-bearing.jpg",
   plant:  "https://images.unsplash.com/photo-1467579424161-4dce30b41e6f?w=400&q=80&auto=format&fit=crop",
   event:  "https://images.unsplash.com/photo-1559825481-12a05cc00344?w=400&q=80&auto=format&fit=crop",
 };
 
-// 旧名で参照しているコードのために別名エクスポート
 const FISH_PHOTOS = {
   orange:   MEDAKA_PHOTOS.kotei,
   blue:     MEDAKA_PHOTOS.miyuki,
@@ -27,61 +25,338 @@ const FISH_PHOTOS = {
   event:    MEDAKA_PHOTOS.event,
 };
 
+// ──────────────────────────────────────
+// サンプルメダカデータ（血統付き）
+// ──────────────────────────────────────
+
 export const mockMedakas: Medaka[] = [
+  // ── P世代（基礎個体）────────────────
   {
     id: "m1",
     name: "幹之1号",
     variety: "幹之",
     gender: "male",
-    acquiredDate: "2024-04-01",
-    birthDate: "2024-03-15",
-    photos: [
-      { id: "p-m1-1", url: MEDAKA_PHOTOS.miyuki, takenAt: "2024-06-01", label: "全体像" },
-    ],
+    acquiredDate: "2024-03-01",
+    birthDate: "2024-02-10",
+    photos: [{ id: "ph-m1-1", url: MEDAKA_PHOTOS.miyuki, takenAt: "2024-04-01", label: "全体像" }],
     traits: [
       { name: "体長", value: 3.2, unit: "cm", recordedAt: "2024-06-01" },
-      { name: "光沢スコア", value: 8, recordedAt: "2024-06-01" },
+      { name: "体外光スコア", value: 9, recordedAt: "2024-06-01" },
+      { name: "発色スコア", value: 8, recordedAt: "2024-06-01" },
     ],
-    notes: "体外光が強く出ている個体",
+    notes: "フルボディ体外光。選別個体として購入。品評会入賞クラス。",
     isAlive: true,
     generation: 1,
   },
   {
     id: "m2",
-    name: "楊貴妃♀A",
+    name: "楊貴妃♀紅",
     variety: "楊貴妃",
     gender: "female",
-    acquiredDate: "2024-04-01",
-    birthDate: "2024-03-10",
-    photos: [
-      { id: "p-m2-1", url: MEDAKA_PHOTOS.kotei, takenAt: "2024-06-01", label: "全体像" },
-    ],
+    acquiredDate: "2024-03-01",
+    birthDate: "2024-02-05",
+    photos: [{ id: "ph-m2-1", url: MEDAKA_PHOTOS.kotei, takenAt: "2024-04-01", label: "全体像" }],
     traits: [
       { name: "体長", value: 3.5, unit: "cm", recordedAt: "2024-06-01" },
-      { name: "発色スコア", value: 9, recordedAt: "2024-06-01" },
+      { name: "発色スコア", value: 10, recordedAt: "2024-06-01" },
+      { name: "産卵数", value: 12, unit: "個/日", recordedAt: "2024-05-15" },
     ],
-    notes: "橙色発色が非常に強い",
+    notes: "橙色発色が極めて強い最高グレード個体。産卵数も多く繁殖親として優秀。",
     isAlive: true,
     generation: 1,
   },
   {
+    id: "m4",
+    name: "サファイア太郎",
+    variety: "サファイア",
+    gender: "male",
+    acquiredDate: "2024-04-15",
+    birthDate: "2024-03-20",
+    photos: [{ id: "ph-m4-1", url: MEDAKA_PHOTOS.sapphire, takenAt: "2024-05-01", label: "全体像" }],
+    traits: [
+      { name: "体長", value: 3.0, unit: "cm", recordedAt: "2024-07-01" },
+      { name: "青色発色スコア", value: 9, recordedAt: "2024-07-01" },
+    ],
+    notes: "深いコバルトブルーの発色。体外光も強く出ている。",
+    isAlive: true,
+    generation: 1,
+  },
+  {
+    id: "m5",
+    name: "紅帝♀朱",
+    variety: "紅帝",
+    gender: "female",
+    acquiredDate: "2024-04-15",
+    birthDate: "2024-03-15",
+    photos: [{ id: "ph-m5-1", url: MEDAKA_PHOTOS.kotei, takenAt: "2024-05-01", label: "全体像" }],
+    traits: [
+      { name: "体長", value: 3.3, unit: "cm", recordedAt: "2024-07-01" },
+      { name: "赤色発色スコア", value: 10, recordedAt: "2024-07-01" },
+      { name: "産卵数", value: 8, unit: "個/日", recordedAt: "2024-07-10" },
+    ],
+    notes: "鮮血のような深紅。佐藤龍一ブリーダーより直接購入。",
+    isAlive: true,
+    generation: 1,
+  },
+  {
+    id: "m10",
+    name: "煌♂金",
+    variety: "煌",
+    gender: "male",
+    acquiredDate: "2024-05-20",
+    birthDate: "2024-04-10",
+    photos: [],
+    traits: [
+      { name: "体長", value: 2.8, unit: "cm", recordedAt: "2024-08-01" },
+      { name: "体内光スコア", value: 8, recordedAt: "2024-08-01" },
+    ],
+    notes: "体内光・体外光の両方が発現。希少個体。",
+    isAlive: true,
+    generation: 1,
+  },
+  {
+    id: "m11",
+    name: "オロチ♀黒",
+    variety: "オロチ",
+    gender: "female",
+    acquiredDate: "2024-05-20",
+    birthDate: "2024-04-05",
+    photos: [],
+    traits: [
+      { name: "体長", value: 3.1, unit: "cm", recordedAt: "2024-08-01" },
+      { name: "黒色度スコア", value: 9, recordedAt: "2024-08-01" },
+    ],
+    notes: "全身真っ黒。目も黒いピュアブラック個体。",
+    isAlive: true,
+    generation: 1,
+  },
+  {
+    id: "m12",
+    name: "白メダカ♂雪",
+    variety: "白メダカ",
+    gender: "male",
+    acquiredDate: "2024-02-10",
+    birthDate: "2024-01-20",
+    photos: [],
+    traits: [
+      { name: "体長", value: 2.9, unit: "cm", recordedAt: "2024-06-01" },
+    ],
+    notes: "透明感のある白体色。",
+    isAlive: false,
+    generation: 1,
+  },
+
+  // ── F1世代（第一交配）───────────────
+  {
     id: "m3",
     name: "F1-夜桜1",
     variety: "夜桜",
-    gender: "unknown",
+    gender: "female",
     acquiredDate: "2024-07-01",
-    birthDate: "2024-06-20",
+    birthDate: "2024-06-15",
     parentIds: { father: "m1", mother: "m2" },
-    photos: [
-      { id: "p-m3-1", url: MEDAKA_PHOTOS.heroGroup, takenAt: "2024-07-05", label: "全体像" },
+    photos: [{ id: "ph-m3-1", url: MEDAKA_PHOTOS.heroGroup, takenAt: "2024-07-05", label: "全体像" }],
+    traits: [
+      { name: "体長", value: 2.5, unit: "cm", recordedAt: "2024-08-01" },
+      { name: "発色スコア", value: 7, recordedAt: "2024-08-01" },
     ],
-    traits: [],
-    notes: "F1世代・成長中",
+    notes: "幹之×楊貴妃F1。ピンク発色が強く出た優良個体。",
     isAlive: true,
     generation: 2,
   },
+  {
+    id: "m6",
+    name: "F1-夜桜2",
+    variety: "夜桜",
+    gender: "male",
+    acquiredDate: "2024-07-01",
+    birthDate: "2024-06-15",
+    parentIds: { father: "m1", mother: "m2" },
+    photos: [],
+    traits: [
+      { name: "体長", value: 2.4, unit: "cm", recordedAt: "2024-08-01" },
+      { name: "体外光スコア", value: 6, recordedAt: "2024-08-01" },
+    ],
+    notes: "幹之×楊貴妃F1。兄妹個体。体外光を継承。",
+    isAlive: true,
+    generation: 2,
+  },
+  {
+    id: "m7",
+    name: "F1-幹之A",
+    variety: "幹之",
+    gender: "female",
+    acquiredDate: "2024-07-01",
+    birthDate: "2024-06-15",
+    parentIds: { father: "m1", mother: "m2" },
+    photos: [],
+    traits: [
+      { name: "体長", value: 2.6, unit: "cm", recordedAt: "2024-08-01" },
+      { name: "体外光スコア", value: 8, recordedAt: "2024-08-01" },
+    ],
+    notes: "幹之形質が強く出たF1。父の体外光を強く継承。",
+    isAlive: true,
+    generation: 2,
+  },
+  {
+    id: "m13",
+    name: "F1-紅サファ1",
+    variety: "三色",
+    gender: "unknown",
+    acquiredDate: "2024-09-01",
+    birthDate: "2024-08-20",
+    parentIds: { father: "m4", mother: "m5" },
+    photos: [],
+    traits: [
+      { name: "体長", value: 1.8, unit: "cm", recordedAt: "2024-09-15" },
+    ],
+    notes: "サファイア×紅帝F1。三色発現を期待中。成長観察中。",
+    isAlive: true,
+    generation: 2,
+  },
+  {
+    id: "m14",
+    name: "F1-紅サファ2",
+    variety: "サファイア",
+    gender: "male",
+    acquiredDate: "2024-09-01",
+    birthDate: "2024-08-20",
+    parentIds: { father: "m4", mother: "m5" },
+    photos: [],
+    traits: [
+      { name: "体長", value: 2.0, unit: "cm", recordedAt: "2024-09-15" },
+      { name: "青色発色スコア", value: 5, recordedAt: "2024-09-15" },
+    ],
+    notes: "青色形質が優勢に出た個体。",
+    isAlive: true,
+    generation: 2,
+  },
+
+  // ── F2世代（第二交配）───────────────
+  {
+    id: "m8",
+    name: "F2-三色1",
+    variety: "三色",
+    gender: "female",
+    acquiredDate: "2024-10-15",
+    birthDate: "2024-10-01",
+    parentIds: { father: "m6", mother: "m3" },
+    photos: [],
+    traits: [
+      { name: "体長", value: 1.5, unit: "cm", recordedAt: "2024-10-20" },
+    ],
+    notes: "F2世代・三色発現を確認。成長に期待。",
+    isAlive: true,
+    generation: 3,
+  },
+  {
+    id: "m9",
+    name: "F2-夜桜A",
+    variety: "夜桜",
+    gender: "male",
+    acquiredDate: "2024-10-15",
+    birthDate: "2024-10-01",
+    parentIds: { father: "m6", mother: "m3" },
+    photos: [],
+    traits: [
+      { name: "体長", value: 1.6, unit: "cm", recordedAt: "2024-10-20" },
+    ],
+    notes: "F2世代・夜桜形質継続。ピンク発色が早期に出た。",
+    isAlive: true,
+    generation: 3,
+  },
+  {
+    id: "m15",
+    name: "F2-幹之極",
+    variety: "幹之",
+    gender: "male",
+    acquiredDate: "2024-10-15",
+    birthDate: "2024-10-01",
+    parentIds: { father: "m6", mother: "m7" },
+    photos: [],
+    traits: [
+      { name: "体長", value: 1.7, unit: "cm", recordedAt: "2024-10-20" },
+      { name: "体外光スコア", value: 7, recordedAt: "2024-10-20" },
+    ],
+    notes: "F2世代・体外光がすでに強く出ている注目個体。",
+    isAlive: true,
+    generation: 3,
+  },
 ];
 
+// ──────────────────────────────────────
+// サンプル繁殖記録
+// ──────────────────────────────────────
+export const mockBreedingRecords: BreedingRecord[] = [
+  {
+    id: "br1",
+    fatherId: "m1",
+    motherId: "m2",
+    breedingDate: "2024-05-20",
+    expectedHatchDate: "2024-06-10",
+    actualHatchDate: "2024-06-15",
+    eggCount: 45,
+    hatchCount: 38,
+    offspringIds: ["m3", "m6", "m7"],
+    notes: "幹之×楊貴妃。高孵化率。夜桜・幹之形質ともに出現。優良クロス。",
+    success: true,
+  },
+  {
+    id: "br2",
+    fatherId: "m4",
+    motherId: "m5",
+    breedingDate: "2024-07-10",
+    expectedHatchDate: "2024-07-30",
+    actualHatchDate: "2024-08-02",
+    eggCount: 32,
+    hatchCount: 28,
+    offspringIds: ["m13", "m14"],
+    notes: "サファイア×紅帝。三色・青系・赤系の混在が見られた。",
+    success: true,
+  },
+  {
+    id: "br3",
+    fatherId: "m6",
+    motherId: "m3",
+    breedingDate: "2024-09-05",
+    expectedHatchDate: "2024-09-25",
+    actualHatchDate: "2024-10-01",
+    eggCount: 28,
+    hatchCount: 22,
+    offspringIds: ["m8", "m9", "m15"],
+    notes: "F1同士のF2交配。夜桜・三色・幹之の分離比を記録中。",
+    success: true,
+  },
+  {
+    id: "br4",
+    fatherId: "m10",
+    motherId: "m11",
+    breedingDate: "2024-08-01",
+    expectedHatchDate: "2024-08-21",
+    eggCount: 15,
+    hatchCount: 0,
+    offspringIds: [],
+    notes: "煌×オロチ。卵は採取できたが孵化せず。水温不安定が原因か。次回リトライ予定。",
+    success: false,
+  },
+  {
+    id: "br5",
+    fatherId: "m6",
+    motherId: "m7",
+    breedingDate: "2024-09-20",
+    expectedHatchDate: "2024-10-10",
+    actualHatchDate: "2024-10-13",
+    eggCount: 20,
+    hatchCount: 17,
+    offspringIds: ["m15"],
+    notes: "F1幹之同士の交配。体外光固定率向上を狙う。",
+    success: true,
+  },
+];
+
+// ──────────────────────────────────────
+// ニュース
+// ──────────────────────────────────────
 export const mockNews: NewsItem[] = [
   {
     id: "n1",
@@ -125,7 +400,9 @@ export const mockNews: NewsItem[] = [
   },
 ];
 
-// 実際の商品写真に近いUnsplash画像
+// ──────────────────────────────────────
+// 商品
+// ──────────────────────────────────────
 const PRODUCT_PHOTOS = {
   food:   "https://images.unsplash.com/photo-1601979031925-424e53b6caaa?w=300&q=80&auto=format&fit=crop",
   tank:   "https://images.unsplash.com/photo-1527525443983-6e60c75fff46?w=300&q=80&auto=format&fit=crop",
@@ -142,8 +419,7 @@ export const mockProducts: Product[] = [
     category: "餌",
     price: 680,
     rating: 4.5,
-    description:
-      "産卵期のメダカに最適な栄養バランス。ビタミンEとカルシウムを強化配合。",
+    description: "産卵期のメダカに最適な栄養バランス。ビタミンEとカルシウムを強化配合。",
     imageUrl: PRODUCT_PHOTOS.food,
     tags: ["産卵促進", "ビタミン強化", "浮上性"],
   },
@@ -154,8 +430,7 @@ export const mockProducts: Product[] = [
     category: "水槽",
     price: 3200,
     rating: 4.3,
-    description:
-      "30cmキューブ水槽。品種管理やペア飼育に最適なサイズ感。付属品が充実。",
+    description: "30cmキューブ水槽。品種管理やペア飼育に最適なサイズ感。付属品が充実。",
     imageUrl: PRODUCT_PHOTOS.tank,
     tags: ["30cm", "単独管理", "観察しやすい"],
   },
@@ -166,8 +441,7 @@ export const mockProducts: Product[] = [
     category: "産卵グッズ",
     price: 450,
     rating: 4.7,
-    description:
-      "累計販売100万個超えのロングセラー産卵床。卵が絡みつきやすい独自の繊維構造。",
+    description: "累計販売100万個超えのロングセラー産卵床。卵が絡みつきやすい独自の繊維構造。",
     imageUrl: PRODUCT_PHOTOS.spawn,
     tags: ["産卵床", "回収しやすい", "洗って再利用"],
   },
@@ -178,8 +452,7 @@ export const mockProducts: Product[] = [
     category: "薬品",
     price: 900,
     rating: 4.2,
-    description:
-      "細菌性疾患・水カビ病に有効。稚魚にも使用可能な低刺激タイプ。",
+    description: "細菌性疾患・水カビ病に有効。稚魚にも使用可能な低刺激タイプ。",
     imageUrl: PRODUCT_PHOTOS.med,
     tags: ["病気予防", "稚魚OK", "水カビ"],
   },
@@ -190,8 +463,7 @@ export const mockProducts: Product[] = [
     category: "フィルター",
     price: 980,
     rating: 4.6,
-    description:
-      "稚魚を吸い込まないスポンジフィルター。生物濾過に優れ、メダカ飼育の定番アイテム。",
+    description: "稚魚を吸い込まないスポンジフィルター。生物濾過に優れ、メダカ飼育の定番アイテム。",
     imageUrl: PRODUCT_PHOTOS.filter,
     tags: ["稚魚安全", "生物濾過", "静音"],
   },
@@ -200,7 +472,6 @@ export const mockProducts: Product[] = [
 // ──────────────────────────────────────
 // ブリーダーコラム
 // ──────────────────────────────────────
-
 const mockBreeders: Breeder[] = [
   {
     id: "b1",

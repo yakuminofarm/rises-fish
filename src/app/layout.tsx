@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "メダカの里 - 品種改良サポートアプリ",
+  title: "めだか手帳 - 品種改良サポートアプリ",
   description: "メダカの品種改良・血統管理・飼育記録をサポートするアプリ",
 };
 

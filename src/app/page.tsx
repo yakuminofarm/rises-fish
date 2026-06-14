@@ -9,7 +9,7 @@ import { NewsTab } from "@/components/tabs/NewsTab";
 import { ShopTab } from "@/components/tabs/ShopTab";
 
 const TAB_TITLES: Record<TabId, string> = {
-  home: "メダカの里",
+  home: "めだか手帳",
   fish: "魚管理",
   lineage: "血統・チャート",
   news: "最新情報",

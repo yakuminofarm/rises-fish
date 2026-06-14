@@ -128,7 +128,7 @@ export function HomeTab() {
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-4 h-4 text-yellow-300" />
             <span className="text-yellow-200 text-xs font-semibold tracking-wide">
-              メダカ品種改良サポート
+              めだか手帳
             </span>
           </div>
           <h2 className="text-2xl font-black text-white leading-tight drop-shadow-lg">

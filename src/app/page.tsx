@@ -19,16 +19,21 @@ const TAB_TITLES: Record<TabId, string> = {
 export default function Page() {
   const [activeTab, setActiveTab] = useState<TabId>("home");
 
-  return (
-    <div className="min-h-screen bg-gray-50 max-w-md mx-auto">
-      <header className="sticky top-0 z-20 bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-2">
-        <div className="w-7 h-7 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
-          <span className="text-white text-xs font-bold">🐟</span>
-        </div>
-        <h1 className="text-base font-bold text-gray-900">{TAB_TITLES[activeTab]}</h1>
-      </header>
+  const isHome = activeTab === "home";
 
-      <main className="px-4 pt-4 pb-24">
+  return (
+    <div className="min-h-screen bg-[#f0f9ff] max-w-md mx-auto">
+      {/* ヘッダー: ホームは非表示（ヒーローに統合）、他タブは表示 */}
+      {!isHome && (
+        <header className="sticky top-0 z-20 glass border-b border-white/60 px-4 py-3 flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center shadow-sm shadow-cyan-200">
+            <span className="text-base">🐟</span>
+          </div>
+          <h1 className="text-base font-bold text-gray-900">{TAB_TITLES[activeTab]}</h1>
+        </header>
+      )}
+
+      <main className={`${isHome ? "" : "px-4 pt-4"} pb-24`}>
         {activeTab === "home" && <HomeTab />}
         {activeTab === "fish" && <FishTab />}
         {activeTab === "lineage" && <LineageTab />}

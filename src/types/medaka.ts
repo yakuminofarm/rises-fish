@@ -73,6 +73,33 @@ export interface NewsItem {
   source: string;
 }
 
+export interface Breeder {
+  id: string;
+  name: string;
+  handle: string;
+  specialty: string;       // 得意品種
+  location: string;        // 活動地域
+  bio: string;
+  avatarColor: string;     // アバター背景色
+  avatarEmoji: string;     // アバター絵文字
+  followersK?: number;     // フォロワー数（千単位）
+  awards?: string[];
+}
+
+export interface ColumnArticle {
+  id: string;
+  title: string;
+  lead: string;            // リード文
+  body: string[];          // 段落配列
+  imageUrl?: string;
+  category: "品種改良" | "繁殖技術" | "水質管理" | "飼育環境" | "品評会";
+  publishedAt: string;
+  readMinutes: number;
+  breeder: Breeder;
+  featuredVariety?: string;
+  tags: string[];
+}
+
 export interface Product {
   id: string;
   name: string;

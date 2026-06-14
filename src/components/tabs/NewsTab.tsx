@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { mockNews } from "@/lib/mockData";
+import { mockNews, mockColumns } from "@/lib/mockData";
 import { NewsItem } from "@/types/medaka";
+import { ColumnSection } from "@/components/tabs/ColumnSection";
 import { formatDateShort } from "@/lib/utils";
 import { Zap, ChevronRight } from "lucide-react";
 
@@ -129,6 +130,11 @@ export function NewsTab() {
           <NewsCard key={item.id} item={item} />
         ))}
       </div>
+
+      {/* ブリーダーコラム（ニュース一覧の下に） */}
+      {activeCategory === "すべて" && (
+        <ColumnSection articles={mockColumns} />
+      )}
 
       <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-3.5 border border-cyan-100 text-center">
         <p className="text-xs text-cyan-600 font-medium">

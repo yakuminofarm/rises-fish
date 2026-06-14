@@ -12,15 +12,26 @@ function StatCard({
   sub,
   gradient,
   icon: Icon,
+  photoUrl,
 }: {
   label: string;
   value: number | string;
   sub?: string;
   gradient: string;
   icon: React.ElementType;
+  photoUrl?: string;
 }) {
   return (
-    <div className={`relative overflow-hidden rounded-3xl p-4 text-white ripple-container ${gradient}`}>
+    <div className={`relative overflow-hidden rounded-3xl p-4 text-white ripple-container ${!photoUrl ? gradient : ""}`}>
+      {/* 実写背景（オプション） */}
+      {photoUrl && (
+        <>
+          <img src={photoUrl} alt={label}
+            className="absolute inset-0 w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-br from-rose-900/70 via-pink-800/55 to-rose-900/65" />
+        </>
+      )}
+      {/* 装飾円 */}
       <div className="absolute -right-4 -top-4 w-20 h-20 rounded-full bg-white/10" />
       <div className="absolute -right-2 -bottom-6 w-16 h-16 rounded-full bg-white/10" />
       <div className="relative z-10">
@@ -30,7 +41,7 @@ function StatCard({
           </div>
           <span className="text-xs font-medium opacity-90">{label}</span>
         </div>
-        <p className="text-4xl font-black tracking-tight">{value}</p>
+        <p className="text-4xl font-black tracking-tight drop-shadow">{value}</p>
         {sub && <p className="text-xs opacity-70 mt-1">{sub}</p>}
       </div>
     </div>
@@ -141,7 +152,8 @@ export function HomeTab() {
           <StatCard label="品種数" value={varieties} sub="登録品種"
             gradient="bg-gradient-to-br from-violet-500 to-purple-700" icon={TrendingUp} />
           <StatCard label="繁殖記録" value={breedingRecords.length} sub="交配ペア"
-            gradient="bg-gradient-to-br from-rose-400 to-pink-600" icon={Heart} />
+            gradient="bg-gradient-to-br from-rose-400 to-pink-600" icon={Heart}
+            photoUrl="/medaka/egg-bearing.jpg" />
           <StatCard
             label="血統個体"
             value={medakas.filter((m) => m.parentIds?.father || m.parentIds?.mother).length}

@@ -287,7 +287,7 @@ export const mockColumns: ColumnArticle[] = [
       "与える量は「30分で食べきれる量」が目安。食べ残しが底に溜まると水質悪化が起き、稚魚が一気に落ちます。スポイトで底のゴミを毎日取り除くことも欠かせません。",
       "生後2週間を乗り越えれば、あとは一気に強くなります。最初の壁を超えるための丁寧な管理が、その後の大きな差を生みます。",
     ],
-    imageUrl: MEDAKA_PHOTOS.kotei,
+    imageUrl: "/medaka/egg-bearing.jpg",
     category: "繁殖技術",
     publishedAt: "2024-06-03",
     readMinutes: 6,

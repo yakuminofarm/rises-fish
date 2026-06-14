@@ -12,7 +12,7 @@ interface BottomNavProps {
 const tabs = [
   { id: "home" as TabId, label: "ホーム", Icon: Home },
   { id: "fish" as TabId, label: "魚管理", Icon: Fish },
-  { id: "lineage" as TabId, label: "血統", Icon: GitBranch },
+  { id: "lineage" as TabId, label: "育種", Icon: GitBranch },
   { id: "news" as TabId, label: "最新情報", Icon: Newspaper },
   { id: "shop" as TabId, label: "グッズ", Icon: ShoppingBag },
 ];

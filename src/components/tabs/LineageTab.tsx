@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { useMedakaStore, LineageNode } from "@/store/medakaStore";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, GitBranch, FlaskConical } from "lucide-react";
 import { getGenderColor } from "@/lib/utils";
 import { getVarietyColor } from "@/components/ui/MedakaIllustration";
 import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
 import { MedakaRadarChart } from "@/components/charts/TraitChart";
+import { BreedingDesignTab } from "@/components/tabs/BreedingDesignTab";
+
+type SubTab = "lineage" | "design";
 
 function LineageNodeCard({ node, depth = 0 }: { node: LineageNode; depth?: number }) {
   const [expanded, setExpanded] = useState(depth < 1);
@@ -57,7 +60,7 @@ function LineageNodeCard({ node, depth = 0 }: { node: LineageNode; depth?: numbe
   );
 }
 
-export function LineageTab() {
+function LineageView() {
   const { medakas, getLineage } = useMedakaStore();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -71,7 +74,6 @@ export function LineageTab() {
 
   return (
     <div className="space-y-4">
-      {/* 個体選択 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">個体を選択</label>
         <select
@@ -88,7 +90,6 @@ export function LineageTab() {
         </select>
       </div>
 
-      {/* 血統ツリー */}
       {lineage && (
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">血統ツリー</h3>
@@ -96,7 +97,6 @@ export function LineageTab() {
         </div>
       )}
 
-      {/* レーダーチャート */}
       {selectedMedaka && hasTraits && (
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-700 mb-1">{selectedMedaka.name} 特性レーダー</h3>
@@ -104,7 +104,6 @@ export function LineageTab() {
         </div>
       )}
 
-      {/* 血統あり一覧 */}
       {!selectedId && (
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">
@@ -140,6 +139,42 @@ export function LineageTab() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+export function LineageTab() {
+  const [subTab, setSubTab] = useState<SubTab>("lineage");
+
+  return (
+    <div className="space-y-4">
+      {/* サブナビ */}
+      <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
+        <button
+          onClick={() => setSubTab("lineage")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            subTab === "lineage"
+              ? "bg-white text-cyan-600 shadow-sm"
+              : "text-gray-500"
+          }`}
+        >
+          <GitBranch className="w-3.5 h-3.5" />
+          血統図
+        </button>
+        <button
+          onClick={() => setSubTab("design")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            subTab === "design"
+              ? "bg-white text-violet-600 shadow-sm"
+              : "text-gray-500"
+          }`}
+        >
+          <FlaskConical className="w-3.5 h-3.5" />
+          品種設計
+        </button>
+      </div>
+
+      {subTab === "lineage" ? <LineageView /> : <BreedingDesignTab />}
     </div>
   );
 }

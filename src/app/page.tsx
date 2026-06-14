@@ -11,7 +11,7 @@ import { ShopTab } from "@/components/tabs/ShopTab";
 const TAB_TITLES: Record<TabId, string> = {
   home: "めだか手帳",
   fish: "魚管理",
-  lineage: "血統・チャート",
+  lineage: "育種管理",
   news: "最新情報",
   shop: "おすすめグッズ",
 };

@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useMedakaStore, LineageNode } from "@/store/medakaStore";
-import { Fish, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { getGenderColor } from "@/lib/utils";
+import { getVarietyColor } from "@/components/ui/MedakaIllustration";
+import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
 import { MedakaRadarChart } from "@/components/charts/TraitChart";
 
 function LineageNodeCard({ node, depth = 0 }: { node: LineageNode; depth?: number }) {
@@ -16,8 +18,11 @@ function LineageNodeCard({ node, depth = 0 }: { node: LineageNode; depth?: numbe
         onClick={() => hasParents && setExpanded(!expanded)}
         className={`flex items-center gap-2 py-2 ${hasParents ? "cursor-pointer" : ""}`}
       >
-        <div className="w-8 h-8 bg-cyan-50 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Fish className="w-4 h-4 text-cyan-400" />
+        <div
+          className="w-14 h-8 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center"
+          style={{ background: `${getVarietyColor(node.medaka.variety)}14` }}
+        >
+          <VarietyMedakaSVG variety={node.medaka.variety} size={56} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-800 truncate">{node.medaka.name}</p>
@@ -118,8 +123,11 @@ export function LineageTab() {
                   onClick={() => setSelectedId(m.id)}
                   className="w-full flex items-center gap-3 text-left hover:bg-gray-50 rounded-xl p-2 transition-colors"
                 >
-                  <div className="w-8 h-8 bg-violet-50 rounded-lg flex items-center justify-center">
-                    <Fish className="w-4 h-4 text-violet-400" />
+                  <div
+                    className="w-14 h-8 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center"
+                    style={{ background: `${getVarietyColor(m.variety)}14` }}
+                  >
+                    <VarietyMedakaSVG variety={m.variety} size={56} />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium">{m.name}</p>

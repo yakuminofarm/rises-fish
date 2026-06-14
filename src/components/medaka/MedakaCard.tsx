@@ -2,7 +2,8 @@
 
 import { Medaka } from "@/types/medaka";
 import { getGenderColor } from "@/lib/utils";
-import { MedakaFishSVG, getVarietyColor, getVarietyEmoji } from "@/components/ui/MedakaIllustration";
+import { getVarietyColor, getVarietyEmoji } from "@/components/ui/MedakaIllustration";
+import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
 import { ChevronRight, Dna } from "lucide-react";
 
 interface MedakaCardProps {
@@ -29,23 +30,23 @@ export function MedakaCard({ medaka, onClick }: MedakaCardProps) {
         {/* 左カラーバー */}
         <div
           className="w-1.5 flex-shrink-0 rounded-l-3xl"
-          style={{ background: `linear-gradient(to bottom, ${color}, ${color}88)` }}
+          style={{ background: `linear-gradient(to bottom, ${color}, ${color}66)` }}
         />
 
-        {/* 写真 or イラスト */}
+        {/* 写真 or 品種別SVGイラスト */}
         <div
-          className="w-[72px] flex-shrink-0 flex items-center justify-center relative overflow-hidden"
-          style={{ background: `${color}12` }}
+          className="w-24 flex-shrink-0 relative overflow-hidden flex items-center justify-center"
+          style={{ background: `${color}0e`, minHeight: 72 }}
         >
           {hasPhoto ? (
             <img
               src={medaka.photos[medaka.photos.length - 1].url}
               alt={medaka.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover absolute inset-0"
             />
           ) : (
-            <div className="py-3 animate-float-fish">
-              <MedakaFishSVG color={color} size={44} />
+            <div className="py-2 animate-float-fish">
+              <VarietyMedakaSVG variety={medaka.variety} size={88} />
             </div>
           )}
         </div>
@@ -55,18 +56,14 @@ export function MedakaCard({ medaka, onClick }: MedakaCardProps) {
           <div className="flex items-start justify-between gap-1">
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-base">{emoji}</span>
+                <span className="text-base leading-none">{emoji}</span>
                 <h3 className="font-bold text-gray-900 text-sm truncate">{medaka.name}</h3>
               </div>
-              <p className="text-xs font-medium mt-0.5" style={{ color }}>{medaka.variety}</p>
+              <p className="text-xs font-semibold mt-0.5" style={{ color }}>{medaka.variety}</p>
             </div>
-            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-              <span
-                className={`text-base font-black leading-none ${getGenderColor(medaka.gender)}`}
-              >
-                {medaka.gender === "male" ? "♂" : medaka.gender === "female" ? "♀" : "？"}
-              </span>
-            </div>
+            <span className={`text-lg font-black leading-none flex-shrink-0 mt-0.5 ${getGenderColor(medaka.gender)}`}>
+              {medaka.gender === "male" ? "♂" : medaka.gender === "female" ? "♀" : "？"}
+            </span>
           </div>
 
           {/* バッジ行 */}
@@ -74,7 +71,7 @@ export function MedakaCard({ medaka, onClick }: MedakaCardProps) {
             {medaka.generation && (
               <span
                 className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                style={{ background: `${color}22`, color }}
+                style={{ background: `${color}20`, color }}
               >
                 F{medaka.generation}世代
               </span>
@@ -97,8 +94,7 @@ export function MedakaCard({ medaka, onClick }: MedakaCardProps) {
           )}
         </div>
 
-        {/* 右矢印 */}
-        <div className="flex items-center pr-3">
+        <div className="flex items-center pr-3 flex-shrink-0">
           <ChevronRight className="w-4 h-4 text-gray-200" />
         </div>
       </div>

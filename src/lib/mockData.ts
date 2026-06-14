@@ -1,25 +1,30 @@
 import { Medaka, NewsItem, Product, ColumnArticle, Breeder } from "@/types/medaka";
 
-// Unsplash の実写メダカ・魚・水槽写真
-const FISH_PHOTOS = {
-  // 橙・金魚系 (楊貴妃・紅帝)
-  orange: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400&q=80&auto=format&fit=crop",
-  // 青・銀系 (幹之・青メダカ)
-  blue:   "https://images.unsplash.com/photo-1596854373635-91d3b1e29e7d?w=400&q=80&auto=format&fit=crop",
-  // 水槽全景
-  tank:   "https://images.unsplash.com/photo-1520637836862-4d197d17c93a?w=800&q=80&auto=format&fit=crop",
-  // カラフル熱帯魚
-  colorful:"https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&q=80&auto=format&fit=crop",
-  // 金鯉
-  koi:    "https://images.unsplash.com/photo-1557456170-0cf4f4d0d362?w=400&q=80&auto=format&fit=crop",
-  // 赤系
-  red:    "https://images.unsplash.com/photo-1583836631474-f2cf7b05e5de?w=400&q=80&auto=format&fit=crop",
-  // 水草・産卵床
+// ──────────────────────────────────────
+// 実写メダカ写真 (提供素材 + Unsplash)
+// ──────────────────────────────────────
+const MEDAKA_PHOTOS = {
+  // 提供素材
+  heroGroup: "/medaka/hero-group.png",   // 複数品種の群泳
+  miyuki:    "/medaka/miyuki.png",        // 幹之クローズアップ
+  sapphire:  "/medaka/sapphire.png",      // サファイア系クローズアップ
+  kotei:     "/medaka/kotei.png",         // 紅帝・楊貴妃系クローズアップ
+  // Unsplash 補完素材
   plant:  "https://images.unsplash.com/photo-1467579424161-4dce30b41e6f?w=400&q=80&auto=format&fit=crop",
-  // 群れで泳ぐ
-  school: "https://images.unsplash.com/photo-1619529803760-f02a4aad5024?w=400&q=80&auto=format&fit=crop",
-  // 品評会・イベント的な清涼感ある写真
   event:  "https://images.unsplash.com/photo-1559825481-12a05cc00344?w=400&q=80&auto=format&fit=crop",
+};
+
+// 旧名で参照しているコードのために別名エクスポート
+const FISH_PHOTOS = {
+  orange:   MEDAKA_PHOTOS.kotei,
+  blue:     MEDAKA_PHOTOS.miyuki,
+  tank:     MEDAKA_PHOTOS.heroGroup,
+  colorful: MEDAKA_PHOTOS.heroGroup,
+  koi:      MEDAKA_PHOTOS.sapphire,
+  red:      MEDAKA_PHOTOS.kotei,
+  plant:    MEDAKA_PHOTOS.plant,
+  school:   MEDAKA_PHOTOS.heroGroup,
+  event:    MEDAKA_PHOTOS.event,
 };
 
 export const mockMedakas: Medaka[] = [
@@ -31,7 +36,7 @@ export const mockMedakas: Medaka[] = [
     acquiredDate: "2024-04-01",
     birthDate: "2024-03-15",
     photos: [
-      { id: "p-m1-1", url: FISH_PHOTOS.blue, takenAt: "2024-06-01", label: "全体像" },
+      { id: "p-m1-1", url: MEDAKA_PHOTOS.miyuki, takenAt: "2024-06-01", label: "全体像" },
     ],
     traits: [
       { name: "体長", value: 3.2, unit: "cm", recordedAt: "2024-06-01" },
@@ -49,7 +54,7 @@ export const mockMedakas: Medaka[] = [
     acquiredDate: "2024-04-01",
     birthDate: "2024-03-10",
     photos: [
-      { id: "p-m2-1", url: FISH_PHOTOS.orange, takenAt: "2024-06-01", label: "全体像" },
+      { id: "p-m2-1", url: MEDAKA_PHOTOS.kotei, takenAt: "2024-06-01", label: "全体像" },
     ],
     traits: [
       { name: "体長", value: 3.5, unit: "cm", recordedAt: "2024-06-01" },
@@ -68,7 +73,7 @@ export const mockMedakas: Medaka[] = [
     birthDate: "2024-06-20",
     parentIds: { father: "m1", mother: "m2" },
     photos: [
-      { id: "p-m3-1", url: FISH_PHOTOS.colorful, takenAt: "2024-07-05", label: "全体像" },
+      { id: "p-m3-1", url: MEDAKA_PHOTOS.heroGroup, takenAt: "2024-07-05", label: "全体像" },
     ],
     traits: [],
     notes: "F1世代・成長中",
@@ -83,7 +88,7 @@ export const mockNews: NewsItem[] = [
     title: "2024年注目の新品種「煌メダカ」の飼育ポイント",
     summary:
       "体外光と体内光を併せ持つ幻想的な品種「煌」。繁殖難易度が高いが、その美しさから人気急上昇中。水温管理と遮光がカギ。",
-    imageUrl: FISH_PHOTOS.koi,
+    imageUrl: MEDAKA_PHOTOS.sapphire,
     category: "品種",
     publishedAt: "2024-06-10",
     source: "メダカ品種図鑑",
@@ -93,7 +98,7 @@ export const mockNews: NewsItem[] = [
     title: "夏の水温対策｜メダカを猛暑から守る5つの方法",
     summary:
       "35℃を超える水温はメダカに致命的。すだれや遮光ネット、水換えのタイミングなど実践的な対策をまとめました。",
-    imageUrl: FISH_PHOTOS.tank,
+    imageUrl: MEDAKA_PHOTOS.heroGroup,
     category: "飼育",
     publishedAt: "2024-06-08",
     source: "めだか本舗",
@@ -246,7 +251,7 @@ export const mockColumns: ColumnArticle[] = [
       "選別の際は必ず上見・横見の両方で確認してください。上見で光が途切れていなくても、横見で体側が暗い個体は固定率が落ちます。この両面を満たす個体こそが、次世代の礎になります。",
       "また、選別の時期は孵化後60〜90日が最適です。光の発現には水温と日照時間が大きく影響するため、この時期に十分な光量を与えながら選別すると精度が上がります。",
     ],
-    imageUrl: FISH_PHOTOS.blue,
+    imageUrl: MEDAKA_PHOTOS.miyuki,
     category: "品種改良",
     publishedAt: "2024-06-12",
     readMinutes: 5,
@@ -264,7 +269,7 @@ export const mockColumns: ColumnArticle[] = [
       "その後は遮光ネットで65〜70%の遮光を維持します。暗すぎると食欲が落ちるので、明るいが直射ではない状態を保つことが理想です。",
       "水温は26〜28℃をキープ。低すぎると発色が遅れ、高すぎると色が飛びます。この温度帯で1ヶ月飼育すれば、発色の違いを実感できるはずです。",
     ],
-    imageUrl: FISH_PHOTOS.colorful,
+    imageUrl: MEDAKA_PHOTOS.heroGroup,
     category: "飼育環境",
     publishedAt: "2024-06-08",
     readMinutes: 4,
@@ -282,7 +287,7 @@ export const mockColumns: ColumnArticle[] = [
       "与える量は「30分で食べきれる量」が目安。食べ残しが底に溜まると水質悪化が起き、稚魚が一気に落ちます。スポイトで底のゴミを毎日取り除くことも欠かせません。",
       "生後2週間を乗り越えれば、あとは一気に強くなります。最初の壁を超えるための丁寧な管理が、その後の大きな差を生みます。",
     ],
-    imageUrl: FISH_PHOTOS.orange,
+    imageUrl: MEDAKA_PHOTOS.kotei,
     category: "繁殖技術",
     publishedAt: "2024-06-03",
     readMinutes: 6,

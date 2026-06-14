@@ -3,8 +3,8 @@
 import { useMedakaStore } from "@/store/medakaStore";
 import { VarietyDistributionChart, GenerationChart } from "@/components/charts/TraitChart";
 import { Fish, Heart, GitBranch, TrendingUp, Sparkles, ChevronRight } from "lucide-react";
-import { WaterWaveSVG, getVarietyColor, getVarietyEmoji } from "@/components/ui/MedakaIllustration";
-import { AquaSceneSVG, VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
+import { WaterWaveSVG, getVarietyColor } from "@/components/ui/MedakaIllustration";
+import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
 
 function StatCard({
   label,
@@ -49,7 +49,6 @@ function RecentMedakaRow({
   photoUrl?: string;
 }) {
   const color = getVarietyColor(variety);
-  const emoji = getVarietyEmoji(variety);
   return (
     <div className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
       <div className="w-12 h-8 rounded-xl overflow-hidden flex-shrink-0 bg-gray-50 flex items-center justify-center">
@@ -69,14 +68,16 @@ function RecentMedakaRow({
   );
 }
 
-// 品種ショーケースデータ
+const HERO_PHOTO = "/medaka/hero-group.png";
+
+// 品種ショーケース（実写写真 + SVGフォールバック）
 const SHOWCASE_VARIETIES = [
-  { variety: "幹之",   desc: "青白い体外光" },
-  { variety: "楊貴妃", desc: "深い橙色発色" },
-  { variety: "三色",   desc: "三色まだら模様" },
-  { variety: "夜桜",   desc: "幻想的なピンク" },
-  { variety: "煌",     desc: "金色の輝き" },
-  { variety: "紅帝",   desc: "鮮血の深紅" },
+  { variety: "幹之",     photo: "/medaka/miyuki.png",   desc: "青白い体外光" },
+  { variety: "サファイア",photo: "/medaka/sapphire.png", desc: "深いコバルトブルー" },
+  { variety: "紅帝",     photo: "/medaka/kotei.png",    desc: "鮮血のような深紅" },
+  { variety: "楊貴妃",   photo: "/medaka/kotei.png",    desc: "深い橙色発色" },
+  { variety: "夜桜",     photo: null,                   desc: "幻想的なピンク" },
+  { variety: "煌",       photo: null,                   desc: "金色の輝き" },
 ];
 
 export function HomeTab() {
@@ -90,12 +91,13 @@ export function HomeTab() {
 
   return (
     <div className="space-y-4 -mt-4 -mx-4">
-      {/* ヒーローバナー (水景SVG) */}
-      <div className="relative overflow-hidden" style={{ minHeight: 200 }}>
-        {/* 水景イラスト */}
-        <AquaSceneSVG className="absolute inset-0 w-full h-full object-cover" />
-        {/* グラデーションオーバーレイ */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/70 via-blue-800/50 to-indigo-900/60" />
+      {/* ヒーローバナー (実写群泳写真) */}
+      <div className="relative overflow-hidden" style={{ minHeight: 220 }}>
+        {/* 実写背景 */}
+        <img src={HERO_PHOTO} alt="メダカ群泳"
+          className="absolute inset-0 w-full h-full object-cover object-center" />
+        {/* オーバーレイ */}
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/65 via-blue-900/45 to-indigo-900/55" />
 
         {/* 泡エフェクト */}
         {[...Array(6)].map((_, i) => (
@@ -186,17 +188,30 @@ export function HomeTab() {
                 <h3 className="text-sm font-bold text-gray-800">人気品種ギャラリー</h3>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                {SHOWCASE_VARIETIES.map(({ variety, desc }) => {
+                {SHOWCASE_VARIETIES.map(({ variety, photo, desc }) => {
                   const color = getVarietyColor(variety);
                   return (
                     <div
                       key={variety}
-                      className="rounded-2xl overflow-hidden flex flex-col items-center py-3 px-1"
-                      style={{ background: `${color}14`, border: `1px solid ${color}30` }}
+                      className="rounded-2xl overflow-hidden relative"
+                      style={{ height: 100, border: `1px solid ${color}30` }}
                     >
-                      <VarietyMedakaSVG variety={variety} size={80} className="animate-float-fish" />
-                      <p className="text-xs font-bold mt-1.5" style={{ color }}>{variety}</p>
-                      <p className="text-[9px] text-gray-400 text-center mt-0.5 leading-tight">{desc}</p>
+                      {photo ? (
+                        <>
+                          <img src={photo} alt={variety}
+                            className="absolute inset-0 w-full h-full object-cover object-center" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center"
+                          style={{ background: `${color}14` }}>
+                          <VarietyMedakaSVG variety={variety} size={80} className="animate-float-fish" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 p-1.5">
+                        <p className="text-[11px] font-black text-white drop-shadow">{variety}</p>
+                        <p className="text-[9px] leading-tight" style={{ color: photo ? "#e2e8f0" : color }}>{desc}</p>
+                      </div>
                     </div>
                   );
                 })}

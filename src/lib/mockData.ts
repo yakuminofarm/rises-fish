@@ -1,5 +1,27 @@
 import { Medaka, NewsItem, Product } from "@/types/medaka";
 
+// Unsplash の実写メダカ・魚・水槽写真
+const FISH_PHOTOS = {
+  // 橙・金魚系 (楊貴妃・紅帝)
+  orange: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400&q=80&auto=format&fit=crop",
+  // 青・銀系 (幹之・青メダカ)
+  blue:   "https://images.unsplash.com/photo-1596854373635-91d3b1e29e7d?w=400&q=80&auto=format&fit=crop",
+  // 水槽全景
+  tank:   "https://images.unsplash.com/photo-1520637836862-4d197d17c93a?w=800&q=80&auto=format&fit=crop",
+  // カラフル熱帯魚
+  colorful:"https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&q=80&auto=format&fit=crop",
+  // 金鯉
+  koi:    "https://images.unsplash.com/photo-1557456170-0cf4f4d0d362?w=400&q=80&auto=format&fit=crop",
+  // 赤系
+  red:    "https://images.unsplash.com/photo-1583836631474-f2cf7b05e5de?w=400&q=80&auto=format&fit=crop",
+  // 水草・産卵床
+  plant:  "https://images.unsplash.com/photo-1467579424161-4dce30b41e6f?w=400&q=80&auto=format&fit=crop",
+  // 群れで泳ぐ
+  school: "https://images.unsplash.com/photo-1619529803760-f02a4aad5024?w=400&q=80&auto=format&fit=crop",
+  // 品評会・イベント的な清涼感ある写真
+  event:  "https://images.unsplash.com/photo-1559825481-12a05cc00344?w=400&q=80&auto=format&fit=crop",
+};
+
 export const mockMedakas: Medaka[] = [
   {
     id: "m1",
@@ -8,7 +30,9 @@ export const mockMedakas: Medaka[] = [
     gender: "male",
     acquiredDate: "2024-04-01",
     birthDate: "2024-03-15",
-    photos: [],
+    photos: [
+      { id: "p-m1-1", url: FISH_PHOTOS.blue, takenAt: "2024-06-01", label: "全体像" },
+    ],
     traits: [
       { name: "体長", value: 3.2, unit: "cm", recordedAt: "2024-06-01" },
       { name: "光沢スコア", value: 8, recordedAt: "2024-06-01" },
@@ -24,7 +48,9 @@ export const mockMedakas: Medaka[] = [
     gender: "female",
     acquiredDate: "2024-04-01",
     birthDate: "2024-03-10",
-    photos: [],
+    photos: [
+      { id: "p-m2-1", url: FISH_PHOTOS.orange, takenAt: "2024-06-01", label: "全体像" },
+    ],
     traits: [
       { name: "体長", value: 3.5, unit: "cm", recordedAt: "2024-06-01" },
       { name: "発色スコア", value: 9, recordedAt: "2024-06-01" },
@@ -41,7 +67,9 @@ export const mockMedakas: Medaka[] = [
     acquiredDate: "2024-07-01",
     birthDate: "2024-06-20",
     parentIds: { father: "m1", mother: "m2" },
-    photos: [],
+    photos: [
+      { id: "p-m3-1", url: FISH_PHOTOS.colorful, takenAt: "2024-07-05", label: "全体像" },
+    ],
     traits: [],
     notes: "F1世代・成長中",
     isAlive: true,
@@ -55,6 +83,7 @@ export const mockNews: NewsItem[] = [
     title: "2024年注目の新品種「煌メダカ」の飼育ポイント",
     summary:
       "体外光と体内光を併せ持つ幻想的な品種「煌」。繁殖難易度が高いが、その美しさから人気急上昇中。水温管理と遮光がカギ。",
+    imageUrl: FISH_PHOTOS.koi,
     category: "品種",
     publishedAt: "2024-06-10",
     source: "メダカ品種図鑑",
@@ -64,6 +93,7 @@ export const mockNews: NewsItem[] = [
     title: "夏の水温対策｜メダカを猛暑から守る5つの方法",
     summary:
       "35℃を超える水温はメダカに致命的。すだれや遮光ネット、水換えのタイミングなど実践的な対策をまとめました。",
+    imageUrl: FISH_PHOTOS.tank,
     category: "飼育",
     publishedAt: "2024-06-08",
     source: "めだか本舗",
@@ -73,6 +103,7 @@ export const mockNews: NewsItem[] = [
     title: "秋の品評会2024｜全国メダカ品評会エントリー開始",
     summary:
       "今年も全国規模のメダカ品評会が開催。幹之部門・三色部門・新品種部門など計8カテゴリーで競います。",
+    imageUrl: FISH_PHOTOS.event,
     category: "イベント",
     publishedAt: "2024-06-05",
     source: "日本メダカ協会",
@@ -82,11 +113,21 @@ export const mockNews: NewsItem[] = [
     title: "産卵床の新素材「モスカーテン」が話題に",
     summary:
       "ジャワモスを模した人工産卵床が飼育者の間でヒット。卵の回収率が従来比1.5倍という報告も。",
+    imageUrl: FISH_PHOTOS.plant,
     category: "商品",
     publishedAt: "2024-06-01",
     source: "アクアリウムジャーナル",
   },
 ];
+
+// 実際の商品写真に近いUnsplash画像
+const PRODUCT_PHOTOS = {
+  food:   "https://images.unsplash.com/photo-1601979031925-424e53b6caaa?w=300&q=80&auto=format&fit=crop",
+  tank:   "https://images.unsplash.com/photo-1527525443983-6e60c75fff46?w=300&q=80&auto=format&fit=crop",
+  filter: "https://images.unsplash.com/photo-1467579424161-4dce30b41e6f?w=300&q=80&auto=format&fit=crop",
+  med:    "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&q=80&auto=format&fit=crop",
+  spawn:  "https://images.unsplash.com/photo-1625224042086-ad0dd09acaf4?w=300&q=80&auto=format&fit=crop",
+};
 
 export const mockProducts: Product[] = [
   {
@@ -98,6 +139,7 @@ export const mockProducts: Product[] = [
     rating: 4.5,
     description:
       "産卵期のメダカに最適な栄養バランス。ビタミンEとカルシウムを強化配合。",
+    imageUrl: PRODUCT_PHOTOS.food,
     tags: ["産卵促進", "ビタミン強化", "浮上性"],
   },
   {
@@ -109,6 +151,7 @@ export const mockProducts: Product[] = [
     rating: 4.3,
     description:
       "30cmキューブ水槽。品種管理やペア飼育に最適なサイズ感。付属品が充実。",
+    imageUrl: PRODUCT_PHOTOS.tank,
     tags: ["30cm", "単独管理", "観察しやすい"],
   },
   {
@@ -120,6 +163,7 @@ export const mockProducts: Product[] = [
     rating: 4.7,
     description:
       "累計販売100万個超えのロングセラー産卵床。卵が絡みつきやすい独自の繊維構造。",
+    imageUrl: PRODUCT_PHOTOS.spawn,
     tags: ["産卵床", "回収しやすい", "洗って再利用"],
   },
   {
@@ -131,6 +175,7 @@ export const mockProducts: Product[] = [
     rating: 4.2,
     description:
       "細菌性疾患・水カビ病に有効。稚魚にも使用可能な低刺激タイプ。",
+    imageUrl: PRODUCT_PHOTOS.med,
     tags: ["病気予防", "稚魚OK", "水カビ"],
   },
   {
@@ -142,6 +187,18 @@ export const mockProducts: Product[] = [
     rating: 4.6,
     description:
       "稚魚を吸い込まないスポンジフィルター。生物濾過に優れ、メダカ飼育の定番アイテム。",
+    imageUrl: PRODUCT_PHOTOS.filter,
     tags: ["稚魚安全", "生物濾過", "静音"],
   },
+];
+
+// ホームヒーロー用の水槽写真
+export const HERO_PHOTO = "https://images.unsplash.com/photo-1520637836862-4d197d17c93a?w=800&q=80&auto=format&fit=crop";
+
+// 品種ショーケース用の魚写真
+export const VARIETY_SHOWCASE = [
+  { variety: "幹之",  photo: "https://images.unsplash.com/photo-1596854373635-91d3b1e29e7d?w=200&q=80&auto=format&fit=crop" },
+  { variety: "楊貴妃",photo: "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=200&q=80&auto=format&fit=crop" },
+  { variety: "三色",  photo: "https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=200&q=80&auto=format&fit=crop" },
+  { variety: "夜桜",  photo: "https://images.unsplash.com/photo-1557456170-0cf4f4d0d362?w=200&q=80&auto=format&fit=crop" },
 ];

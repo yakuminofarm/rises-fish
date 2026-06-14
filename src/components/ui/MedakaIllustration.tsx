@@ -119,6 +119,27 @@ export function getVarietyColor(variety: string): string {
   return VARIETY_COLORS[variety] ?? "#06b6d4";
 }
 
+// 品種ごとの実写イメージ (Unsplash - 魚・金魚・メダカ系)
+export const VARIETY_PHOTOS: Record<string, string> = {
+  幹之:    "https://images.unsplash.com/photo-1596854373635-91d3b1e29e7d?w=400&q=80&auto=format&fit=crop",  // 青みがかった魚
+  楊貴妃:  "https://images.unsplash.com/photo-1544552866-d3ed42536cfd?w=400&q=80&auto=format&fit=crop",  // 橙色の金魚
+  三色:    "https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&q=80&auto=format&fit=crop",  // カラフルな熱帯魚
+  黒メダカ:"https://images.unsplash.com/photo-1500634245200-e5245c7574ef?w=400&q=80&auto=format&fit=crop",  // 暗い水中
+  白メダカ:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80&auto=format&fit=crop",  // 白い魚系
+  青メダカ:"https://images.unsplash.com/photo-1520637836862-4d197d17c93a?w=400&q=80&auto=format&fit=crop",  // 青い水槽
+  みゆき:  "https://images.unsplash.com/photo-1596854373635-91d3b1e29e7d?w=400&q=80&auto=format&fit=crop",
+  オロチ:  "https://images.unsplash.com/photo-1500634245200-e5245c7574ef?w=400&q=80&auto=format&fit=crop",
+  紅帝:    "https://images.unsplash.com/photo-1583836631474-f2cf7b05e5de?w=400&q=80&auto=format&fit=crop",  // 赤い魚
+  煌:      "https://images.unsplash.com/photo-1557456170-0cf4f4d0d362?w=400&q=80&auto=format&fit=crop",  // 金色の鯉
+  サファイア:"https://images.unsplash.com/photo-1559825481-12a05cc00344?w=400&q=80&auto=format&fit=crop", // 青い魚
+  夜桜:    "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=400&q=80&auto=format&fit=crop",  // 桜ピンク系
+  その他:  "https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=400&q=80&auto=format&fit=crop",
+};
+
+export function getVarietyPhoto(variety: string): string {
+  return VARIETY_PHOTOS[variety] ?? VARIETY_PHOTOS["その他"];
+}
+
 // 品種の絵文字
 export const VARIETY_EMOJI: Record<string, string> = {
   幹之: "✨",

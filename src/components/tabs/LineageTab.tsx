@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import { useMedakaStore, LineageNode } from "@/store/medakaStore";
-import { ChevronRight, GitBranch, FlaskConical } from "lucide-react";
+import { ChevronRight, GitBranch, FlaskConical, Heart } from "lucide-react";
 import { getGenderColor } from "@/lib/utils";
 import { getVarietyColor } from "@/components/ui/MedakaIllustration";
 import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
 import { MedakaRadarChart } from "@/components/charts/TraitChart";
 import { BreedingDesignTab } from "@/components/tabs/BreedingDesignTab";
+import { BreedingRecordSection } from "@/components/tabs/BreedingRecordSection";
 
-type SubTab = "lineage" | "design";
+type SubTab = "lineage" | "design" | "breeding";
 
 function LineageNodeCard({ node, depth = 0 }: { node: LineageNode; depth?: number }) {
   const [expanded, setExpanded] = useState(depth < 1);
@@ -172,9 +173,26 @@ export function LineageTab() {
           <FlaskConical className="w-3.5 h-3.5" />
           品種設計
         </button>
+        <button
+          onClick={() => setSubTab("breeding")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            subTab === "breeding"
+              ? "bg-white text-pink-600 shadow-sm"
+              : "text-gray-500"
+          }`}
+        >
+          <Heart className="w-3.5 h-3.5" />
+          繁殖記録
+        </button>
       </div>
 
-      {subTab === "lineage" ? <LineageView /> : <BreedingDesignTab />}
+      {subTab === "lineage" ? (
+        <LineageView />
+      ) : subTab === "design" ? (
+        <BreedingDesignTab />
+      ) : (
+        <BreedingRecordSection />
+      )}
     </div>
   );
 }

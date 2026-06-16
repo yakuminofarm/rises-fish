@@ -1,154 +1,160 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Medaka } from "@/types/medaka";
 import { getGenderColor } from "@/lib/utils";
 import { getVarietyColor, getVarietyEmoji } from "@/components/ui/MedakaIllustration";
 import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
-import { ChevronRight, Dna, Trash2, Lock, Unlock } from "lucide-react";
+import { ChevronRight, Dna, Trash2 } from "lucide-react";
 import { useMedakaStore } from "@/store/medakaStore";
 import { useToast } from "@/components/ui/Toast";
 
-const SWIPE_THRESHOLD = 60;   // スワイプ判定距離(px)
-const ACTION_WIDTH    = 72;    // アクションボタン幅(px)
+// カード幅の約1/3 = 削除ボタンが中央寄りに見える
+const ACTION_WIDTH    = 96;
+const SNAP_THRESHOLD  = ACTION_WIDTH * 0.55; // この距離超えたらスナップ
+const RESISTANCE      = 0.65;                 // 指の動きに対する追従率（小さいほど重い）
 
 interface MedakaCardProps {
   medaka: Medaka;
   onClick?: () => void;
+  isSwipeOpen?: boolean;
+  onSwipeOpen?: () => void;
+  onSwipeClose?: () => void;
 }
 
-export function MedakaCard({ medaka, onClick }: MedakaCardProps) {
-  const { deleteMedaka, updateMedaka } = useMedakaStore();
+export function MedakaCard({
+  medaka,
+  onClick,
+  isSwipeOpen = false,
+  onSwipeOpen,
+  onSwipeClose,
+}: MedakaCardProps) {
+  const { deleteMedaka } = useMedakaStore();
   const { showToast } = useToast();
-  const hasPhoto   = medaka.photos.length > 0;
+
   const color      = getVarietyColor(medaka.variety);
   const emoji      = getVarietyEmoji(medaka.variety);
+  const hasPhoto   = medaka.photos.length > 0;
   const hasLineage = medaka.parentIds?.father || medaka.parentIds?.mother;
 
-  // スワイプ状態
-  const [offsetX, setOffsetX] = useState(0);
-  const startX  = useRef(0);
-  const startY  = useRef(0);
-  const dragging = useRef(false);
-  const direction = useRef<"left" | "right" | null>(null);
+  const [offsetX, setOffsetX]   = useState(0);
+  const startX    = useRef(0);
+  const startY    = useRef(0);
+  const axis      = useRef<"h" | "v" | null>(null);
+  const active    = useRef(false);
 
-  // ── タッチハンドラ ──────────────────────────
+  // 外部から閉じる（別行がスワイプされたとき）
+  useEffect(() => {
+    if (!isSwipeOpen) setOffsetX(0);
+  }, [isSwipeOpen]);
+
+  // ── タッチ開始 ──────────────────────────────
   const onTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
-    dragging.current = true;
-    direction.current = null;
+    axis.current   = null;
+    active.current = true;
   };
 
+  // ── タッチ移動 ──────────────────────────────
   const onTouchMove = (e: React.TouchEvent) => {
-    if (!dragging.current) return;
+    if (!active.current) return;
     const dx = e.touches[0].clientX - startX.current;
     const dy = e.touches[0].clientY - startY.current;
 
-    // 縦スクロール優先
-    if (!direction.current) {
-      if (Math.abs(dy) > Math.abs(dx)) { dragging.current = false; return; }
-      direction.current = dx < 0 ? "left" : "right";
+    // 縦 vs 横の軸を最初に決定
+    if (!axis.current) {
+      if (Math.abs(dy) > Math.abs(dx) + 3) { axis.current = "v"; return; }
+      if (Math.abs(dx) > 6) axis.current = "h";
+      else return;
     }
+    if (axis.current === "v") return;
 
-    e.preventDefault(); // 横スワイプ中はページスクロール抑制
-    const clamped = direction.current === "left"
-      ? Math.max(-ACTION_WIDTH, Math.min(0, dx))
-      : Math.min(ACTION_WIDTH, Math.max(0, dx));
-    setOffsetX(clamped);
+    // 横スワイプ確定 → ページスクロール抑制
+    e.preventDefault();
+
+    // 左方向のみ受け付ける
+    const raw = Math.min(0, dx);
+    // 既に開いている場合は開いた位置を基点に
+    const base = isSwipeOpen ? -ACTION_WIDTH : 0;
+    const next = Math.max(-ACTION_WIDTH, Math.min(0, base + raw * RESISTANCE));
+    setOffsetX(next);
+
+    // 初めて指が動いたら他行を閉じる
+    if (next < -4 && !isSwipeOpen) onSwipeOpen?.();
   };
 
+  // ── タッチ終了 ──────────────────────────────
   const onTouchEnd = () => {
-    dragging.current = false;
-    const abs = Math.abs(offsetX);
-    if (abs >= SWIPE_THRESHOLD) {
-      // スワイプ量が閾値超えたらアクションボタンを表示したまま保持
-      setOffsetX(offsetX < 0 ? -ACTION_WIDTH : ACTION_WIDTH);
+    active.current = false;
+    if (axis.current !== "h") return;
+
+    if (offsetX < -SNAP_THRESHOLD) {
+      // 閾値超え → スナップして開く
+      setOffsetX(-ACTION_WIDTH);
+      onSwipeOpen?.();
     } else {
+      // 戻す
       setOffsetX(0);
+      onSwipeClose?.();
     }
   };
 
-  const resetSwipe = () => setOffsetX(0);
-
-  // ── アクション ──────────────────────────────
+  // ── 削除 ────────────────────────────────────
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`${medaka.name} を削除しますか？`)) {
       deleteMedaka(medaka.id);
       showToast(`${medaka.name} を削除しました`, "error");
+    } else {
+      setOffsetX(0);
+      onSwipeClose?.();
     }
-    resetSwipe();
   };
 
-  const handleToggleLock = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const next = !medaka.isAlive;
-    updateMedaka(medaka.id, { isAlive: next });
-    showToast(next ? `${medaka.name} を生存中に変更` : `${medaka.name} を永眠に記録`, "info");
-    resetSwipe();
-  };
-
-  // カードをタップ（スワイプ中でなければ）
+  // ── カードタップ ─────────────────────────────
   const handleCardClick = () => {
-    if (Math.abs(offsetX) > 4) { resetSwipe(); return; }
+    if (isSwipeOpen || Math.abs(offsetX) > 4) {
+      setOffsetX(0);
+      onSwipeClose?.();
+      return;
+    }
     onClick?.();
   };
 
-  const showLeft  = offsetX < -4;   // 削除ボタン
-  const showRight = offsetX > 4;    // ロックボタン
-
   return (
     <div className="relative overflow-hidden rounded-3xl">
-      {/* ── 左アクション（削除）──────────────── */}
+      {/* 削除ボタン（左スワイプで出現）*/}
       <div
         className="absolute right-0 top-0 bottom-0 flex items-center justify-center"
-        style={{ width: ACTION_WIDTH, opacity: showLeft ? 1 : 0, transition: "opacity 0.15s" }}
+        style={{ width: ACTION_WIDTH }}
       >
         <button
           onClick={handleDelete}
-          className="w-14 h-14 rounded-2xl bg-red-500 flex flex-col items-center justify-center gap-0.5 shadow-lg"
+          className="w-16 h-16 rounded-2xl bg-red-500 active:bg-red-600 flex flex-col items-center justify-center gap-0.5 shadow-lg"
         >
           <Trash2 className="w-5 h-5 text-white" />
-          <span className="text-[9px] text-white font-bold">削除</span>
+          <span className="text-[10px] text-white font-bold">削除</span>
         </button>
       </div>
 
-      {/* ── 右アクション（生存/永眠）──────────── */}
-      <div
-        className="absolute left-0 top-0 bottom-0 flex items-center justify-center"
-        style={{ width: ACTION_WIDTH, opacity: showRight ? 1 : 0, transition: "opacity 0.15s" }}
-      >
-        <button
-          onClick={handleToggleLock}
-          className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center gap-0.5 shadow-lg ${
-            medaka.isAlive ? "bg-amber-400" : "bg-emerald-500"
-          }`}
-        >
-          {medaka.isAlive
-            ? <Lock   className="w-5 h-5 text-white" />
-            : <Unlock className="w-5 h-5 text-white" />}
-          <span className="text-[9px] text-white font-bold">
-            {medaka.isAlive ? "永眠" : "生存"}
-          </span>
-        </button>
-      </div>
-
-      {/* ── メインカード ─────────────────────── */}
+      {/* メインカード */}
       <div
         onClick={handleCardClick}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="bg-white cursor-pointer active:brightness-95 relative z-10"
+        className="bg-white cursor-pointer relative z-10"
         style={{
           border: `1px solid ${color}33`,
           boxShadow: `0 2px 12px ${color}18`,
           borderRadius: "1.5rem",
           transform: `translateX(${offsetX}px)`,
-          transition: dragging.current ? "none" : "transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)",
+          transition: active.current
+            ? "none"
+            : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           willChange: "transform",
-          opacity: medaka.isAlive ? 1 : 0.6,
+          opacity: medaka.isAlive ? 1 : 0.55,
         }}
       >
         <div className="flex items-stretch">
@@ -176,7 +182,7 @@ export function MedakaCard({ medaka, onClick }: MedakaCardProps) {
             )}
           </div>
 
-          {/* テキスト情報 */}
+          {/* テキスト */}
           <div className="flex-1 px-3 py-3 min-w-0">
             <div className="flex items-start justify-between gap-1">
               <div className="min-w-0">

@@ -15,6 +15,7 @@ export function FishTab() {
   const [selected, setSelected] = useState<Medaka | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "male" | "female" | "alive">("all");
+  const [openSwipeId, setOpenSwipeId] = useState<string | null>(null);
 
   const filtered = medakas.filter((m) => {
     const matchSearch =
@@ -91,7 +92,13 @@ export function FishTab() {
               className="animate-slide-up"
               style={{ animationDelay: `${i * 40}ms` }}
             >
-              <MedakaCard medaka={m} onClick={() => setSelected(m)} />
+              <MedakaCard
+                medaka={m}
+                onClick={() => setSelected(m)}
+                isSwipeOpen={openSwipeId === m.id}
+                onSwipeOpen={() => setOpenSwipeId(m.id)}
+                onSwipeClose={() => setOpenSwipeId(null)}
+              />
             </div>
           ))}
         </div>

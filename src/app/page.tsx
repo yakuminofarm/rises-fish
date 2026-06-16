@@ -27,8 +27,8 @@ export default function Page() {
       <div className="min-h-screen bg-[#f0f9ff] max-w-md mx-auto">
         {!isHome && (
           <header className="sticky top-0 z-20 glass border-b border-white/60 px-4 py-3 flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center shadow-sm shadow-cyan-200">
-              <span className="text-base">🐟</span>
+            <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center bg-amber-50">
+              <img src="/medaka/app-icon.png" alt="めだか手帳" className="w-7 h-7 object-contain" />
             </div>
             <h1 className="text-base font-bold text-gray-900">{TAB_TITLES[activeTab]}</h1>
           </header>

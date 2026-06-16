@@ -126,7 +126,7 @@ export function HomeTab() {
         {/* テキスト */}
         <div className="relative z-10 px-6 pt-8 pb-0">
           <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-4 h-4 text-yellow-300" />
+            <img src="/medaka/app-icon.png" alt="" className="w-6 h-6 object-contain drop-shadow" />
             <span className="text-yellow-200 text-xs font-semibold tracking-wide">
               めだか手帳
             </span>

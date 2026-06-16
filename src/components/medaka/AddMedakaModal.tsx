@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { X, Camera } from "lucide-react";
+import { X, Camera, CheckCircle2 } from "lucide-react";
 import { useMedakaStore } from "@/store/medakaStore";
 import { Medaka, MedakaVariety, Gender } from "@/types/medaka";
 import { generateId } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
 
 const VARIETIES: (MedakaVariety | "その他")[] = [
   "幹之", "楊貴妃", "三色", "黒メダカ", "白メダカ", "青メダカ",
@@ -17,6 +18,9 @@ interface AddMedakaModalProps {
 
 export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
   const { addMedaka, medakas } = useMedakaStore();
+  const { showToast } = useToast();
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
   const [form, setForm] = useState({
     name: "",
     variety: "幹之" as string,
@@ -40,7 +44,8 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
   };
 
   const handleSubmit = () => {
-    if (!form.name || !form.acquiredDate) return;
+    if (!form.name || !form.acquiredDate || submitting || done) return;
+    setSubmitting(true);
     const variety = form.variety === "その他" ? form.customVariety || "その他" : form.variety;
     const newMedaka: Medaka = {
       id: generateId(),
@@ -62,7 +67,9 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
       generation: form.generation ? parseInt(form.generation) : undefined,
     };
     addMedaka(newMedaka);
-    onClose();
+    setDone(true);
+    showToast(`${form.name} を登録しました`);
+    setTimeout(() => onClose(), 800);
   };
 
   const males = medakas.filter((m) => m.gender === "male" && m.isAlive);
@@ -226,10 +233,25 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!form.name || !form.acquiredDate}
-            className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-3 rounded-2xl transition-colors"
+            disabled={!form.name || !form.acquiredDate || submitting || done}
+            className={`w-full font-semibold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 ${
+              done
+                ? "bg-emerald-500 text-white"
+                : !form.name || !form.acquiredDate
+                ? "bg-gray-200 text-gray-400"
+                : "bg-cyan-500 hover:bg-cyan-600 active:scale-[0.98] text-white"
+            }`}
           >
-            登録する
+            {done ? (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                登録しました！
+              </>
+            ) : submitting ? (
+              "登録中..."
+            ) : (
+              "登録する"
+            )}
           </button>
         </div>
       </div>

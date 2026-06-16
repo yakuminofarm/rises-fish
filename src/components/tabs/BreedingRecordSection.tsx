@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X, ArrowRight } from "lucide-react";
+import { Plus, X, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useMedakaStore } from "@/store/medakaStore";
 import { BreedingRecord } from "@/types/medaka";
 import { generateId } from "@/lib/utils";
 import { getVarietyColor } from "@/components/ui/MedakaIllustration";
 import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
+import { useToast } from "@/components/ui/Toast";
 
 function BreedingRecordCard({ record }: { record: BreedingRecord }) {
   const { medakas } = useMedakaStore();
@@ -95,6 +96,7 @@ function BreedingRecordCard({ record }: { record: BreedingRecord }) {
 
 function AddBreedingRecordModal({ onClose }: { onClose: () => void }) {
   const { medakas, addBreedingRecord } = useMedakaStore();
+  const { showToast } = useToast();
   const today = new Date().toISOString().split("T")[0];
   const [form, setForm] = useState({
     fatherId: "",
@@ -103,12 +105,15 @@ function AddBreedingRecordModal({ onClose }: { onClose: () => void }) {
     eggCount: "",
     notes: "",
   });
+  const [done, setDone] = useState(false);
 
   const males = medakas.filter((m) => m.gender === "male" && m.isAlive);
   const females = medakas.filter((m) => m.gender === "female" && m.isAlive);
 
   const handleSubmit = () => {
-    if (!form.breedingDate) return;
+    if (!form.breedingDate || done) return;
+    const father = medakas.find((m) => m.id === form.fatherId);
+    const mother = medakas.find((m) => m.id === form.motherId);
     const record: BreedingRecord = {
       id: generateId(),
       fatherId: form.fatherId,
@@ -119,7 +124,10 @@ function AddBreedingRecordModal({ onClose }: { onClose: () => void }) {
       notes: form.notes,
     };
     addBreedingRecord(record);
-    onClose();
+    setDone(true);
+    const label = father && mother ? `${father.name} × ${mother.name}` : "繁殖記録";
+    showToast(`${label} を記録しました`);
+    setTimeout(() => onClose(), 800);
   };
 
   return (
@@ -199,10 +207,23 @@ function AddBreedingRecordModal({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!form.breedingDate}
-            className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-3 rounded-2xl transition-colors"
+            disabled={!form.breedingDate || done}
+            className={`w-full font-semibold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 ${
+              done
+                ? "bg-emerald-500 text-white"
+                : !form.breedingDate
+                ? "bg-gray-200 text-gray-400"
+                : "bg-cyan-500 hover:bg-cyan-600 active:scale-[0.98] text-white"
+            }`}
           >
-            記録する
+            {done ? (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                記録しました！
+              </>
+            ) : (
+              "記録する"
+            )}
           </button>
         </div>
       </div>

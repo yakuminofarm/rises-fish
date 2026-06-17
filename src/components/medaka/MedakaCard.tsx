@@ -42,11 +42,30 @@ export function MedakaCard({
   const startY    = useRef(0);
   const axis      = useRef<"h" | "v" | null>(null);
   const active    = useRef(false);
+  const offsetRef = useRef(0);
+  const cardRef   = useRef<HTMLDivElement>(null);
+
+  // offsetX を ref でも追跡（native handler 内で最新値を読むため）
+  const setOffset = (v: number) => {
+    offsetRef.current = v;
+    setOffsetX(v);
+  };
 
   // 外部から閉じる（別行がスワイプされたとき）
   useEffect(() => {
-    if (!isSwipeOpen) setOffsetX(0);
+    if (!isSwipeOpen) setOffset(0);
   }, [isSwipeOpen]);
+
+  // passive:false の native touchmove listener（iOS scroll 抑制）
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const handler = (e: TouchEvent) => {
+      if (axis.current === "h") e.preventDefault();
+    };
+    el.addEventListener("touchmove", handler, { passive: false });
+    return () => el.removeEventListener("touchmove", handler);
+  }, []);
 
   // ── タッチ開始 ──────────────────────────────
   const onTouchStart = (e: React.TouchEvent) => {
@@ -62,7 +81,6 @@ export function MedakaCard({
     const dx = e.touches[0].clientX - startX.current;
     const dy = e.touches[0].clientY - startY.current;
 
-    // 縦 vs 横の軸を最初に決定
     if (!axis.current) {
       if (Math.abs(dy) > Math.abs(dx) + 3) { axis.current = "v"; return; }
       if (Math.abs(dx) > 6) axis.current = "h";
@@ -70,17 +88,11 @@ export function MedakaCard({
     }
     if (axis.current === "v") return;
 
-    // 横スワイプ確定 → ページスクロール抑制
-    e.preventDefault();
-
-    // 左方向のみ受け付ける
-    const raw = Math.min(0, dx);
-    // 既に開いている場合は開いた位置を基点に
+    const raw  = Math.min(0, dx);
     const base = isSwipeOpen ? -ACTION_WIDTH : 0;
     const next = Math.max(-ACTION_WIDTH, Math.min(0, base + raw * RESISTANCE));
-    setOffsetX(next);
+    setOffset(next);
 
-    // 初めて指が動いたら他行を閉じる
     if (next < -4 && !isSwipeOpen) onSwipeOpen?.();
   };
 
@@ -89,13 +101,11 @@ export function MedakaCard({
     active.current = false;
     if (axis.current !== "h") return;
 
-    if (offsetX < -SNAP_THRESHOLD) {
-      // 閾値超え → スナップして開く
-      setOffsetX(-ACTION_WIDTH);
+    if (offsetRef.current < -SNAP_THRESHOLD) {
+      setOffset(-ACTION_WIDTH);
       onSwipeOpen?.();
     } else {
-      // 戻す
-      setOffsetX(0);
+      setOffset(0);
       onSwipeClose?.();
     }
   };
@@ -140,6 +150,7 @@ export function MedakaCard({
 
       {/* メインカード */}
       <div
+        ref={cardRef}
         onClick={handleCardClick}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}

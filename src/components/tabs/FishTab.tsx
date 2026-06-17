@@ -69,6 +69,14 @@ export function FishTab() {
         )}
       </div>
 
+      {/* スワイプ開放時の背景タップで閉じるオーバーレイ */}
+      {openSwipeId && (
+        <div
+          className="fixed inset-0 z-0"
+          onClick={() => setOpenSwipeId(null)}
+        />
+      )}
+
       {/* 個体リスト */}
       {filtered.length === 0 ? (
         <div className="text-center py-16">

@@ -161,10 +161,11 @@ export function MedakaCard({
           boxShadow: `0 2px 12px ${color}18`,
           borderRadius: "1.5rem",
           transform: `translateX(${offsetX}px)`,
+          opacity: 1 - (Math.abs(offsetX) / ACTION_WIDTH) * 0.45,
           transition: active.current
             ? "none"
-            : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-          willChange: "transform",
+            : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.5s ease",
+          willChange: "transform, opacity",
           opacity: medaka.isAlive ? 1 : 0.55,
         }}
       >

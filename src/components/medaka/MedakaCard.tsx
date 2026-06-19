@@ -47,14 +47,14 @@ export function MedakaCard({
   const cardRef   = useRef<HTMLDivElement>(null);
 
   // DOM を直接操作（再レンダリングなしで滑らかに）
-  const SNAP = "transform 0.32s cubic-bezier(0.22,1,0.36,1), opacity 0.32s cubic-bezier(0.22,1,0.36,1)";
+  const SNAP = "transform 0.28s cubic-bezier(0.22,1,0.36,1)";
   const applyTransform = (x: number, withTransition: boolean) => {
     const el = cardRef.current;
     if (!el) return;
     offsetRef.current = x;
     el.style.transition = withTransition ? SNAP : "none";
     el.style.transform  = `translateX(${x}px)`;
-    el.style.opacity    = `${baseOpacity * (1 - (Math.abs(x) / ACTION_WIDTH) * 0.4)}`;
+    el.style.opacity    = `${baseOpacity}`;
   };
 
   // 外部から閉じる（別行がスワイプされたとき）
@@ -140,19 +140,15 @@ export function MedakaCard({
 
   return (
     <div className="relative overflow-hidden rounded-3xl">
-      {/* 削除ボタン（左スワイプで出現）*/}
-      <div
-        className="absolute right-0 top-0 bottom-0 flex items-center justify-center"
+      {/* 削除エリア（左スワイプで出現）*/}
+      <button
+        onClick={handleDelete}
+        className="absolute right-0 top-0 bottom-0 bg-red-500 active:bg-red-600 flex flex-col items-center justify-center gap-1 rounded-r-3xl"
         style={{ width: ACTION_WIDTH }}
       >
-        <button
-          onClick={handleDelete}
-          className="w-16 h-16 rounded-2xl bg-red-500 active:bg-red-600 flex flex-col items-center justify-center gap-0.5 shadow-lg"
-        >
-          <Trash2 className="w-5 h-5 text-white" />
-          <span className="text-[10px] text-white font-bold">削除</span>
-        </button>
-      </div>
+        <Trash2 className="w-5 h-5 text-white" />
+        <span className="text-[10px] text-white font-bold">削除</span>
+      </button>
 
       {/* メインカード */}
       <div
@@ -167,7 +163,7 @@ export function MedakaCard({
           borderRadius: "1.5rem",
           transform: "translateX(0px)",
           opacity: baseOpacity,
-          willChange: "transform, opacity",
+          willChange: "transform",
         }}
       >
         <div className="flex items-stretch">

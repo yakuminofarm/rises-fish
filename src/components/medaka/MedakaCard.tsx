@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Medaka } from "@/types/medaka";
 import { getGenderColor } from "@/lib/utils";
 import { getVarietyColor, getVarietyEmoji } from "@/components/ui/MedakaIllustration";
@@ -11,8 +11,7 @@ import { useToast } from "@/components/ui/Toast";
 
 // カード幅の約1/3 = 削除ボタンが中央寄りに見える
 const ACTION_WIDTH    = 96;
-const SNAP_THRESHOLD  = ACTION_WIDTH * 0.55; // この距離超えたらスナップ
-const RESISTANCE      = 0.65;                 // 指の動きに対する追従率（小さいほど重い）
+const SNAP_THRESHOLD  = ACTION_WIDTH * 0.5; // この距離超えたらスナップ
 
 interface MedakaCardProps {
   medaka: Medaka;
@@ -37,35 +36,62 @@ export function MedakaCard({
   const hasPhoto   = medaka.photos.length > 0;
   const hasLineage = medaka.parentIds?.father || medaka.parentIds?.mother;
 
-  const [offsetX, setOffsetX]   = useState(0);
+  const baseOpacity = medaka.isAlive ? 1 : 0.55;
+
   const startX    = useRef(0);
   const startY    = useRef(0);
   const axis      = useRef<"h" | "v" | null>(null);
   const active    = useRef(false);
   const offsetRef = useRef(0);
+  const moved     = useRef(false);
   const cardRef   = useRef<HTMLDivElement>(null);
 
-  // offsetX を ref でも追跡（native handler 内で最新値を読むため）
-  const setOffset = (v: number) => {
-    offsetRef.current = v;
-    setOffsetX(v);
+  // DOM を直接操作（再レンダリングなしで滑らかに）
+  const SNAP = "transform 0.32s cubic-bezier(0.22,1,0.36,1), opacity 0.32s cubic-bezier(0.22,1,0.36,1)";
+  const applyTransform = (x: number, withTransition: boolean) => {
+    const el = cardRef.current;
+    if (!el) return;
+    offsetRef.current = x;
+    el.style.transition = withTransition ? SNAP : "none";
+    el.style.transform  = `translateX(${x}px)`;
+    el.style.opacity    = `${baseOpacity * (1 - (Math.abs(x) / ACTION_WIDTH) * 0.4)}`;
   };
 
   // 外部から閉じる（別行がスワイプされたとき）
   useEffect(() => {
-    if (!isSwipeOpen) setOffset(0);
-  }, [isSwipeOpen]);
+    if (!isSwipeOpen && offsetRef.current !== 0) applyTransform(0, true);
+  }, [isSwipeOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // passive:false の native touchmove listener（iOS scroll 抑制）
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const handler = (e: TouchEvent) => {
-      if (axis.current === "h") e.preventDefault();
+      if (!active.current) return;
+      const dx = e.touches[0].clientX - startX.current;
+      const dy = e.touches[0].clientY - startY.current;
+
+      if (!axis.current) {
+        if (Math.abs(dy) > Math.abs(dx) + 3) { axis.current = "v"; return; }
+        if (Math.abs(dx) > 6) axis.current = "h";
+        else return;
+      }
+      if (axis.current === "v") return;
+
+      // 横スワイプ確定 → ページスクロール抑制
+      e.preventDefault();
+      moved.current = true;
+
+      const base = isSwipeOpen ? -ACTION_WIDTH : 0;
+      // ゴム感: 端ではさらに重く
+      const next = Math.max(-ACTION_WIDTH, Math.min(0, base + dx));
+      applyTransform(next, false);
+
+      if (next < -4 && !isSwipeOpen) onSwipeOpen?.();
     };
     el.addEventListener("touchmove", handler, { passive: false });
     return () => el.removeEventListener("touchmove", handler);
-  }, []);
+  }, [isSwipeOpen, onSwipeOpen, baseOpacity]);
 
   // ── タッチ開始 ──────────────────────────────
   const onTouchStart = (e: React.TouchEvent) => {
@@ -73,27 +99,7 @@ export function MedakaCard({
     startY.current = e.touches[0].clientY;
     axis.current   = null;
     active.current = true;
-  };
-
-  // ── タッチ移動 ──────────────────────────────
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (!active.current) return;
-    const dx = e.touches[0].clientX - startX.current;
-    const dy = e.touches[0].clientY - startY.current;
-
-    if (!axis.current) {
-      if (Math.abs(dy) > Math.abs(dx) + 3) { axis.current = "v"; return; }
-      if (Math.abs(dx) > 6) axis.current = "h";
-      else return;
-    }
-    if (axis.current === "v") return;
-
-    const raw  = Math.min(0, dx);
-    const base = isSwipeOpen ? -ACTION_WIDTH : 0;
-    const next = Math.max(-ACTION_WIDTH, Math.min(0, base + raw * RESISTANCE));
-    setOffset(next);
-
-    if (next < -4 && !isSwipeOpen) onSwipeOpen?.();
+    moved.current  = false;
   };
 
   // ── タッチ終了 ──────────────────────────────
@@ -102,10 +108,10 @@ export function MedakaCard({
     if (axis.current !== "h") return;
 
     if (offsetRef.current < -SNAP_THRESHOLD) {
-      setOffset(-ACTION_WIDTH);
+      applyTransform(-ACTION_WIDTH, true);
       onSwipeOpen?.();
     } else {
-      setOffset(0);
+      applyTransform(0, true);
       onSwipeClose?.();
     }
   };
@@ -117,15 +123,15 @@ export function MedakaCard({
       deleteMedaka(medaka.id);
       showToast(`${medaka.name} を削除しました`, "error");
     } else {
-      setOffsetX(0);
+      applyTransform(0, true);
       onSwipeClose?.();
     }
   };
 
   // ── カードタップ ─────────────────────────────
   const handleCardClick = () => {
-    if (isSwipeOpen || Math.abs(offsetX) > 4) {
-      setOffsetX(0);
+    if (isSwipeOpen || moved.current || Math.abs(offsetRef.current) > 4) {
+      applyTransform(0, true);
       onSwipeClose?.();
       return;
     }
@@ -153,20 +159,15 @@ export function MedakaCard({
         ref={cardRef}
         onClick={handleCardClick}
         onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         className="bg-white cursor-pointer relative z-10"
         style={{
           border: `1px solid ${color}33`,
           boxShadow: `0 2px 12px ${color}18`,
           borderRadius: "1.5rem",
-          transform: `translateX(${offsetX}px)`,
-          opacity: 1 - (Math.abs(offsetX) / ACTION_WIDTH) * 0.45,
-          transition: active.current
-            ? "none"
-            : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.5s ease",
+          transform: "translateX(0px)",
+          opacity: baseOpacity,
           willChange: "transform, opacity",
-          opacity: medaka.isAlive ? 1 : 0.55,
         }}
       >
         <div className="flex items-stretch">

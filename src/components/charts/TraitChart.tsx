@@ -37,9 +37,10 @@ export function VarietyDistributionChart({ medakas }: { medakas: Medaka[] }) {
       <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-        <YAxis tick={{ fontSize: 10 }} />
+        <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => Math.floor(v).toString()} allowDecimals={false} />
         <Tooltip
           contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+          formatter={(v) => [typeof v === "number" ? Math.floor(v) : v, "個体数"]}
         />
         <Bar dataKey="value" fill="#06b6d4" radius={[4, 4, 0, 0]} name="個体数" />
       </BarChart>
@@ -110,9 +111,10 @@ export function GenerationChart({ medakas }: { medakas: Medaka[] }) {
       <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-        <YAxis tick={{ fontSize: 11 }} />
+        <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => Math.floor(v).toString()} allowDecimals={false} />
         <Tooltip
           contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+          formatter={(v) => [typeof v === "number" ? Math.floor(v) : v, "個体数"]}
         />
         <Bar dataKey="value" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="個体数" />
       </BarChart>

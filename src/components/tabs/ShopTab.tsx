@@ -24,29 +24,29 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`w-3 h-3 ${i <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-gray-200 fill-gray-200"}`}
+          className={`w-4 h-4 ${i <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-gray-200 fill-gray-200"}`}
         />
       ))}
-      <span className="text-[11px] text-gray-400 ml-1 font-medium">{rating.toFixed(1)}</span>
+      <span className="text-xs text-gray-400 ml-1 font-semibold">{rating.toFixed(1)}</span>
     </div>
   );
 }
 
 function ProductCard({ product }: { product: Product }) {
   const colors = CATEGORY_COLORS[product.category] ?? CATEGORY_COLORS["その他"];
-  const icon = CATEGORY_ICONS[product.category] ?? "📦";
+  const icon   = CATEGORY_ICONS[product.category] ?? "📦";
 
   return (
     <div
-      className="bg-white rounded-3xl overflow-hidden active:scale-[0.98] transition-all"
+      className="bg-white rounded-3xl overflow-hidden active:scale-[0.98] transition-transform"
       style={{
         border: "1px solid rgba(186,230,253,0.5)",
-        boxShadow: "0 2px 12px rgba(6,182,212,0.06)",
+        boxShadow: "0 2px 16px rgba(6,182,212,0.07)",
       }}
     >
-      <div className="flex">
-        {/* 実写サムネイル or 絵文字フォールバック */}
-        <div className="w-28 flex-shrink-0 relative" style={{ minHeight: 100 }}>
+      <div className="flex items-stretch">
+        {/* サムネイル */}
+        <div className="w-28 flex-shrink-0 relative" style={{ minHeight: 108 }}>
           {product.imageUrl ? (
             <>
               <img
@@ -54,19 +54,18 @@ function ProductCard({ product }: { product: Product }) {
                 alt={product.name}
                 className="w-full h-full object-cover absolute inset-0"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/15" />
-              {/* カテゴリバッジ */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
               <span
-                className="absolute top-2 left-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                className="absolute top-2 left-2 text-xs font-bold px-2 py-0.5 rounded-full"
                 style={{ background: colors.bg, color: colors.accent }}
               >
-                {icon} {product.category}
+                {icon}
               </span>
             </>
           ) : (
             <div
-              className="w-full h-full flex items-center justify-center text-3xl"
-              style={{ background: colors.bg, minHeight: 100 }}
+              className="w-full h-full flex items-center justify-center text-4xl"
+              style={{ background: colors.bg, minHeight: 108 }}
             >
               {icon}
             </div>
@@ -74,22 +73,34 @@ function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* テキスト */}
-        <div className="flex-1 p-3.5 min-w-0">
-          <p className="text-[10px] text-gray-400 font-medium">{product.brand}</p>
-          <h3 className="text-sm font-bold text-gray-900 leading-snug mt-0.5">{product.name}</h3>
-
-          {product.rating && (
-            <div className="mt-1.5">
-              <StarRating rating={product.rating} />
+        <div className="flex-1 p-4 min-w-0 flex flex-col justify-between">
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs text-gray-400 font-medium mb-0.5">{product.brand}</p>
+                <h3 className="text-sm font-bold text-gray-900 leading-snug">{product.name}</h3>
+              </div>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: colors.bg, color: colors.accent }}
+              >
+                {product.category}
+              </span>
             </div>
-          )}
 
-          <p className="text-xs text-gray-500 mt-2 leading-relaxed line-clamp-2">
-            {product.description}
-          </p>
+            {product.rating && (
+              <div className="mt-2">
+                <StarRating rating={product.rating} />
+              </div>
+            )}
+
+            <p className="text-xs text-gray-500 mt-2 leading-relaxed line-clamp-2">
+              {product.description}
+            </p>
+          </div>
 
           {product.price && (
-            <p className="text-base font-black mt-2" style={{ color: colors.accent }}>
+            <p className="text-lg font-black mt-3" style={{ color: colors.accent }}>
               ¥{product.price.toLocaleString()}
               <span className="text-xs text-gray-300 font-normal ml-1">参考価格</span>
             </p>
@@ -111,11 +122,11 @@ export function ShopTab() {
       : mockProducts.filter((p) => p.category === activeCategory);
 
   return (
-    <div className="space-y-3">
-      {/* ヘッダーバナー（実写オーバーレイ） */}
+    <div className="space-y-4">
+      {/* ヘッダーバナー */}
       <div
         className="relative rounded-3xl overflow-hidden text-white"
-        style={{ minHeight: 100, boxShadow: "0 8px 32px rgba(14,165,233,0.3)" }}
+        style={{ minHeight: 110, boxShadow: "0 8px 32px rgba(14,165,233,0.3)" }}
       >
         <img
           src="https://images.unsplash.com/photo-1535591273668-578e31182c4f?w=800&q=80&auto=format&fit=crop"
@@ -124,19 +135,19 @@ export function ShopTab() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-indigo-900/60" />
         <div className="relative z-10 px-5 py-5">
-          <p className="text-xs opacity-70 mb-0.5 font-medium">メダカ飼育グッズ</p>
+          <p className="text-xs opacity-70 mb-0.5 font-medium tracking-wide">メダカ飼育グッズ</p>
           <h2 className="text-xl font-black">おすすめアイテム</h2>
           <p className="text-xs opacity-60 mt-0.5">飼育歴に合わせたセレクション</p>
         </div>
       </div>
 
       {/* カテゴリフィルター */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
               activeCategory === cat
                 ? "bg-cyan-500 text-white shadow-sm shadow-cyan-200"
                 : "bg-white text-gray-500 border border-gray-100"
@@ -150,13 +161,13 @@ export function ShopTab() {
       {/* 商品リスト */}
       <div className="space-y-3">
         {filtered.map((product, i) => (
-          <div key={product.id} className="animate-slide-up" style={{ animationDelay: `${i * 50}ms` }}>
+          <div key={product.id} className="animate-slide-up" style={{ animationDelay: `${i * 40}ms` }}>
             <ProductCard product={product} />
           </div>
         ))}
       </div>
 
-      <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-3.5 border border-violet-100 text-center">
+      <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-4 border border-violet-100 text-center">
         <p className="text-xs text-violet-600 font-medium">
           🤖 近日公開 — AIパーソナライズ・価格比較・在庫通知
         </p>

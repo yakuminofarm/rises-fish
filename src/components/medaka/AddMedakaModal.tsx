@@ -109,7 +109,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="例: 幹之1号"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
 
@@ -118,7 +118,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
             <select
               value={form.variety}
               onChange={(e) => setForm({ ...form, variety: e.target.value })}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
             >
               {VARIETIES.map((v) => <option key={v} value={v}>{v}</option>)}
             </select>
@@ -144,7 +144,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
                   key={g.value}
                   type="button"
                   onClick={() => setForm({ ...form, gender: g.value as Gender })}
-                  className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors ${
+                  className={`flex-1 py-3 rounded-xl text-sm font-semibold border transition-colors min-h-[44px] ${
                     form.gender === g.value
                       ? "bg-cyan-500 text-white border-cyan-500"
                       : "border-gray-200 text-gray-600"
@@ -163,7 +163,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
                 type="date"
                 value={form.birthDate}
                 onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
             </div>
             <div>
@@ -172,7 +172,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
                 type="date"
                 value={form.acquiredDate}
                 onChange={(e) => setForm({ ...form, acquiredDate: e.target.value })}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
               />
             </div>
           </div>
@@ -185,7 +185,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
               value={form.generation}
               onChange={(e) => setForm({ ...form, generation: e.target.value })}
               placeholder="例: 1"
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
 
@@ -196,7 +196,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
                 <select
                   value={form.fatherId}
                   onChange={(e) => setForm({ ...form, fatherId: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 >
                   <option value="">なし</option>
                   {males.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -207,7 +207,7 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
                 <select
                   value={form.motherId}
                   onChange={(e) => setForm({ ...form, motherId: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 >
                   <option value="">なし</option>
                   {females.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -223,18 +223,18 @@ export function AddMedakaModal({ onClose }: AddMedakaModalProps) {
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               placeholder="特徴・観察記録など"
               rows={3}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+              className="w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
             />
           </div>
         </div>
 
         {/* fixed footer with submit button */}
-        <div className="flex-shrink-0 px-4 py-4 border-t border-gray-100 bg-white">
+        <div className="flex-shrink-0 px-4 pt-4 border-t border-gray-100 bg-white pb-safe-lg">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!form.name || !form.acquiredDate || submitting || done}
-            className={`w-full font-semibold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 ${
+            className={`w-full font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-base min-h-[52px] ${
               done
                 ? "bg-emerald-500 text-white"
                 : !form.name || !form.acquiredDate

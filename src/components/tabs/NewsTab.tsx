@@ -66,28 +66,28 @@ function NewsCard({ item }: { item: NewsItem }) {
   return (
     <div
       onClick={() => setExpanded(!expanded)}
-      className="bg-white rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-all flex"
+      className="bg-white rounded-2xl overflow-hidden cursor-pointer active:scale-[0.98] transition-transform flex"
       style={{ border: "1px solid rgba(186,230,253,0.5)", boxShadow: "0 2px 8px rgba(6,182,212,0.05)" }}
     >
       {/* サムネイル */}
       {item.imageUrl && (
-        <div className="w-24 flex-shrink-0 relative">
-          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+        <div className="w-24 flex-shrink-0 relative" style={{ minHeight: 96 }}>
+          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover absolute inset-0" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
         </div>
       )}
-      <div className="flex-1 p-3 min-w-0">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${style.bg} ${style.text}`}>
+      <div className="flex-1 p-3.5 min-w-0">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${style.bg} ${style.text}`}>
             {item.category}
           </span>
-          <span className="text-[10px] text-gray-300">{formatDateShort(item.publishedAt)}</span>
+          <span className="text-xs text-gray-300">{formatDateShort(item.publishedAt)}</span>
         </div>
         <h3 className="text-sm font-bold text-gray-900 leading-snug">{item.title}</h3>
-        <p className={`text-xs text-gray-500 mt-1 leading-relaxed ${expanded ? "" : "line-clamp-2"}`}>
+        <p className={`text-xs text-gray-500 mt-1.5 leading-relaxed ${expanded ? "" : "line-clamp-2"}`}>
           {item.summary}
         </p>
-        <p className="text-[10px] text-gray-300 mt-1.5">by {item.source}</p>
+        <p className="text-xs text-gray-300 mt-2">by {item.source}</p>
       </div>
     </div>
   );
@@ -105,12 +105,12 @@ export function NewsTab() {
   return (
     <div className="space-y-3">
       {/* カテゴリフィルター */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
               activeCategory === cat
                 ? "bg-cyan-500 text-white shadow-sm shadow-cyan-200"
                 : "bg-white text-gray-500 border border-gray-100"

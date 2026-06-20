@@ -42,7 +42,7 @@ function StatCard({
           <span className="text-xs font-medium opacity-90">{label}</span>
         </div>
         <p className="text-4xl font-black tracking-tight drop-shadow">{value}</p>
-        {sub && <p className="text-xs opacity-70 mt-1">{sub}</p>}
+        {sub && <p className="text-sm opacity-75 mt-1 font-medium">{sub}</p>}
       </div>
     </div>
   );
@@ -61,8 +61,8 @@ function RecentMedakaRow({
 }) {
   const color = getVarietyColor(variety);
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
-      <div className="w-12 h-8 rounded-xl overflow-hidden flex-shrink-0 bg-gray-50 flex items-center justify-center">
+    <div className="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0 min-h-[52px]">
+      <div className="w-12 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-gray-50 flex items-center justify-center">
         {photoUrl ? (
           <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
         ) : (

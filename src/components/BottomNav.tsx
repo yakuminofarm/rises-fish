@@ -45,7 +45,7 @@ export function BottomNav({ activeTab, onChange }: BottomNavProps) {
               <button
                 key={id}
                 onClick={() => onChange(id)}
-                className="flex-1 flex flex-col items-center py-2.5 gap-0.5 relative transition-all duration-200"
+                className="flex-1 flex flex-col items-center py-3 gap-0.5 relative transition-all duration-200 min-h-[56px]"
               >
                 {isActive && (
                   <span className="absolute top-1.5 w-8 h-1 bg-cyan-500 rounded-full" />

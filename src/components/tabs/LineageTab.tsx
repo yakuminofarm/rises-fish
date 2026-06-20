@@ -153,7 +153,7 @@ export function LineageTab() {
       <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
         <button
           onClick={() => setSubTab("lineage")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all min-h-[44px] ${
             subTab === "lineage"
               ? "bg-white text-cyan-600 shadow-sm"
               : "text-gray-500"
@@ -164,7 +164,7 @@ export function LineageTab() {
         </button>
         <button
           onClick={() => setSubTab("design")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all min-h-[44px] ${
             subTab === "design"
               ? "bg-white text-violet-600 shadow-sm"
               : "text-gray-500"
@@ -175,7 +175,7 @@ export function LineageTab() {
         </button>
         <button
           onClick={() => setSubTab("breeding")}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all min-h-[44px] ${
             subTab === "breeding"
               ? "bg-white text-pink-600 shadow-sm"
               : "text-gray-500"

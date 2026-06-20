@@ -43,7 +43,7 @@ export function FishTab() {
       </div>
 
       {/* フィルター */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {[
           { value: "all", label: "すべて" },
           { value: "alive", label: "🌊 生存中" },
@@ -115,8 +115,11 @@ export function FishTab() {
       {/* FAB */}
       <button
         onClick={() => setShowAdd(true)}
-        className="fixed bottom-24 right-4 w-14 h-14 bg-gradient-to-br from-cyan-400 to-blue-500 text-white rounded-full flex items-center justify-center transition-all active:scale-90 z-40 animate-pulse-glow"
-        style={{ boxShadow: "0 4px 20px rgba(6,182,212,0.4)" }}
+        className="fixed right-5 w-14 h-14 bg-gradient-to-br from-cyan-400 to-blue-500 text-white rounded-full flex items-center justify-center transition-all active:scale-90 z-40 animate-pulse-glow"
+        style={{
+          bottom: "calc(max(8px, env(safe-area-inset-bottom)) + 72px)",
+          boxShadow: "0 4px 20px rgba(6,182,212,0.4)",
+        }}
       >
         <Plus className="w-6 h-6" />
       </button>

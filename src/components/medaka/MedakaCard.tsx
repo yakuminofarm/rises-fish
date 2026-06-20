@@ -9,9 +9,13 @@ import { ChevronRight, Dna, Trash2 } from "lucide-react";
 import { useMedakaStore } from "@/store/medakaStore";
 import { useToast } from "@/components/ui/Toast";
 
-// カード幅の約1/3 = 削除ボタンが中央寄りに見える
-const ACTION_WIDTH    = 96;
-const SNAP_THRESHOLD  = ACTION_WIDTH * 0.5; // この距離超えたらスナップ
+const ACTION_WIDTH     = 88;
+const SNAP_THRESHOLD   = ACTION_WIDTH * 0.35; // 距離が短くても…
+const FLICK_VELOCITY   = 0.4;                 // …この速度(px/ms)以上なら即スナップ
+const CLOSE_VELOCITY   = 0.3;                 // 右方向にこの速度以上なら即クローズ
+// iOS らしいスプリング感: 少し行き過ぎて戻る
+const SPRING_OPEN  = "transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+const SPRING_CLOSE = "transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)";
 
 interface MedakaCardProps {
   medaka: Medaka;
@@ -29,110 +33,134 @@ export function MedakaCard({
   onSwipeClose,
 }: MedakaCardProps) {
   const { deleteMedaka } = useMedakaStore();
-  const { showToast } = useToast();
+  const { showToast }    = useToast();
 
   const color      = getVarietyColor(medaka.variety);
   const emoji      = getVarietyEmoji(medaka.variety);
   const hasPhoto   = medaka.photos.length > 0;
   const hasLineage = medaka.parentIds?.father || medaka.parentIds?.mother;
-
   const baseOpacity = medaka.isAlive ? 1 : 0.55;
 
-  const startX    = useRef(0);
-  const startY    = useRef(0);
-  const axis      = useRef<"h" | "v" | null>(null);
-  const active    = useRef(false);
-  const offsetRef = useRef(0);
-  const moved     = useRef(false);
-  const cardRef   = useRef<HTMLDivElement>(null);
+  const cardRef    = useRef<HTMLDivElement>(null);
+  const startX     = useRef(0);
+  const startY     = useRef(0);
+  const axis       = useRef<"h" | "v" | null>(null);
+  const active     = useRef(false);
+  const moved      = useRef(false);
+  const offsetRef  = useRef(0);
+  // 速度計測用
+  const prevX      = useRef(0);
+  const prevTime   = useRef(0);
+  const velocityRef = useRef(0);
 
-  // DOM を直接操作（再レンダリングなしで滑らかに）
-  const SNAP = "transform 0.28s cubic-bezier(0.22,1,0.36,1)";
-  const applyTransform = (x: number, withTransition: boolean) => {
+  const applyTransform = (x: number, transition: string | null) => {
     const el = cardRef.current;
     if (!el) return;
     offsetRef.current = x;
-    el.style.transition = withTransition ? SNAP : "none";
+    el.style.transition = transition ?? "none";
     el.style.transform  = `translateX(${x}px)`;
-    el.style.opacity    = `${baseOpacity}`;
   };
 
-  // 外部から閉じる（別行がスワイプされたとき）
+  const snapOpen  = () => { applyTransform(-ACTION_WIDTH, SPRING_OPEN);  onSwipeOpen?.();  };
+  const snapClose = () => { applyTransform(0,             SPRING_CLOSE); onSwipeClose?.(); };
+
+  // 外部（別行スワイプ）から閉じる
   useEffect(() => {
-    if (!isSwipeOpen && offsetRef.current !== 0) applyTransform(0, true);
+    if (!isSwipeOpen && offsetRef.current !== 0) snapClose();
   }, [isSwipeOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // passive:false の native touchmove listener（iOS scroll 抑制）
+  // native touchmove: passive:false でスクロール抑制 + 速度計測
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
-    const handler = (e: TouchEvent) => {
-      if (!active.current) return;
-      const dx = e.touches[0].clientX - startX.current;
-      const dy = e.touches[0].clientY - startY.current;
 
+    const onMove = (e: TouchEvent) => {
+      if (!active.current) return;
+
+      const touch = e.touches[0];
+      const dx = touch.clientX - startX.current;
+      const dy = touch.clientY - startY.current;
+
+      // 軸判定（縦優先）
       if (!axis.current) {
-        if (Math.abs(dy) > Math.abs(dx) + 3) { axis.current = "v"; return; }
-        if (Math.abs(dx) > 6) axis.current = "h";
+        if (Math.abs(dy) > Math.abs(dx) + 4) { axis.current = "v"; return; }
+        if (Math.abs(dx) > 5) axis.current = "h";
         else return;
       }
       if (axis.current === "v") return;
 
-      // 横スワイプ確定 → ページスクロール抑制
       e.preventDefault();
       moved.current = true;
 
-      const base = isSwipeOpen ? -ACTION_WIDTH : 0;
-      // ゴム感: 端ではさらに重く
-      const next = Math.max(-ACTION_WIDTH, Math.min(0, base + dx));
-      applyTransform(next, false);
+      // 速度計測（直近フレーム差分、px/ms）
+      const now = Date.now();
+      const dt  = now - prevTime.current;
+      if (dt > 0) velocityRef.current = (touch.clientX - prevX.current) / dt;
+      prevX.current    = touch.clientX;
+      prevTime.current = now;
 
-      if (next < -4 && !isSwipeOpen) onSwipeOpen?.();
+      // 位置計算: 開いている場合は ACTION_WIDTH 分オフセット済み
+      const base  = isSwipeOpen ? -ACTION_WIDTH : 0;
+      let next    = base + dx;
+      // 両端でゴムバンド感（超えた分は 1/3 の抵抗）
+      if (next > 0)              next = next / 3;
+      if (next < -ACTION_WIDTH)  next = -ACTION_WIDTH + (next + ACTION_WIDTH) / 3;
+
+      applyTransform(next, null);
+      if (next < -6 && !isSwipeOpen) onSwipeOpen?.();
     };
-    el.addEventListener("touchmove", handler, { passive: false });
-    return () => el.removeEventListener("touchmove", handler);
-  }, [isSwipeOpen, onSwipeOpen, baseOpacity]);
 
-  // ── タッチ開始 ──────────────────────────────
+    el.addEventListener("touchmove", onMove, { passive: false });
+    return () => el.removeEventListener("touchmove", onMove);
+  }, [isSwipeOpen, onSwipeOpen]);
+
   const onTouchStart = (e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX;
-    startY.current = e.touches[0].clientY;
-    axis.current   = null;
-    active.current = true;
-    moved.current  = false;
+    const t = e.touches[0];
+    startX.current    = t.clientX;
+    startY.current    = t.clientY;
+    prevX.current     = t.clientX;
+    prevTime.current  = Date.now();
+    velocityRef.current = 0;
+    axis.current      = null;
+    active.current    = true;
+    moved.current     = false;
+    // 動き中のトランジションを無効化（指に即追従）
+    if (cardRef.current) cardRef.current.style.transition = "none";
   };
 
-  // ── タッチ終了 ──────────────────────────────
   const onTouchEnd = () => {
     active.current = false;
     if (axis.current !== "h") return;
 
-    if (offsetRef.current < -SNAP_THRESHOLD) {
-      applyTransform(-ACTION_WIDTH, true);
-      onSwipeOpen?.();
+    const v    = velocityRef.current; // px/ms（負 = 左）
+    const dist = offsetRef.current;
+
+    if (v < -FLICK_VELOCITY) {
+      // 左フリック → 即スナップオープン
+      snapOpen();
+    } else if (v > CLOSE_VELOCITY) {
+      // 右フリック → 即クローズ
+      snapClose();
+    } else if (dist < -SNAP_THRESHOLD) {
+      snapOpen();
     } else {
-      applyTransform(0, true);
-      onSwipeClose?.();
+      snapClose();
     }
   };
 
-  // ── 削除 ────────────────────────────────────
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`${medaka.name} を削除しますか？`)) {
       deleteMedaka(medaka.id);
       showToast(`${medaka.name} を削除しました`, "error");
     } else {
-      applyTransform(0, true);
-      onSwipeClose?.();
+      snapClose();
     }
   };
 
-  // ── カードタップ ─────────────────────────────
   const handleCardClick = () => {
     if (isSwipeOpen || moved.current || Math.abs(offsetRef.current) > 4) {
-      applyTransform(0, true);
-      onSwipeClose?.();
+      snapClose();
       return;
     }
     onClick?.();
@@ -140,7 +168,7 @@ export function MedakaCard({
 
   return (
     <div className="relative overflow-hidden rounded-3xl">
-      {/* 削除エリア（左スワイプで出現）*/}
+      {/* 削除エリア */}
       <button
         onClick={handleDelete}
         className="absolute right-0 top-0 bottom-0 bg-red-500 active:bg-red-600 flex flex-col items-center justify-center gap-1 rounded-r-3xl"
@@ -158,12 +186,12 @@ export function MedakaCard({
         onTouchEnd={onTouchEnd}
         className="bg-white cursor-pointer relative z-10"
         style={{
-          border: `1px solid ${color}33`,
-          boxShadow: `0 2px 12px ${color}18`,
-          borderRadius: "1.5rem",
-          transform: "translateX(0px)",
-          opacity: baseOpacity,
-          willChange: "transform",
+          border:        `1px solid ${color}33`,
+          boxShadow:     `0 2px 12px ${color}18`,
+          borderRadius:  "1.5rem",
+          transform:     "translateX(0px)",
+          opacity:       baseOpacity,
+          willChange:    "transform",
         }}
       >
         <div className="flex items-stretch">

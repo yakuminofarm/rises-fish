@@ -31,6 +31,7 @@ export interface Medaka {
   traits: MedakaTrait[];
   notes: string;
   isAlive: boolean;
+  isFavorite?: boolean;
   generation?: number;
 }
 

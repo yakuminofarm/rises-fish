@@ -10,6 +10,7 @@ interface MedakaStore {
   addMedaka: (medaka: Medaka) => void;
   updateMedaka: (id: string, updates: Partial<Medaka>) => void;
   deleteMedaka: (id: string) => void;
+  toggleFavorite: (id: string) => void;
   getMedaka: (id: string) => Medaka | undefined;
 
   addPhoto: (medakaId: string, photo: MedakaPhoto) => void;
@@ -48,6 +49,13 @@ export const useMedakaStore = create<MedakaStore>()(
 
       deleteMedaka: (id) =>
         set((s) => ({ medakas: s.medakas.filter((m) => m.id !== id) })),
+
+      toggleFavorite: (id) =>
+        set((s) => ({
+          medakas: s.medakas.map((m) =>
+            m.id === id ? { ...m, isFavorite: !m.isFavorite } : m
+          ),
+        })),
 
       getMedaka: (id) => get().medakas.find((m) => m.id === id),
 

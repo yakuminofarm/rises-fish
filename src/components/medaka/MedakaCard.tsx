@@ -5,15 +5,16 @@ import { Medaka } from "@/types/medaka";
 import { getGenderColor } from "@/lib/utils";
 import { getVarietyColor, getVarietyEmoji } from "@/components/ui/MedakaIllustration";
 import { VarietyMedakaSVG } from "@/components/ui/MedakaVarietyIllustration";
-import { ChevronRight, Dna, Trash2 } from "lucide-react";
+import { ChevronRight, Dna, Trash2, Heart } from "lucide-react";
 import { useMedakaStore } from "@/store/medakaStore";
 import { useToast } from "@/components/ui/Toast";
 
-const ACTION_WIDTH     = 88;
-const SNAP_THRESHOLD   = ACTION_WIDTH * 0.35; // 距離が短くても…
-const FLICK_VELOCITY   = 0.4;                 // …この速度(px/ms)以上なら即スナップ
-const CLOSE_VELOCITY   = 0.3;                 // 右方向にこの速度以上なら即クローズ
-// iOS らしいスプリング感: 少し行き過ぎて戻る
+// お気に入り + 削除 の2ボタン分
+const BTN_WIDTH    = 72;
+const ACTION_WIDTH = BTN_WIDTH * 2;
+const SNAP_THRESHOLD  = ACTION_WIDTH * 0.35;
+const FLICK_VELOCITY  = 0.4;
+const CLOSE_VELOCITY  = 0.3;
 const SPRING_OPEN  = "transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
 const SPRING_CLOSE = "transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)";
 
@@ -32,25 +33,24 @@ export function MedakaCard({
   onSwipeOpen,
   onSwipeClose,
 }: MedakaCardProps) {
-  const { deleteMedaka } = useMedakaStore();
-  const { showToast }    = useToast();
+  const { deleteMedaka, toggleFavorite } = useMedakaStore();
+  const { showToast } = useToast();
 
-  const color      = getVarietyColor(medaka.variety);
-  const emoji      = getVarietyEmoji(medaka.variety);
-  const hasPhoto   = medaka.photos.length > 0;
-  const hasLineage = medaka.parentIds?.father || medaka.parentIds?.mother;
+  const color       = getVarietyColor(medaka.variety);
+  const emoji       = getVarietyEmoji(medaka.variety);
+  const hasPhoto    = medaka.photos.length > 0;
+  const hasLineage  = medaka.parentIds?.father || medaka.parentIds?.mother;
   const baseOpacity = medaka.isAlive ? 1 : 0.55;
 
-  const cardRef    = useRef<HTMLDivElement>(null);
-  const startX     = useRef(0);
-  const startY     = useRef(0);
-  const axis       = useRef<"h" | "v" | null>(null);
-  const active     = useRef(false);
-  const moved      = useRef(false);
-  const offsetRef  = useRef(0);
-  // 速度計測用
-  const prevX      = useRef(0);
-  const prevTime   = useRef(0);
+  const cardRef     = useRef<HTMLDivElement>(null);
+  const startX      = useRef(0);
+  const startY      = useRef(0);
+  const axis        = useRef<"h" | "v" | null>(null);
+  const active      = useRef(false);
+  const moved       = useRef(false);
+  const offsetRef   = useRef(0);
+  const prevX       = useRef(0);
+  const prevTime    = useRef(0);
   const velocityRef = useRef(0);
 
   const applyTransform = (x: number, transition: string | null) => {
@@ -64,24 +64,20 @@ export function MedakaCard({
   const snapOpen  = () => { applyTransform(-ACTION_WIDTH, SPRING_OPEN);  onSwipeOpen?.();  };
   const snapClose = () => { applyTransform(0,             SPRING_CLOSE); onSwipeClose?.(); };
 
-  // 外部（別行スワイプ）から閉じる
   useEffect(() => {
     if (!isSwipeOpen && offsetRef.current !== 0) snapClose();
   }, [isSwipeOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // native touchmove: passive:false でスクロール抑制 + 速度計測
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
 
     const onMove = (e: TouchEvent) => {
       if (!active.current) return;
-
       const touch = e.touches[0];
       const dx = touch.clientX - startX.current;
       const dy = touch.clientY - startY.current;
 
-      // 軸判定（縦優先）
       if (!axis.current) {
         if (Math.abs(dy) > Math.abs(dx) + 4) { axis.current = "v"; return; }
         if (Math.abs(dx) > 5) axis.current = "h";
@@ -92,19 +88,16 @@ export function MedakaCard({
       e.preventDefault();
       moved.current = true;
 
-      // 速度計測（直近フレーム差分、px/ms）
       const now = Date.now();
       const dt  = now - prevTime.current;
       if (dt > 0) velocityRef.current = (touch.clientX - prevX.current) / dt;
       prevX.current    = touch.clientX;
       prevTime.current = now;
 
-      // 位置計算: 開いている場合は ACTION_WIDTH 分オフセット済み
-      const base  = isSwipeOpen ? -ACTION_WIDTH : 0;
-      let next    = base + dx;
-      // 両端でゴムバンド感（超えた分は 1/3 の抵抗）
-      if (next > 0)              next = next / 3;
-      if (next < -ACTION_WIDTH)  next = -ACTION_WIDTH + (next + ACTION_WIDTH) / 3;
+      const base = isSwipeOpen ? -ACTION_WIDTH : 0;
+      let next   = base + dx;
+      if (next > 0)             next = next / 3;
+      if (next < -ACTION_WIDTH) next = -ACTION_WIDTH + (next + ACTION_WIDTH) / 3;
 
       applyTransform(next, null);
       if (next < -6 && !isSwipeOpen) onSwipeOpen?.();
@@ -116,15 +109,14 @@ export function MedakaCard({
 
   const onTouchStart = (e: React.TouchEvent) => {
     const t = e.touches[0];
-    startX.current    = t.clientX;
-    startY.current    = t.clientY;
-    prevX.current     = t.clientX;
-    prevTime.current  = Date.now();
+    startX.current      = t.clientX;
+    startY.current      = t.clientY;
+    prevX.current       = t.clientX;
+    prevTime.current    = Date.now();
     velocityRef.current = 0;
-    axis.current      = null;
-    active.current    = true;
-    moved.current     = false;
-    // 動き中のトランジションを無効化（指に即追従）
+    axis.current        = null;
+    active.current      = true;
+    moved.current       = false;
     if (cardRef.current) cardRef.current.style.transition = "none";
   };
 
@@ -132,20 +124,13 @@ export function MedakaCard({
     active.current = false;
     if (axis.current !== "h") return;
 
-    const v    = velocityRef.current; // px/ms（負 = 左）
+    const v    = velocityRef.current;
     const dist = offsetRef.current;
 
-    if (v < -FLICK_VELOCITY) {
-      // 左フリック → 即スナップオープン
-      snapOpen();
-    } else if (v > CLOSE_VELOCITY) {
-      // 右フリック → 即クローズ
-      snapClose();
-    } else if (dist < -SNAP_THRESHOLD) {
-      snapOpen();
-    } else {
-      snapClose();
-    }
+    if (v < -FLICK_VELOCITY)        snapOpen();
+    else if (v > CLOSE_VELOCITY)    snapClose();
+    else if (dist < -SNAP_THRESHOLD) snapOpen();
+    else                             snapClose();
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -158,6 +143,16 @@ export function MedakaCard({
     }
   };
 
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(medaka.id);
+    showToast(
+      medaka.isFavorite ? `${medaka.name} をお気に入りから外しました` : `${medaka.name} をお気に入りに追加しました`,
+      medaka.isFavorite ? "info" : "success"
+    );
+    snapClose();
+  };
+
   const handleCardClick = () => {
     if (isSwipeOpen || moved.current || Math.abs(offsetRef.current) > 4) {
       snapClose();
@@ -168,15 +163,34 @@ export function MedakaCard({
 
   return (
     <div className="relative overflow-hidden rounded-3xl">
-      {/* 削除エリア */}
-      <button
-        onClick={handleDelete}
-        className="absolute right-0 top-0 bottom-0 bg-red-500 active:bg-red-600 flex flex-col items-center justify-center gap-1 rounded-r-3xl"
-        style={{ width: ACTION_WIDTH }}
-      >
-        <Trash2 className="w-5 h-5 text-white" />
-        <span className="text-[10px] text-white font-bold">削除</span>
-      </button>
+      {/* アクションエリア（お気に入り + 削除）*/}
+      <div className="absolute right-0 top-0 bottom-0 flex" style={{ width: ACTION_WIDTH }}>
+        {/* お気に入り */}
+        <button
+          onClick={handleFavorite}
+          className="flex-1 flex flex-col items-center justify-center gap-1 transition-colors"
+          style={{
+            background: medaka.isFavorite ? "#f43f5e" : "#fb7185",
+          }}
+        >
+          <Heart
+            className="w-5 h-5 text-white"
+            fill={medaka.isFavorite ? "white" : "none"}
+            strokeWidth={2}
+          />
+          <span className="text-[10px] text-white font-bold">
+            {medaka.isFavorite ? "解除" : "お気に入り"}
+          </span>
+        </button>
+        {/* 削除 */}
+        <button
+          onClick={handleDelete}
+          className="flex-1 flex flex-col items-center justify-center gap-1 bg-red-500 active:bg-red-600 rounded-r-3xl"
+        >
+          <Trash2 className="w-5 h-5 text-white" />
+          <span className="text-[10px] text-white font-bold">削除</span>
+        </button>
+      </div>
 
       {/* メインカード */}
       <div
@@ -186,12 +200,12 @@ export function MedakaCard({
         onTouchEnd={onTouchEnd}
         className="bg-white cursor-pointer relative z-10"
         style={{
-          border:        `1px solid ${color}33`,
-          boxShadow:     `0 2px 12px ${color}18`,
-          borderRadius:  "1.5rem",
-          transform:     "translateX(0px)",
-          opacity:       baseOpacity,
-          willChange:    "transform",
+          border:       `1px solid ${color}33`,
+          boxShadow:    `0 2px 12px ${color}18`,
+          borderRadius: "1.5rem",
+          transform:    "translateX(0px)",
+          opacity:      baseOpacity,
+          willChange:   "transform",
         }}
       >
         <div className="flex items-stretch">
@@ -215,6 +229,12 @@ export function MedakaCard({
             ) : (
               <div className="py-2 animate-float-fish">
                 <VarietyMedakaSVG variety={medaka.variety} size={88} />
+              </div>
+            )}
+            {/* お気に入りバッジ */}
+            {medaka.isFavorite && (
+              <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-rose-500 flex items-center justify-center shadow">
+                <Heart className="w-3 h-3 text-white" fill="white" />
               </div>
             )}
           </div>

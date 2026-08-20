@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F1E7D2">
+<title>生きもの探訪しおり｜2026.8.21–8.22</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:      #F1E7D2;  /* クラフト紙 */
+    --paper-hi:   #FAF3E3;  /* カード面 */
+    --ink:        #2E2A22;  /* インク濃茶 */
+    --ink-soft:   rgba(46,42,34,.62);
+    --ink-line:   rgba(46,42,34,.28);
+    --green:      #3A6152;  /* 虫 */
+    --rust:       #BD5A36;  /* スタンプ / フェレット / 食事 */
+    --gold:       #A8792A;  /* キャラクター */
+    --indigo:     #4C6B87;  /* 移動 */
+    --serif: "Shippori Mincho", "Hiragino Mincho ProN", serif;
+    --maru:  "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+    --kaku:  "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+
+  html{ -webkit-text-size-adjust:100%; }
+
+  body{
+    font-family:var(--maru);
+    color:var(--ink);
+    line-height:1.75;
+    background-color:var(--paper);
+    /* 紙の繊維っぽいごく薄いむら */
+    background-image:
+      radial-gradient(ellipse 90% 60% at 18% 8%, rgba(255,255,255,.35), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 85% 90%, rgba(168,121,42,.06), transparent 65%),
+      repeating-linear-gradient(0deg, rgba(46,42,34,.016) 0 1px, transparent 1px 3px);
+    padding: 0 0 4rem;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding: 0 clamp(14px, 4vw, 24px);
+  }
+
+  a{ color:var(--indigo); }
+
+  .sr-only{
+    position:absolute;
+    width:1px; height:1px;
+    padding:0; margin:-1px;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+    border:0;
+  }
+
+  :focus-visible{
+    outline:3px solid var(--indigo);
+    outline-offset:2px;
+    border-radius:4px;
+  }
+
+  /* ───────────────── 表紙 ───────────────── */
+  .cover{
+    margin: clamp(18px,5vw,32px) 0 2.2rem;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    background:var(--paper-hi);
+    padding: clamp(26px,7vw,44px) clamp(18px,5vw,36px);
+    position:relative;
+    text-align:center;
+    box-shadow: 0 2px 0 rgba(46,42,34,.15);
+  }
+  /* 二重罫（フィールドノートの表紙枠） */
+  .cover::before{
+    content:"";
+    position:absolute; inset:7px;
+    border:1px solid var(--ink-line);
+    border-radius:6px;
+    pointer-events:none;
+  }
+  .cover-label{
+    font-family:var(--kaku);
+    font-size:.72rem;
+    letter-spacing:.32em;
+    text-indent:.32em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .cover-label::before,
+  .cover-label::after{ content:"─"; margin:0 .5em; color:var(--ink-line); }
+
+  .cover h1{
+    font-family:var(--serif);
+    font-weight:800;
+    font-size: clamp(1.55rem, 6.8vw, 2.5rem);
+    letter-spacing:.1em;
+    white-space:nowrap;
+    margin:.55em 0 .35em;
+    line-height:1.35;
+  }
+  .cover-sub{
+    font-family:var(--kaku);
+    font-size:.86rem;
+    color:var(--ink-soft);
+    letter-spacing:.04em;
+  }
+  .cover-date{
+    display:inline-block;
+    margin-top:1.15rem;
+    font-family:var(--kaku);
+    font-weight:700;
+    font-size:.95rem;
+    letter-spacing:.14em;
+    border-top:1px solid var(--ink-line);
+    border-bottom:1px solid var(--ink-line);
+    padding:.35em .9em;
+  }
+  .cover-date .arrow{ color:var(--rust); padding:0 .25em; }
+
+  /* 表紙の採集スタンプ（装飾） */
+  .cover-stamps{
+    margin-top:1.4rem;
+    display:flex;
+    justify-content:center;
+    gap: clamp(12px,4vw,22px);
+  }
+
+  /* ───────── 採集スタンプ（丸バッジ）共通 ───────── */
+  .stamp{
+    --c: var(--ink);
+    width:52px; height:52px;
+    border-radius:50%;
+    border:2px solid var(--c);
+    color:var(--c);
+    background:var(--paper-hi);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:1.35rem;
+    position:relative;
+    flex:none;
+  }
+  .stamp::before{           /* 内側の点線＝ハンコの飾り罫 */
+    content:"";
+    position:absolute; inset:4px;
+    border:1px dashed var(--c);
+    border-radius:50%;
+    opacity:.7;
+  }
+  .stamp.tilt-l{ transform:rotate(-6deg); }
+  .stamp.tilt-r{ transform:rotate(5deg); }
+
+  /* ───────────────── セクション見出し ───────────────── */
+  .day{ margin-bottom:2.6rem; }
+
+  .day-head{
+    display:flex;
+    align-items:baseline;
+    gap:.7em;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:.4em;
+    margin-bottom:1.2rem;
+  }
+  .day-no{
+    font-family:var(--kaku);
+    font-weight:700;
+    font-size:.78rem;
+    letter-spacing:.18em;
+    color:var(--paper-hi);
+    background:var(--ink);
+    padding:.28em .8em .24em;
+    border-radius:3px;
+    flex:none;
+  }
+  .day-head h2{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:1.3rem;
+    letter-spacing:.1em;
+  }
+  .day-head .date{
+    margin-left:auto;
+    font-family:var(--kaku);
+    font-size:.8rem;
+    color:var(--ink-soft);
+    letter-spacing:.08em;
+    flex:none;
+  }
+
+  /* ───────────────── タイムライン ───────────────── */
+  .timeline{ list-style:none; }
+
+  .tl-item{
+    --c: var(--ink);
+    display:grid;
+    grid-template-columns: 3.1rem 52px 1fr;
+    gap: 0 .8rem;
+    position:relative;
+    padding-bottom:1.35rem;
+  }
+  .tl-item:last-child{ padding-bottom:.2rem; }
+
+  /* 点線の縦ライン（バッジ列の中央） */
+  .tl-item::before{
+    content:"";
+    position:absolute;
+    left: calc(3.1rem + .8rem + 26px - 1px);
+    top:0; bottom:0;
+    border-left:2px dashed var(--ink-line);
+  }
+  .tl-item:first-child::before{ top:26px; }
+  .tl-item:last-child::before{ bottom: calc(100% - 26px); }
+
+  .tl-time{
+    font-family:var(--kaku);
+    font-weight:700;
+    font-size:.92rem;
+    letter-spacing:.02em;
+    font-variant-numeric: tabular-nums;
+    color:var(--c);
+    text-align:right;
+    padding-top:.72em;
+    white-space:nowrap;
+  }
+
+  .tl-badge{ position:relative; z-index:1; display:flex; justify-content:center; }
+
+  /* 移動・出発などの小マーカー */
+  .dot{
+    --c: var(--indigo);
+    width:30px; height:30px;
+    margin-top:11px;
+    border-radius:50%;
+    border:2px solid var(--c);
+    background:var(--paper);
+    color:var(--c);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:.8rem;
+    flex:none;
+  }
+
+  .tl-body{ padding-top:.35em; min-width:0; }
+  .tl-body h3, .tl-body h4{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:1.02rem;
+    letter-spacing:.05em;
+  }
+  .tl-main .tl-body h3, .tl-main .tl-body h4{
+    font-size:1.12rem;
+    color:var(--c);
+  }
+  .tl-note{
+    font-size:.85rem;
+    color:var(--ink-soft);
+    margin-top:.1em;
+  }
+  .tl-move .tl-body h4{ font-size:.95rem; font-family:var(--kaku); font-weight:700; }
+
+  .tag{
+    display:inline-block;
+    font-family:var(--kaku);
+    font-size:.7rem;
+    font-weight:700;
+    letter-spacing:.06em;
+    color:var(--c);
+    border:1px solid var(--c);
+    border-radius:999px;
+    padding:.05em .65em;
+    margin-top:.35em;
+    background:var(--paper-hi);
+  }
+
+  /* ───────────────── 夕食3択カード ───────────────── */
+  .choices{
+    list-style:none;
+    display:grid;
+    gap:.65rem;
+    margin-top:.7rem;
+  }
+  .choice{
+    border:1.5px solid var(--ink-line);
+    border-left:5px solid var(--rust);
+    border-radius:8px;
+    background:var(--paper-hi);
+    padding:.7rem .9rem .75rem;
+  }
+  .choice h5{
+    font-family:var(--serif);
+    font-size:1rem;
+    font-weight:700;
+    letter-spacing:.04em;
+    display:flex;
+    align-items:center;
+    gap:.5em;
+    flex-wrap:wrap;
+  }
+  .choice .badge{
+    font-family:var(--kaku);
+    font-size:.68rem;
+    font-weight:700;
+    color:var(--paper-hi);
+    background:var(--rust);
+    border-radius:3px;
+    padding:.12em .5em;
+    letter-spacing:.08em;
+    flex:none;
+  }
+  .choice p{ font-size:.85rem; color:var(--ink-soft); margin-top:.2em; }
+
+  /* ───────────────── 共通ルート・豆知識 ───────────────── */
+  .route{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.4rem .5rem;
+    font-family:var(--kaku);
+    font-size:.82rem;
+    font-weight:700;
+    margin-bottom:1.1rem;
+  }
+  .route .stop{
+    --c: var(--ink);
+    color:var(--c);
+    border:1.5px solid var(--c);
+    border-radius:999px;
+    padding:.18em .75em;
+    background:var(--paper-hi);
+    letter-spacing:.03em;
+  }
+  .route .sep{ color:var(--rust); font-weight:700; }
+
+  .memo{
+    border:1.5px dashed var(--ink-line);
+    border-radius:10px;
+    background:var(--paper-hi);
+    padding:.9rem 1rem 1rem;
+    margin-bottom:1.6rem;
+  }
+  .memo h3{
+    font-family:var(--kaku);
+    font-size:.8rem;
+    font-weight:700;
+    letter-spacing:.24em;
+    color:var(--green);
+    margin-bottom:.45em;
+  }
+  .memo h3::before{ content:"✎"; margin-right:.5em; }
+  .memo ul{ list-style:none; }
+  .memo li{
+    font-size:.86rem;
+    padding-left:1.2em;
+    position:relative;
+    margin-top:.25em;
+  }
+  .memo li::before{
+    content:"◦";
+    position:absolute; left:.25em;
+    color:var(--rust);
+    font-weight:700;
+  }
+
+  /* ───────────────── しおり風インデックスタブ ───────────────── */
+  .tabs{
+    display:flex;
+    gap:6px;
+    padding:0 6px;
+    position:relative;
+    z-index:2;
+  }
+  .tab{
+    --tabc: var(--ink);
+    flex:1 1 0;
+    min-width:0;
+    appearance:none;
+    cursor:pointer;
+    font-family:var(--kaku);
+    color:var(--ink-soft);
+    background:var(--paper);
+    border:1.5px solid var(--ink-line);
+    border-bottom:none;
+    border-radius:9px 9px 0 0;
+    padding:.5em .3em .65em;
+    transform:translateY(5px);
+    transition: transform .15s ease, background-color .15s ease;
+    text-align:center;
+    line-height:1.35;
+    box-shadow: inset 0 4px 0 var(--tabc);
+  }
+  .tab .tab-plan{
+    display:block;
+    font-weight:700;
+    font-size:.95rem;
+    letter-spacing:.1em;
+  }
+  .tab .tab-name{
+    display:block;
+    font-size:.68rem;
+    letter-spacing:.02em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .tab[aria-selected="true"]{
+    background:var(--paper-hi);
+    border-color:var(--ink);
+    color:var(--ink);
+    transform:translateY(1.5px);
+    font-weight:700;
+  }
+  .tab[aria-selected="true"] .tab-plan{ color:var(--tabc); }
+
+  .panel{
+    border:1.5px solid var(--ink);
+    border-radius:10px;
+    background:var(--paper-hi);
+    padding: 1.15rem clamp(.7rem,3.5vw,1.3rem) 1.3rem;
+    box-shadow: 0 2px 0 rgba(46,42,34,.12);
+  }
+  .panel[hidden]{ display:none; }
+
+  .panel-lead{
+    font-family:var(--kaku);
+    font-size:.82rem;
+    color:var(--ink-soft);
+    border-bottom:1px solid var(--ink-line);
+    padding-bottom:.7em;
+    margin-bottom:1.1rem;
+  }
+  .panel-lead strong{ color:var(--ink); letter-spacing:.04em; }
+
+  /* ───────────────── フッター ───────────────── */
+  .colophon{
+    margin-top:3rem;
+    text-align:center;
+    font-family:var(--kaku);
+    font-size:.72rem;
+    letter-spacing:.22em;
+    color:var(--ink-soft);
+  }
+  .colophon::before{ content:"❦"; display:block; color:var(--rust); font-size:1rem; margin-bottom:.4em; }
+
+  @media (max-width: 400px){
+    .tl-item{ grid-template-columns: 2.8rem 44px 1fr; gap:0 .55rem; }
+    .tl-item::before{ left: calc(2.8rem + .55rem + 22px - 1px); }
+    .tl-item:first-child::before{ top:22px; }
+    .tl-item:last-child::before{ bottom: calc(100% - 22px); }
+    .stamp{ width:44px; height:44px; font-size:1.15rem; }
+    .dot{ width:28px; height:28px; margin-top:9px; }
+    .day-head .date{ display:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .tab{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════ 表紙 ═══════════ -->
+  <header class="cover">
+    <p class="cover-label">Field Notes・観察のしおり</p>
+    <h1>生きもの探訪しおり</h1>
+    <p class="cover-sub">虫社・フェレットワールド中野・東京キャラクターストリート</p>
+    <p class="cover-date">2026.8.21 <span aria-hidden="true">Fri</span><span class="sr-only">金曜</span> <span class="arrow" aria-hidden="true">→</span> 8.22 <span aria-hidden="true">Sat</span></p>
+    <div class="cover-stamps" aria-hidden="true">
+      <span class="stamp tilt-l" style="--c:var(--green)">虫</span>
+      <span class="stamp tilt-r" style="--c:var(--rust)">鼬</span>
+      <span class="stamp tilt-l" style="--c:var(--gold)">玩</span>
+    </div>
+  </header>
+
+  <!-- ═══════════ 0日目 ═══════════ -->
+  <section class="day" aria-labelledby="day0-title">
+    <div class="day-head">
+      <span class="day-no">0日目</span>
+      <h2 id="day0-title">今夜</h2>
+      <span class="date">前泊・新宿</span>
+    </div>
+
+    <ol class="timeline">
+      <li class="tl-item tl-main" style="--c:var(--indigo)">
+        <div class="tl-time">17:00</div>
+        <div class="tl-badge"><span class="stamp" style="--c:var(--indigo)">宿</span></div>
+        <div class="tl-body">
+          <h3>新宿サンパークホテル チェックイン</h3>
+          <p class="tl-note">大久保駅・新大久保駅とも徒歩7分</p>
+        </div>
+      </li>
+      <li class="tl-item tl-main" style="--c:var(--rust)">
+        <div class="tl-time">18:30〜</div>
+        <div class="tl-badge"><span class="stamp tilt-r" style="--c:var(--rust)">食</span></div>
+        <div class="tl-body">
+          <h3>夕食：新大久保コリアンタウン</h3>
+          <p class="tl-note">気分で選べる3択。歩いて向かえる距離。</p>
+          <ul class="choices">
+            <li class="choice">
+              <h5>どしぃおぶ <span class="badge">予約推奨</span></h5>
+              <p>海鮮・刺身系。韓国刺身や海鮮鍋が名物。</p>
+            </li>
+            <li class="choice">
+              <h5>キムタッチライ <span class="badge">コスパ</span></h5>
+              <p>焼肉食べ放題。しっかり食べたい夜に。</p>
+            </li>
+            <li class="choice">
+              <h5>新大久保コリアアレー <span class="badge">屋台気分</span></h5>
+              <p>韓国屋台が集まるフードホール。少しずつ色々。</p>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ═══════════ 1日目 ═══════════ -->
+  <section class="day" aria-labelledby="day1-title">
+    <div class="day-head">
+      <span class="day-no">1日目</span>
+      <h2 id="day1-title">探訪ルート</h2>
+      <span class="date">8.21 Fri</span>
+    </div>
+
+    <p class="route" aria-label="共通ルート">
+      <span class="stop" style="--c:var(--green)">虫社（中野）</span>
+      <span class="sep" aria-hidden="true">→</span>
+      <span class="stop">昼食</span>
+      <span class="sep" aria-hidden="true">→</span>
+      <span class="stop" style="--c:var(--rust)">フェレットワールド中野（新井）</span>
+      <span class="sep" aria-hidden="true">→</span>
+      <span class="stop" style="--c:var(--gold)">東京キャラクターストリート</span>
+    </p>
+
+    <aside class="memo" aria-labelledby="memo-title">
+      <h3 id="memo-title">フィールドメモ（豆知識）</h3>
+      <ul>
+        <li>虫社・フェレットワールドとも開店11:00（「午前」は実質11時スタート）</li>
+        <li>中野⇄東京駅はJR中央線快速で乗換なし・約20分</li>
+        <li>虫社は現金も少し用意しておくと安心</li>
+        <li>キャラクターストリートは土曜午後混みやすい</li>
+      </ul>
+    </aside>
+
+    <!-- しおり風インデックスタブ -->
+    <div class="tabs" role="tablist" aria-label="1日目のプラン切り替え">
+      <button class="tab" id="tab-a" role="tab" aria-selected="true" aria-controls="panel-a" style="--tabc:var(--green)">
+        <span class="tab-plan">プランA</span>
+        <span class="tab-name">バランス型</span>
+      </button>
+      <button class="tab" id="tab-b" role="tab" aria-selected="false" aria-controls="panel-b" tabindex="-1" style="--tabc:var(--rust)">
+        <span class="tab-plan">プランB</span>
+        <span class="tab-name">中野満喫型</span>
+      </button>
+      <button class="tab" id="tab-c" role="tab" aria-selected="false" aria-controls="panel-c" tabindex="-1" style="--tabc:var(--gold)">
+        <span class="tab-plan">プランC</span>
+        <span class="tab-name">のんびり型</span>
+      </button>
+    </div>
+
+    <!-- ── プランA ── -->
+    <div class="panel" id="panel-a" role="tabpanel" aria-labelledby="tab-a" tabindex="0">
+      <p class="panel-lead"><strong>プランA｜バランス型</strong> ─ 王道で移動に無理がない</p>
+      <ol class="timeline">
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">10:40</div>
+          <div class="tl-badge"><span class="dot">発</span></div>
+          <div class="tl-body"><h4>ホテル出発</h4></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">10:50</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>大久保 → 中野</h4><p class="tl-note">中央・総武線各停 約8分</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--green)">
+          <div class="tl-time">11:00</div>
+          <div class="tl-badge"><span class="stamp tilt-l" style="--c:var(--green)">虫</span></div>
+          <div class="tl-body">
+            <h3>虫社</h3>
+            <p class="tl-note">開店と同時に入店。滞在約1.5時間。</p>
+            <span class="tag">現金少々あると安心</span>
+          </div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">12:30</div>
+          <div class="tl-badge"><span class="stamp" style="--c:var(--rust)">昼</span></div>
+          <div class="tl-body"><h3>中野で昼食</h3><p class="tl-note">約1時間</p></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">13:30</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>中野 → フェレットワールド</h4><p class="tl-note">徒歩20分 or タクシー約10分</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">14:00</div>
+          <div class="tl-badge"><span class="stamp tilt-r" style="--c:var(--rust)">鼬</span></div>
+          <div class="tl-body"><h3>フェレットワールド中野</h3><p class="tl-note">滞在約1.5時間</p></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">15:30</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>中野 → 東京駅</h4><p class="tl-note">中央線快速 約20分・乗換なし</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--gold)">
+          <div class="tl-time">16:00</div>
+          <div class="tl-badge"><span class="stamp tilt-l" style="--c:var(--gold)">玩</span></div>
+          <div class="tl-body"><h3>東京キャラクターストリート</h3><p class="tl-note">滞在約2時間</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">18:00</div>
+          <div class="tl-badge"><span class="stamp" style="--c:var(--rust)">食</span></div>
+          <div class="tl-body"><h3>夕食</h3><p class="tl-note">黒かつ亭など → ホテルへ</p></div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- ── プランB ── -->
+    <div class="panel" id="panel-b" role="tabpanel" aria-labelledby="tab-b" tabindex="0" hidden>
+      <p class="panel-lead"><strong>プランB｜中野満喫型</strong> ─ 虫社近くのナカノブロードウェイを追加</p>
+      <ol class="timeline">
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">10:45</div>
+          <div class="tl-badge"><span class="dot">発</span></div>
+          <div class="tl-body"><h4>ホテル出発</h4></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">10:55</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>大久保 → 中野</h4><p class="tl-note">中央・総武線各停 約8分</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--green)">
+          <div class="tl-time">11:00</div>
+          <div class="tl-badge"><span class="stamp tilt-l" style="--c:var(--green)">虫</span></div>
+          <div class="tl-body">
+            <h3>虫社</h3>
+            <p class="tl-note">滞在約1.5時間</p>
+            <span class="tag">現金少々あると安心</span>
+          </div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--gold)">
+          <div class="tl-time">12:30</div>
+          <div class="tl-badge"><span class="stamp tilt-r" style="--c:var(--gold)">街</span></div>
+          <div class="tl-body"><h3>ナカノブロードウェイ散策</h3><p class="tl-note">フィギュア・レトロ玩具・時計。約1時間。</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">13:30</div>
+          <div class="tl-badge"><span class="stamp" style="--c:var(--rust)">昼</span></div>
+          <div class="tl-body"><h3>昼食</h3><p class="tl-note">ブロードウェイ内 or 周辺で。約1時間。</p></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">14:30</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>中野 → フェレットワールド</h4><p class="tl-note">徒歩20分 or タクシー約10分</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">15:00</div>
+          <div class="tl-badge"><span class="stamp tilt-r" style="--c:var(--rust)">鼬</span></div>
+          <div class="tl-body"><h3>フェレットワールド中野</h3><p class="tl-note">滞在約1.5時間</p></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">16:30</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>中野 → 東京駅</h4><p class="tl-note">中央線快速 約20分・乗換なし</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--gold)">
+          <div class="tl-time">17:00</div>
+          <div class="tl-badge"><span class="stamp tilt-l" style="--c:var(--gold)">玩</span></div>
+          <div class="tl-body"><h3>東京キャラクターストリート</h3><p class="tl-note">滞在約2時間</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">19:00</div>
+          <div class="tl-badge"><span class="stamp" style="--c:var(--rust)">食</span></div>
+          <div class="tl-body"><h3>夕食</h3><p class="tl-note">食事のあと帰路へ</p></div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- ── プランC ── -->
+    <div class="panel" id="panel-c" role="tabpanel" aria-labelledby="tab-c" tabindex="0" hidden>
+      <p class="panel-lead"><strong>プランC｜のんびり型</strong> ─ バッファ多め、最後は少し贅沢に</p>
+      <ol class="timeline">
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">11:00</div>
+          <div class="tl-badge"><span class="dot">発</span></div>
+          <div class="tl-body"><h4>ホテル出発</h4></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">11:10</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>大久保 → 中野</h4><p class="tl-note">中央・総武線各停 約8分</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--green)">
+          <div class="tl-time">11:20</div>
+          <div class="tl-badge"><span class="stamp tilt-l" style="--c:var(--green)">虫</span></div>
+          <div class="tl-body">
+            <h3>虫社</h3>
+            <p class="tl-note">開店ラッシュが落ち着いてから。滞在約1.5〜2時間。</p>
+            <span class="tag">現金少々あると安心</span>
+          </div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">13:00</div>
+          <div class="tl-badge"><span class="stamp" style="--c:var(--rust)">昼</span></div>
+          <div class="tl-body"><h3>中野で遅めのランチ</h3><p class="tl-note">約1.5時間</p></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">14:30</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>中野 → フェレットワールド</h4><p class="tl-note">徒歩20分 or タクシー約10分</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">15:00</div>
+          <div class="tl-badge"><span class="stamp tilt-r" style="--c:var(--rust)">鼬</span></div>
+          <div class="tl-body"><h3>フェレットワールド中野</h3><p class="tl-note">滞在約1.5時間</p></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">16:30</div>
+          <div class="tl-badge"><span class="dot">移</span></div>
+          <div class="tl-body"><h4>中野 → 東京駅</h4><p class="tl-note">中央線快速 約20分・乗換なし</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--gold)">
+          <div class="tl-time">17:00</div>
+          <div class="tl-badge"><span class="stamp tilt-l" style="--c:var(--gold)">玩</span></div>
+          <div class="tl-body"><h3>東京キャラクターストリート</h3><p class="tl-note">滞在約1.5時間</p></div>
+        </li>
+        <li class="tl-item tl-main" style="--c:var(--rust)">
+          <div class="tl-time">18:30</div>
+          <div class="tl-badge"><span class="stamp" style="--c:var(--rust)">食</span></div>
+          <div class="tl-body"><h3>東京駅で少し贅沢な夕食</h3><p class="tl-note">Station Restaurant The Central など。約1.5時間。</p></div>
+        </li>
+        <li class="tl-item tl-move" style="--c:var(--indigo)">
+          <div class="tl-time">20:00</div>
+          <div class="tl-badge"><span class="dot">帰</span></div>
+          <div class="tl-body"><h4>帰路へ</h4></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="colophon">TOKYO IKIMONO FIELD NOTES</footer>
+</div>
+
+<script>
+(function(){
+  var tablist = document.querySelector('[role="tablist"]');
+  var tabs = Array.prototype.slice.call(tablist.querySelectorAll('[role="tab"]'));
+
+  function select(tab, focus){
+    tabs.forEach(function(t){
+      var selected = (t === tab);
+      t.setAttribute('aria-selected', selected ? 'true' : 'false');
+      t.tabIndex = selected ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !selected;
+    });
+    if (focus) tab.focus();
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){ select(tab, false); });
+  });
+
+  tablist.addEventListener('keydown', function(e){
+    var i = tabs.indexOf(document.activeElement);
+    if (i === -1) return;
+    var next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = tabs[(i + 1) % tabs.length];
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = tabs[(i - 1 + tabs.length) % tabs.length];
+    else if (e.key === 'Home') next = tabs[0];
+    else if (e.key === 'End') next = tabs[tabs.length - 1];
+    if (next){
+      e.preventDefault();
+      select(next, true);
+    }
+  });
+})();
+</script>
+</body>
+</html>

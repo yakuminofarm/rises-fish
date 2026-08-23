@@ -1,8 +1,8 @@
 "use client";
 
-import { Bug, GitBranch, Home, Worm } from "lucide-react";
+import { Bug, GitBranch, Home, JapaneseYen, Worm } from "lucide-react";
 
-export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae";
+export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost";
 
 interface KuwagataBottomNavProps {
   activeTab: KuwagataTabId;
@@ -14,14 +14,16 @@ const tabs: { id: KuwagataTabId; label: string }[] = [
   { id: "adults",   label: "成虫" },
   { id: "breeding", label: "ブリード" },
   { id: "larvae",   label: "幼虫" },
+  { id: "cost",     label: "収支" },
 ];
 
 function TabIcon({ id, isActive }: { id: KuwagataTabId; isActive: boolean }) {
   const cls = `w-5 h-5 transition-all ${isActive ? "scale-110" : "scale-100"}`;
-  if (id === "home")     return <Home      className={cls} />;
-  if (id === "adults")   return <Bug       className={cls} />;
-  if (id === "breeding") return <GitBranch className={cls} />;
-  return                        <Worm      className={cls} />;
+  if (id === "home")     return <Home        className={cls} />;
+  if (id === "adults")   return <Bug         className={cls} />;
+  if (id === "breeding") return <GitBranch   className={cls} />;
+  if (id === "larvae")   return <Worm        className={cls} />;
+  return                        <JapaneseYen className={cls} />;
 }
 
 export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProps) {

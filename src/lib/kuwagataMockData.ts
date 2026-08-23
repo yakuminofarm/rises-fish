@@ -1,4 +1,4 @@
-import { Beetle, BreedingLine, Larva } from "@/types/kuwagata";
+import { Beetle, BreedingLine, Expense, Larva } from "@/types/kuwagata";
 
 export const mockBeetles: Beetle[] = [
   {
@@ -12,6 +12,7 @@ export const mockBeetles: Beetle[] = [
     sizeMm: 85.5,
     emergedDate: "2025-06-15",
     acquiredDate: "2025-09-01",
+    priceYen: 28000,
     matured: true,
     isAlive: true,
     isFavorite: true,
@@ -27,6 +28,7 @@ export const mockBeetles: Beetle[] = [
     sizeMm: 54.0,
     emergedDate: "2025-05-20",
     acquiredDate: "2025-09-01",
+    priceYen: 9000,
     matured: true,
     isAlive: true,
     notes: "A1と同血統別ライン。産卵実績あり。",
@@ -42,6 +44,7 @@ export const mockBeetles: Beetle[] = [
     sizeMm: 103.2,
     emergedDate: "2025-08-10",
     acquiredDate: "2025-11-15",
+    priceYen: 15000,
     matured: true,
     isAlive: true,
     isFavorite: true,
@@ -57,6 +60,7 @@ export const mockBeetles: Beetle[] = [
     sizeMm: 48.5,
     emergedDate: "2025-09-01",
     acquiredDate: "2025-11-15",
+    priceYen: 4000,
     matured: true,
     isAlive: true,
     notes: "",
@@ -71,6 +75,7 @@ export const mockBeetles: Beetle[] = [
     sizeMm: 62.0,
     emergedDate: "2026-03-05",
     acquiredDate: "2026-05-10",
+    priceYen: 6500,
     matured: false,
     isAlive: true,
     notes: "グリーン系。後食開始待ち。",
@@ -85,9 +90,28 @@ export const mockBeetles: Beetle[] = [
     sizeMm: 38.0,
     emergedDate: "2026-03-20",
     acquiredDate: "2026-05-10",
+    priceYen: 3500,
     matured: false,
     isAlive: true,
     notes: "",
+  },
+  {
+    id: "kb-7",
+    code: "25SH-Z3",
+    species: "スマトラオオヒラタ",
+    locality: "アチェ",
+    generation: "CBF1",
+    gender: "male",
+    sizeMm: 92.0,
+    emergedDate: "2025-04-10",
+    acquiredDate: "2025-06-20",
+    priceYen: 5000,
+    matured: true,
+    isAlive: true,
+    soldDate: "2026-07-12",
+    soldPriceYen: 12000,
+    soldTo: "昆虫ショップK",
+    notes: "累代終了個体を販売。",
   },
 ];
 
@@ -140,8 +164,8 @@ export const mockLarvae: Larva[] = [
     gender: "male",
     hatchDate: "2026-07-05",
     bottleChanges: [
-      { id: "bc-1", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 2, memo: "割り出し後投入" },
-      { id: "bc-2", date: "2026-08-20", bottleType: "菌糸ビン", bottleSize: "1400cc", weightG: 18, memo: "食痕多め、早めに交換" },
+      { id: "bc-1", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 2, costYen: 480, memo: "割り出し後投入" },
+      { id: "bc-2", date: "2026-08-20", bottleType: "菌糸ビン", bottleSize: "1400cc", weightG: 18, costYen: 850, memo: "食痕多め、早めに交換" },
     ],
     isAlive: true,
     notes: "ライン一番の大型候補。",
@@ -155,8 +179,8 @@ export const mockLarvae: Larva[] = [
     gender: "male",
     hatchDate: "2026-07-05",
     bottleChanges: [
-      { id: "bc-3", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 2 },
-      { id: "bc-4", date: "2026-08-21", bottleType: "菌糸ビン", bottleSize: "1400cc", weightG: 15 },
+      { id: "bc-3", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 2, costYen: 480 },
+      { id: "bc-4", date: "2026-08-21", bottleType: "菌糸ビン", bottleSize: "1400cc", weightG: 15, costYen: 850 },
     ],
     isAlive: true,
     notes: "",
@@ -170,7 +194,7 @@ export const mockLarvae: Larva[] = [
     gender: "female",
     hatchDate: "2026-07-05",
     bottleChanges: [
-      { id: "bc-5", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 1 },
+      { id: "bc-5", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 1, costYen: 480 },
     ],
     isAlive: true,
     notes: "小ぶりだが順調。",
@@ -184,7 +208,7 @@ export const mockLarvae: Larva[] = [
     gender: "unknown",
     hatchDate: "2026-07-05",
     bottleChanges: [
-      { id: "bc-6", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 1 },
+      { id: "bc-6", date: "2026-07-05", bottleType: "菌糸ビン", bottleSize: "800cc", weightG: 1, costYen: 480 },
     ],
     isAlive: true,
     notes: "",
@@ -197,10 +221,10 @@ export const mockLarvae: Larva[] = [
     gender: "male",
     hatchDate: "2025-10-12",
     bottleChanges: [
-      { id: "bc-7", date: "2025-10-12", bottleType: "発酵マット", bottleSize: "800cc", weightG: 3 },
-      { id: "bc-8", date: "2025-12-20", bottleType: "発酵マット", bottleSize: "1400cc", weightG: 22 },
-      { id: "bc-9", date: "2026-03-15", bottleType: "発酵マット", bottleSize: "2000cc", weightG: 41 },
-      { id: "bc-10", date: "2026-06-28", bottleType: "発酵マット", bottleSize: "2000cc", weightG: 45, memo: "最終ビン。蛹室形成に期待" },
+      { id: "bc-7", date: "2025-10-12", bottleType: "発酵マット", bottleSize: "800cc", weightG: 3, costYen: 250 },
+      { id: "bc-8", date: "2025-12-20", bottleType: "発酵マット", bottleSize: "1400cc", weightG: 22, costYen: 400 },
+      { id: "bc-9", date: "2026-03-15", bottleType: "発酵マット", bottleSize: "2000cc", weightG: 41, costYen: 550 },
+      { id: "bc-10", date: "2026-06-28", bottleType: "発酵マット", bottleSize: "2000cc", weightG: 45, costYen: 550, memo: "最終ビン。蛹室形成に期待" },
     ],
     pupaDate: "2026-08-02",
     isAlive: true,
@@ -214,8 +238,8 @@ export const mockLarvae: Larva[] = [
     gender: "female",
     hatchDate: "2025-10-12",
     bottleChanges: [
-      { id: "bc-11", date: "2025-10-12", bottleType: "発酵マット", bottleSize: "800cc", weightG: 2 },
-      { id: "bc-12", date: "2026-01-10", bottleType: "発酵マット", bottleSize: "800cc", weightG: 14 },
+      { id: "bc-11", date: "2025-10-12", bottleType: "発酵マット", bottleSize: "800cc", weightG: 2, costYen: 250 },
+      { id: "bc-12", date: "2026-01-10", bottleType: "発酵マット", bottleSize: "800cc", weightG: 14, costYen: 250 },
     ],
     pupaDate: "2026-05-20",
     emergedDate: "2026-06-25",
@@ -223,4 +247,13 @@ export const mockLarvae: Larva[] = [
     isAlive: true,
     notes: "羽化済み。掘り出しは9月予定。",
   },
+];
+
+export const mockExpenses: Expense[] = [
+  { id: "ex-1", date: "2026-05-02", category: "ゼリー", amountYen: 1280, memo: "プロゼリー 50個入" },
+  { id: "ex-2", date: "2026-05-13", category: "産卵材", amountYen: 1800, memo: "植菌カワラ材 2本" },
+  { id: "ex-3", date: "2026-05-13", category: "マット", amountYen: 980, memo: "発酵マット 10L" },
+  { id: "ex-4", date: "2026-06-20", category: "器具・用品", amountYen: 2400, memo: "コバエシャッター 中 ×2" },
+  { id: "ex-5", date: "2026-07-28", category: "マット", amountYen: 1960, memo: "産卵用マット 20L" },
+  { id: "ex-6", date: "2026-08-10", category: "ゼリー", amountYen: 1280, memo: "プロゼリー 50個入" },
 ];

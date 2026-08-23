@@ -8,14 +8,15 @@ import { BeetleCard } from "@/components/kuwagata/BeetleCard";
 import { AddBeetleModal } from "@/components/kuwagata/AddBeetleModal";
 import { BeetleDetailModal } from "@/components/kuwagata/BeetleDetailModal";
 
-type FilterKey = "alive" | "male" | "female" | "matured" | "favorite";
+type FilterKey = "alive" | "male" | "female" | "matured" | "favorite" | "sold";
 
 const FILTER_OPTIONS: { key: FilterKey; label: string }[] = [
-  { key: "alive",    label: "🪲 生存中" },
+  { key: "alive",    label: "🪲 飼育中" },
   { key: "male",     label: "♂ オス" },
   { key: "female",   label: "♀ メス" },
   { key: "matured",  label: "🍌 後食済み" },
   { key: "favorite", label: "♥ お気に入り" },
+  { key: "sold",     label: "💰 販売済み" },
 ];
 
 type SortKey = "newest" | "oldest" | "size" | "code";
@@ -30,7 +31,8 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
 function applyFilter(beetles: Beetle[], active: Set<FilterKey>): Beetle[] {
   if (active.size === 0) return beetles;
   return beetles.filter((b) => {
-    if (active.has("alive") && !b.isAlive) return false;
+    if (active.has("alive") && (!b.isAlive || b.soldPriceYen != null)) return false;
+    if (active.has("sold") && b.soldPriceYen == null) return false;
     if (active.has("male") && b.gender !== "male") return false;
     if (active.has("female") && b.gender !== "female") return false;
     if (active.has("matured") && !b.matured) return false;

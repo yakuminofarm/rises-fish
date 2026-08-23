@@ -9,6 +9,7 @@ import {
   LINE_STATUS_LABELS,
   LINE_STATUS_ORDER,
   daysBetween,
+  speciesGradient,
 } from "@/lib/kuwagataUtils";
 import { formatDateShort } from "@/lib/utils";
 import { AddLineModal } from "@/components/kuwagata/AddLineModal";
@@ -32,11 +33,14 @@ function LineCard({ line, onClick }: { line: BreedingLine; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left bg-white rounded-2xl p-4 border shadow-sm transition-all active:scale-[0.98] ${
+      className={`w-full text-left bg-white rounded-2xl p-4 border shadow-sm transition-all active:scale-[0.98] relative overflow-hidden ${
         line.status === "finished" ? "border-gray-100 opacity-60" : "border-amber-100/60"
       }`}
     >
-      <div className="flex items-center justify-between gap-2 mb-2">
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${speciesGradient(line.species)}`}
+      />
+      <div className="flex items-center justify-between gap-2 mb-2 pl-1.5">
         <p className="text-sm font-bold text-gray-900">
           {line.name}
           <span className="text-xs font-medium text-gray-400 ml-1.5">{line.species}</span>
@@ -48,7 +52,7 @@ function LineCard({ line, onClick }: { line: BreedingLine; onClick: () => void }
         </span>
       </div>
 
-      <div className="flex items-center gap-1.5 text-xs">
+      <div className="flex items-center gap-1.5 text-xs pl-1.5">
         <span className="text-blue-600 font-semibold truncate">
           ♂ {male ? male.code : "未設定"}
         </span>
@@ -58,7 +62,7 @@ function LineCard({ line, onClick }: { line: BreedingLine; onClick: () => void }
         </span>
       </div>
 
-      <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs text-gray-400">
+      <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs text-gray-400 pl-1.5">
         {elapsed && <span className="text-amber-600 font-semibold">{elapsed}</span>}
         {line.splitDate && <span>割出 {formatDateShort(line.splitDate)}</span>}
         {line.larvaCount != null && <span>回収 {line.larvaCount}頭</span>}

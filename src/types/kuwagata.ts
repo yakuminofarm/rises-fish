@@ -27,10 +27,14 @@ export interface Beetle {
   sizeMm?: number;         // 体長 (mm)
   emergedDate?: string;    // 羽化日
   acquiredDate: string;    // 入手日
+  priceYen?: number;       // 入手金額 (円)
   matured?: boolean;       // 後食済み (ブリード可能な成熟状態)
   sourceLineId?: string;   // 出身ブリードライン
   isAlive: boolean;
   isFavorite?: boolean;
+  soldDate?: string;       // 販売日
+  soldPriceYen?: number;   // 販売金額 (円)
+  soldTo?: string;         // 販売先 (店舗・知人など)
   notes: string;
 }
 
@@ -69,6 +73,7 @@ export interface BottleChange {
   bottleType: string;      // 菌糸ビン / 発酵マット / カワラ菌糸 など
   bottleSize?: string;     // 800cc, 1400cc など
   weightG?: number;        // 交換時体重 (g)
+  costYen?: number;        // ビン・マット代 (円)
   memo?: string;
 }
 
@@ -81,10 +86,29 @@ export interface Larva {
   stage: LarvaStage;
   gender: Gender;          // 雌雄判別結果
   hatchDate?: string;      // 孵化日 (または割り出し日)
+  priceYen?: number;       // 入手金額 (購入幼虫の場合、円)
   bottleChanges: BottleChange[];
   pupaDate?: string;       // 蛹化日
   emergedDate?: string;    // 羽化日
   emergedSizeMm?: number;  // 羽化サイズ (mm)
   isAlive: boolean;
   notes: string;
+}
+
+/** 消耗品・経費のカテゴリ */
+export type ExpenseCategory =
+  | "ゼリー"
+  | "菌糸ビン"
+  | "マット"
+  | "産卵材"
+  | "器具・用品"
+  | "その他";
+
+/** 消耗品・経費の記録 (個体に紐付かない共通コスト) */
+export interface Expense {
+  id: string;
+  date: string;
+  category: ExpenseCategory;
+  amountYen: number;
+  memo?: string;
 }

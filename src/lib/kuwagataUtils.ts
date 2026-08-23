@@ -1,4 +1,4 @@
-import { BreedingLine, Larva, LarvaStage, LineStatus } from "@/types/kuwagata";
+import { Beetle, BreedingLine, Expense, ExpenseCategory, Larva, LarvaStage, LineStatus } from "@/types/kuwagata";
 
 export const SPECIES_OPTIONS = [
   "オオクワガタ",
@@ -85,6 +85,88 @@ export function daysSinceLastChange(larva: Larva): number | undefined {
   const last = latestBottleChange(larva);
   if (!last) return undefined;
   return daysBetween(last.date);
+}
+
+// ── 種類別のビジュアルカラー (アバターのグラデーション) ──────
+export const SPECIES_GRADIENTS: Record<string, string> = {
+  "オオクワガタ": "from-slate-700 to-indigo-950",
+  "ヒラタクワガタ": "from-zinc-600 to-zinc-900",
+  "コクワガタ": "from-stone-500 to-stone-800",
+  "ノコギリクワガタ": "from-orange-700 to-red-950",
+  "ミヤマクワガタ": "from-yellow-700 to-amber-950",
+  "パラワンオオヒラタ": "from-slate-600 to-slate-950",
+  "スマトラオオヒラタ": "from-gray-600 to-gray-950",
+  "アンタエウスオオクワガタ": "from-indigo-700 to-indigo-950",
+  "ギラファノコギリクワガタ": "from-amber-700 to-yellow-950",
+  "ニジイロクワガタ": "from-emerald-500 via-teal-600 to-fuchsia-700",
+  "タランドゥスオオツヤクワガタ": "from-neutral-600 to-black",
+  "オウゴンオニクワガタ": "from-yellow-400 to-amber-700",
+};
+
+export function speciesGradient(species: string): string {
+  return SPECIES_GRADIENTS[species] ?? "from-amber-600 to-amber-900";
+}
+
+// ── 費用・収支 ──────────────────────────────────────
+export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  "ゼリー",
+  "菌糸ビン",
+  "マット",
+  "産卵材",
+  "器具・用品",
+  "その他",
+];
+
+export function formatYen(n: number): string {
+  return `¥${Math.round(n).toLocaleString("ja-JP")}`;
+}
+
+/** 幼虫1頭あたりのコスト = 入手金額 + ビン・マット代の累計 */
+export function larvaCost(larva: Larva): number {
+  const bottles = larva.bottleChanges.reduce((sum, c) => sum + (c.costYen ?? 0), 0);
+  return (larva.priceYen ?? 0) + bottles;
+}
+
+export interface CostSummary {
+  beetlePurchase: number;   // 成虫の入手金額合計
+  larvaPurchase: number;    // 幼虫の入手金額合計
+  bottleCost: number;       // ビン・マット代合計 (幼虫の交換記録)
+  expenseByCategory: Partial<Record<ExpenseCategory, number>>;
+  expenseTotal: number;     // 消耗品・経費合計
+  totalSpent: number;       // 総支出
+  salesTotal: number;       // 販売額合計
+  balance: number;          // 収支 (売上 - 支出)
+}
+
+export function calcCostSummary(
+  beetles: Beetle[],
+  larvae: Larva[],
+  expenses: Expense[]
+): CostSummary {
+  const beetlePurchase = beetles.reduce((s, b) => s + (b.priceYen ?? 0), 0);
+  const larvaPurchase = larvae.reduce((s, l) => s + (l.priceYen ?? 0), 0);
+  const bottleCost = larvae.reduce(
+    (s, l) => s + l.bottleChanges.reduce((t, c) => t + (c.costYen ?? 0), 0),
+    0
+  );
+  const expenseByCategory: Partial<Record<ExpenseCategory, number>> = {};
+  let expenseTotal = 0;
+  for (const e of expenses) {
+    expenseByCategory[e.category] = (expenseByCategory[e.category] ?? 0) + e.amountYen;
+    expenseTotal += e.amountYen;
+  }
+  const totalSpent = beetlePurchase + larvaPurchase + bottleCost + expenseTotal;
+  const salesTotal = beetles.reduce((s, b) => s + (b.soldPriceYen ?? 0), 0);
+  return {
+    beetlePurchase,
+    larvaPurchase,
+    bottleCost,
+    expenseByCategory,
+    expenseTotal,
+    totalSpent,
+    salesTotal,
+    balance: salesTotal - totalSpent,
+  };
 }
 
 export interface UpcomingTask {

@@ -12,6 +12,7 @@ import {
   daysSinceLastChange,
   latestBottleChange,
   latestWeight,
+  speciesGradient,
 } from "@/lib/kuwagataUtils";
 import { getGenderColor, getGenderLabel } from "@/lib/utils";
 import { AddLarvaModal } from "@/components/kuwagata/AddLarvaModal";
@@ -34,7 +35,7 @@ function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left bg-white rounded-2xl p-4 border shadow-sm transition-all active:scale-[0.98] ${
+      className={`w-full text-left bg-white rounded-2xl p-4 border shadow-sm transition-all active:scale-[0.98] relative overflow-hidden ${
         !larva.isAlive
           ? "border-gray-100 opacity-60"
           : needsChange
@@ -42,7 +43,10 @@ function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
           : "border-amber-100/60"
       }`}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${speciesGradient(larva.species)}`}
+      />
+      <div className="flex items-center justify-between gap-2 pl-1.5">
         <div className="flex items-center gap-2 min-w-0">
           <p className="text-sm font-bold text-gray-900 truncate">{larva.code}</p>
           <span
@@ -70,7 +74,7 @@ function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
         )}
       </div>
 
-      <div className="flex items-center gap-2.5 mt-1.5 flex-wrap text-xs text-gray-400">
+      <div className="flex items-center gap-2.5 mt-1.5 flex-wrap text-xs text-gray-400 pl-1.5">
         <span className="truncate">{larva.species}</span>
         {line && <span className="text-amber-600 font-semibold">{line.name}</span>}
         {larva.gender !== "unknown" && (
@@ -87,7 +91,7 @@ function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
       </div>
 
       {needsChange && (
-        <p className="mt-2 text-xs font-bold text-red-500 flex items-center gap-1">
+        <p className="mt-2 text-xs font-bold text-red-500 flex items-center gap-1 pl-1.5">
           <AlertTriangle className="w-3.5 h-3.5" />
           前回交換から{days}日経過 — ビン交換の時期です
         </p>

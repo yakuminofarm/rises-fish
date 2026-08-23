@@ -3,6 +3,7 @@
 import { Heart, Ruler } from "lucide-react";
 import { Beetle } from "@/types/kuwagata";
 import { useKuwagataStore } from "@/store/kuwagataStore";
+import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
 import { getGenderColor, getGenderLabel } from "@/lib/utils";
 
 interface BeetleCardProps {
@@ -12,28 +13,33 @@ interface BeetleCardProps {
 
 export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
   const toggleFavorite = useKuwagataStore((s) => s.toggleFavorite);
+  const isSold = beetle.soldPriceYen != null;
 
   return (
     <button
       onClick={onClick}
       className={`w-full text-left bg-white rounded-2xl p-4 border shadow-sm transition-all active:scale-[0.98] ${
-        beetle.isAlive ? "border-amber-100/60" : "border-gray-100 opacity-60"
+        beetle.isAlive && !isSold ? "border-amber-100/60" : "border-gray-100 opacity-70"
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">
-          🪲
-        </div>
+        <SpeciesAvatar species={beetle.species} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <p className="text-sm font-bold text-gray-900 truncate">{beetle.code}</p>
             {beetle.name && (
               <p className="text-xs text-gray-400 truncate">「{beetle.name}」</p>
             )}
-            {!beetle.isAlive && (
-              <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                ★飼育終了
+            {isSold ? (
+              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                販売済み
               </span>
+            ) : (
+              !beetle.isAlive && (
+                <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                  ★飼育終了
+                </span>
+              )
             )}
           </div>
           <p className="text-xs text-gray-500 truncate mt-0.5">
@@ -55,7 +61,7 @@ export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
                 {beetle.sizeMm}mm
               </span>
             )}
-            {beetle.matured && beetle.isAlive && (
+            {beetle.matured && beetle.isAlive && !isSold && (
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
                 後食済み
               </span>

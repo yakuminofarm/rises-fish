@@ -31,6 +31,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
     sizeMm: "",
     emergedDate: "",
     acquiredDate: new Date().toISOString().split("T")[0],
+    priceYen: "",
     matured: false,
     notes: "",
   });
@@ -53,6 +54,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
       sizeMm: form.sizeMm ? parseFloat(form.sizeMm) : undefined,
       emergedDate: form.emergedDate || undefined,
       acquiredDate: form.acquiredDate,
+      priceYen: form.priceYen ? parseInt(form.priceYen) : undefined,
       matured: form.matured,
       isAlive: true,
       notes: form.notes,
@@ -206,6 +208,18 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
             >
               後食済み
             </button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">入手金額 (円)</label>
+            <input
+              type="number"
+              min="0"
+              value={form.priceYen}
+              onChange={(e) => setForm({ ...form, priceYen: e.target.value })}
+              placeholder="例: 15000 (収支管理に反映されます)"
+              className={inputCls}
+            />
           </div>
 
           <div className="pb-4">

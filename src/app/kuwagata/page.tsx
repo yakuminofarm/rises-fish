@@ -6,6 +6,7 @@ import { KuwagataHomeTab } from "@/components/kuwagata/tabs/KuwagataHomeTab";
 import { AdultTab } from "@/components/kuwagata/tabs/AdultTab";
 import { BreedingTab } from "@/components/kuwagata/tabs/BreedingTab";
 import { LarvaTab } from "@/components/kuwagata/tabs/LarvaTab";
+import { CostTab } from "@/components/kuwagata/tabs/CostTab";
 import { ToastProvider } from "@/components/ui/Toast";
 
 const TAB_TITLES: Record<KuwagataTabId, string> = {
@@ -13,6 +14,7 @@ const TAB_TITLES: Record<KuwagataTabId, string> = {
   adults: "成虫管理",
   breeding: "ブリード管理",
   larvae: "幼虫管理",
+  cost: "収支管理",
 };
 
 export default function KuwagataPage() {
@@ -35,6 +37,7 @@ export default function KuwagataPage() {
           {activeTab === "adults" && <AdultTab />}
           {activeTab === "breeding" && <BreedingTab />}
           {activeTab === "larvae" && <LarvaTab />}
+          {activeTab === "cost" && <CostTab />}
         </main>
 
         <KuwagataBottomNav activeTab={activeTab} onChange={setActiveTab} />

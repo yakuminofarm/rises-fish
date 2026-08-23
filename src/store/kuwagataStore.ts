@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Beetle, BottleChange, BreedingLine, Larva } from "@/types/kuwagata";
-import { mockBeetles, mockLarvae, mockLines } from "@/lib/kuwagataMockData";
+import { Beetle, BottleChange, BreedingLine, Expense, Larva } from "@/types/kuwagata";
+import { mockBeetles, mockExpenses, mockLarvae, mockLines } from "@/lib/kuwagataMockData";
 
 interface KuwagataStore {
   beetles: Beetle[];
   lines: BreedingLine[];
   larvae: Larva[];
+  expenses: Expense[];
 
   addBeetle: (beetle: Beetle) => void;
   updateBeetle: (id: string, updates: Partial<Beetle>) => void;
@@ -24,6 +25,12 @@ interface KuwagataStore {
   deleteLarva: (id: string) => void;
   getLarva: (id: string) => Larva | undefined;
   addBottleChange: (larvaId: string, change: BottleChange) => void;
+  updateBottleChange: (larvaId: string, changeId: string, updates: Partial<BottleChange>) => void;
+  deleteBottleChange: (larvaId: string, changeId: string) => void;
+
+  addExpense: (expense: Expense) => void;
+  updateExpense: (id: string, updates: Partial<Expense>) => void;
+  deleteExpense: (id: string) => void;
 
   getLarvaeByLine: (lineId: string) => Larva[];
 }
@@ -34,6 +41,7 @@ export const useKuwagataStore = create<KuwagataStore>()(
       beetles: mockBeetles,
       lines: mockLines,
       larvae: mockLarvae,
+      expenses: mockExpenses,
 
       addBeetle: (beetle) => set((s) => ({ beetles: [...s.beetles, beetle] })),
 
@@ -87,6 +95,39 @@ export const useKuwagataStore = create<KuwagataStore>()(
           ),
         })),
 
+      updateBottleChange: (larvaId, changeId, updates) =>
+        set((s) => ({
+          larvae: s.larvae.map((l) =>
+            l.id === larvaId
+              ? {
+                  ...l,
+                  bottleChanges: l.bottleChanges.map((c) =>
+                    c.id === changeId ? { ...c, ...updates } : c
+                  ),
+                }
+              : l
+          ),
+        })),
+
+      deleteBottleChange: (larvaId, changeId) =>
+        set((s) => ({
+          larvae: s.larvae.map((l) =>
+            l.id === larvaId
+              ? { ...l, bottleChanges: l.bottleChanges.filter((c) => c.id !== changeId) }
+              : l
+          ),
+        })),
+
+      addExpense: (expense) => set((s) => ({ expenses: [...s.expenses, expense] })),
+
+      updateExpense: (id, updates) =>
+        set((s) => ({
+          expenses: s.expenses.map((e) => (e.id === id ? { ...e, ...updates } : e)),
+        })),
+
+      deleteExpense: (id) =>
+        set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) })),
+
       getLarvaeByLine: (lineId) =>
         get().larvae.filter((l) => l.lineId === lineId),
     }),
@@ -99,6 +140,7 @@ export const useKuwagataStore = create<KuwagataStore>()(
           beetles: p?.beetles?.length ? p.beetles : current.beetles,
           lines: p?.lines?.length ? p.lines : current.lines,
           larvae: p?.larvae?.length ? p.larvae : current.larvae,
+          expenses: p?.expenses?.length ? p.expenses : current.expenses,
         };
       },
     }

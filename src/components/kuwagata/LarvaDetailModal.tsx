@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Plus, Trash2, X } from "lucide-react";
+import { CheckCircle2, Pencil, Plus, Trash2, X } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { BottleChange, Gender, Larva } from "@/types/kuwagata";
-import { STAGE_COLORS, STAGE_LABELS } from "@/lib/kuwagataUtils";
+import { STAGE_COLORS, STAGE_LABELS, formatYen, larvaCost } from "@/lib/kuwagataUtils";
 import { formatDate, formatDateShort, generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 
@@ -25,23 +25,133 @@ interface LarvaDetailModalProps {
 const inputCls =
   "w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-emerald-400";
 
+interface ChangeFormState {
+  date: string;
+  bottleType: string;
+  bottleSize: string;
+  weightG: string;
+  costYen: string;
+  memo: string;
+}
+
+function emptyChangeForm(): ChangeFormState {
+  return {
+    date: new Date().toISOString().split("T")[0],
+    bottleType: "菌糸ビン",
+    bottleSize: "800cc",
+    weightG: "",
+    costYen: "",
+    memo: "",
+  };
+}
+
+function BottleChangeForm({
+  initial,
+  onSubmit,
+  onCancel,
+  submitLabel,
+}: {
+  initial: ChangeFormState;
+  onSubmit: (form: ChangeFormState) => void;
+  onCancel: () => void;
+  submitLabel: string;
+}) {
+  const [form, setForm] = useState(initial);
+  return (
+    <div className="bg-emerald-50/50 rounded-2xl p-3.5 space-y-2.5">
+      <div className="grid grid-cols-2 gap-2">
+        <input
+          type="date"
+          value={form.date}
+          onChange={(e) => setForm({ ...form, date: e.target.value })}
+          className={inputCls}
+        />
+        <input
+          type="number"
+          step="0.1"
+          min="0"
+          value={form.weightG}
+          onChange={(e) => setForm({ ...form, weightG: e.target.value })}
+          placeholder="体重 (g)"
+          className={inputCls}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <select
+          value={form.bottleType}
+          onChange={(e) => setForm({ ...form, bottleType: e.target.value })}
+          className={inputCls}
+        >
+          {["菌糸ビン", "カワラ菌糸", "発酵マット", "プリンカップ"].map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+        <select
+          value={form.bottleSize}
+          onChange={(e) => setForm({ ...form, bottleSize: e.target.value })}
+          className={inputCls}
+        >
+          {["200cc", "500cc", "800cc", "1400cc", "2000cc", "3000cc"].map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <input
+          type="number"
+          min="0"
+          value={form.costYen}
+          onChange={(e) => setForm({ ...form, costYen: e.target.value })}
+          placeholder="ビン代 (円)"
+          className={inputCls}
+        />
+        <input
+          value={form.memo}
+          onChange={(e) => setForm({ ...form, memo: e.target.value })}
+          placeholder="メモ (任意)"
+          className={inputCls}
+        />
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={onCancel}
+          className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-500 text-sm font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-1"
+        >
+          <X className="w-4 h-4" />
+          キャンセル
+        </button>
+        <button
+          onClick={() => onSubmit(form)}
+          className="flex-1 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
+        >
+          <CheckCircle2 className="w-4 h-4" />
+          {submitLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalProps) {
-  const { larvae, lines, updateLarva, deleteLarva, addBottleChange } = useKuwagataStore();
+  const {
+    larvae,
+    lines,
+    updateLarva,
+    deleteLarva,
+    addBottleChange,
+    updateBottleChange,
+    deleteBottleChange,
+  } = useKuwagataStore();
   const { showToast } = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showChangeForm, setShowChangeForm] = useState(false);
+  const [editingChangeId, setEditingChangeId] = useState<string | null>(null);
+  const [confirmDeleteChangeId, setConfirmDeleteChangeId] = useState<string | null>(null);
 
   const larva = larvae.find((l) => l.id === initial.id) ?? initial;
   const line = larva.lineId ? lines.find((l) => l.id === larva.lineId) : undefined;
 
   const today = new Date().toISOString().split("T")[0];
-  const [changeForm, setChangeForm] = useState({
-    date: today,
-    bottleType: "菌糸ビン",
-    bottleSize: "800cc",
-    weightG: "",
-    memo: "",
-  });
   const [emergeForm, setEmergeForm] = useState({ date: today, sizeMm: "" });
 
   const sortedChanges = [...larva.bottleChanges].sort((a, b) =>
@@ -51,19 +161,34 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
     .filter((c) => c.weightG != null)
     .map((c) => ({ date: formatDateShort(c.date), weight: c.weightG }));
 
-  const submitChange = () => {
+  const totalCost = larvaCost(larva);
+
+  const submitAdd = (form: ChangeFormState) => {
     const change: BottleChange = {
       id: generateId(),
-      date: changeForm.date,
-      bottleType: changeForm.bottleType,
-      bottleSize: changeForm.bottleSize || undefined,
-      weightG: changeForm.weightG ? parseFloat(changeForm.weightG) : undefined,
-      memo: changeForm.memo || undefined,
+      date: form.date,
+      bottleType: form.bottleType,
+      bottleSize: form.bottleSize || undefined,
+      weightG: form.weightG ? parseFloat(form.weightG) : undefined,
+      costYen: form.costYen ? parseInt(form.costYen) : undefined,
+      memo: form.memo || undefined,
     };
     addBottleChange(larva.id, change);
     setShowChangeForm(false);
-    setChangeForm({ ...changeForm, weightG: "", memo: "" });
     showToast("ビン交換を記録しました");
+  };
+
+  const submitEdit = (changeId: string, form: ChangeFormState) => {
+    updateBottleChange(larva.id, changeId, {
+      date: form.date,
+      bottleType: form.bottleType,
+      bottleSize: form.bottleSize || undefined,
+      weightG: form.weightG ? parseFloat(form.weightG) : undefined,
+      costYen: form.costYen ? parseInt(form.costYen) : undefined,
+      memo: form.memo || undefined,
+    });
+    setEditingChangeId(null);
+    showToast("交換記録を更新しました");
   };
 
   const setGender = (gender: Gender) => updateLarva(larva.id, { gender });
@@ -148,6 +273,22 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
                 </span>
               </div>
             )}
+            {larva.priceYen != null && (
+              <div className="flex justify-between">
+                <span className="text-gray-400">入手金額</span>
+                <span className="font-semibold text-gray-800" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {formatYen(larva.priceYen)}
+                </span>
+              </div>
+            )}
+            {totalCost > 0 && (
+              <div className="flex justify-between pt-1 mt-1 border-t border-emerald-100">
+                <span className="text-gray-500 font-semibold">この個体のコスト累計</span>
+                <span className="font-bold text-amber-700" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {formatYen(totalCost)}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* 雌雄判別 */}
@@ -207,9 +348,12 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-gray-800">ビン交換履歴</h3>
-              {larva.stage !== "adult" && larva.stage !== "pupa" && (
+              {!showChangeForm && (
                 <button
-                  onClick={() => setShowChangeForm(!showChangeForm)}
+                  onClick={() => {
+                    setShowChangeForm(true);
+                    setEditingChangeId(null);
+                  }}
                   className="text-xs font-bold text-emerald-600 flex items-center gap-0.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -219,57 +363,13 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
             </div>
 
             {showChangeForm && (
-              <div className="bg-emerald-50/50 rounded-2xl p-3.5 space-y-2.5 mb-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="date"
-                    value={changeForm.date}
-                    onChange={(e) => setChangeForm({ ...changeForm, date: e.target.value })}
-                    className={inputCls}
-                  />
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    value={changeForm.weightG}
-                    onChange={(e) => setChangeForm({ ...changeForm, weightG: e.target.value })}
-                    placeholder="体重 (g)"
-                    className={inputCls}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <select
-                    value={changeForm.bottleType}
-                    onChange={(e) => setChangeForm({ ...changeForm, bottleType: e.target.value })}
-                    className={inputCls}
-                  >
-                    {["菌糸ビン", "カワラ菌糸", "発酵マット", "プリンカップ"].map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={changeForm.bottleSize}
-                    onChange={(e) => setChangeForm({ ...changeForm, bottleSize: e.target.value })}
-                    className={inputCls}
-                  >
-                    {["200cc", "500cc", "800cc", "1400cc", "2000cc", "3000cc"].map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-                <input
-                  value={changeForm.memo}
-                  onChange={(e) => setChangeForm({ ...changeForm, memo: e.target.value })}
-                  placeholder="メモ (任意)"
-                  className={inputCls}
+              <div className="mb-3">
+                <BottleChangeForm
+                  initial={emptyChangeForm()}
+                  onSubmit={submitAdd}
+                  onCancel={() => setShowChangeForm(false)}
+                  submitLabel="記録する"
                 />
-                <button
-                  onClick={submitChange}
-                  className="w-full py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  記録する
-                </button>
               </div>
             )}
 
@@ -279,30 +379,85 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
               </p>
             ) : (
               <div className="space-y-1.5">
-                {[...sortedChanges].reverse().map((c) => (
-                  <div
-                    key={c.id}
-                    className="bg-white border border-gray-100 rounded-xl px-3.5 py-2.5 flex items-center justify-between gap-2"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-800">
-                        {c.bottleType}
-                        {c.bottleSize && <span className="text-gray-400 font-normal"> {c.bottleSize}</span>}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {formatDateShort(c.date)}
-                        {c.memo && ` ・ ${c.memo}`}
-                      </p>
+                {[...sortedChanges].reverse().map((c) =>
+                  editingChangeId === c.id ? (
+                    <BottleChangeForm
+                      key={c.id}
+                      initial={{
+                        date: c.date,
+                        bottleType: c.bottleType,
+                        bottleSize: c.bottleSize ?? "800cc",
+                        weightG: c.weightG != null ? String(c.weightG) : "",
+                        costYen: c.costYen != null ? String(c.costYen) : "",
+                        memo: c.memo ?? "",
+                      }}
+                      onSubmit={(form) => submitEdit(c.id, form)}
+                      onCancel={() => setEditingChangeId(null)}
+                      submitLabel="更新する"
+                    />
+                  ) : (
+                    <div
+                      key={c.id}
+                      className="bg-white border border-gray-100 rounded-xl px-3.5 py-2.5 flex items-center gap-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-gray-800">
+                          {c.bottleType}
+                          {c.bottleSize && <span className="text-gray-400 font-normal"> {c.bottleSize}</span>}
+                          {c.costYen != null && (
+                            <span className="text-xs font-semibold text-amber-700 ml-1.5">
+                              {formatYen(c.costYen)}
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {formatDateShort(c.date)}
+                          {c.memo && ` ・ ${c.memo}`}
+                        </p>
+                      </div>
+                      {c.weightG != null && (
+                        <p className="text-base font-bold text-emerald-600 flex-shrink-0">
+                          {c.weightG}
+                          <span className="text-xs text-gray-400 font-semibold">g</span>
+                        </p>
+                      )}
+                      <button
+                        onClick={() => {
+                          setEditingChangeId(c.id);
+                          setShowChangeForm(false);
+                          setConfirmDeleteChangeId(null);
+                        }}
+                        className="p-1.5 text-gray-300 hover:text-emerald-600 flex-shrink-0"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirmDeleteChangeId === c.id) {
+                            deleteBottleChange(larva.id, c.id);
+                            setConfirmDeleteChangeId(null);
+                            showToast("交換記録を削除しました");
+                          } else {
+                            setConfirmDeleteChangeId(c.id);
+                          }
+                        }}
+                        className={`p-1.5 flex-shrink-0 ${
+                          confirmDeleteChangeId === c.id
+                            ? "text-red-500"
+                            : "text-gray-300 hover:text-red-400"
+                        }`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    {c.weightG != null && (
-                      <p className="text-base font-bold text-emerald-600 flex-shrink-0">
-                        {c.weightG}
-                        <span className="text-xs text-gray-400 font-semibold">g</span>
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  )
+                )}
               </div>
+            )}
+            {confirmDeleteChangeId && (
+              <p className="text-xs text-red-500 mt-1.5 px-0.5">
+                もう一度ゴミ箱をタップすると削除されます
+              </p>
             )}
           </div>
 

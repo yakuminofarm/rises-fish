@@ -28,6 +28,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
     stage: "L1" as LarvaStage,
     gender: "unknown" as Gender,
     hatchDate: new Date().toISOString().split("T")[0],
+    priceYen: "",
     notes: "",
   });
 
@@ -55,6 +56,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
       stage: form.stage,
       gender: form.gender,
       hatchDate: form.hatchDate || undefined,
+      priceYen: form.priceYen ? parseInt(form.priceYen) : undefined,
       bottleChanges: [],
       isAlive: true,
       notes: form.notes,
@@ -167,6 +169,18 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
                 <option value="female">♀ メス</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">入手金額 (円)</label>
+            <input
+              type="number"
+              min="0"
+              value={form.priceYen}
+              onChange={(e) => setForm({ ...form, priceYen: e.target.value })}
+              placeholder="購入幼虫の場合 (収支管理に反映)"
+              className={inputCls}
+            />
           </div>
 
           <div className="pb-4">

@@ -1,8 +1,8 @@
 "use client";
 
-import { Bug, GitBranch, Home, JapaneseYen, Worm } from "lucide-react";
+import { BookOpen, Bug, GitBranch, Home, JapaneseYen, Worm } from "lucide-react";
 
-export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost";
+export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost" | "articles";
 
 interface KuwagataBottomNavProps {
   activeTab: KuwagataTabId;
@@ -15,6 +15,7 @@ const tabs: { id: KuwagataTabId; label: string }[] = [
   { id: "breeding", label: "ブリード" },
   { id: "larvae",   label: "幼虫" },
   { id: "cost",     label: "収支" },
+  { id: "articles", label: "記事" },
 ];
 
 function TabIcon({ id, isActive }: { id: KuwagataTabId; isActive: boolean }) {
@@ -23,7 +24,8 @@ function TabIcon({ id, isActive }: { id: KuwagataTabId; isActive: boolean }) {
   if (id === "adults")   return <Bug         className={cls} />;
   if (id === "breeding") return <GitBranch   className={cls} />;
   if (id === "larvae")   return <Worm        className={cls} />;
-  return                        <JapaneseYen className={cls} />;
+  if (id === "cost")     return <JapaneseYen className={cls} />;
+  return                        <BookOpen    className={cls} />;
 }
 
 export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProps) {

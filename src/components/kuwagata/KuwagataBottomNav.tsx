@@ -34,7 +34,7 @@ export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProp
       <div
         className="px-2 pb-safe"
         style={{
-          background: "rgba(246, 239, 227, 0.88)",
+          background: "rgba(234, 217, 189, 0.92)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           borderTop: "1px solid var(--kuwa-line)",

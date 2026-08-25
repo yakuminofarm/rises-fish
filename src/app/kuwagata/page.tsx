@@ -32,16 +32,12 @@ export default function KuwagataPage() {
         href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap"
       />
       {/* 画面全体の地色 (共通bodyの色を上書き) */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{ background: "var(--kuwa-bg)" }}
-        aria-hidden
-      />
+      <style>{`body { background: var(--kuwa-bg); }`}</style>
       <div className="min-h-screen max-w-md mx-auto" style={{ background: "var(--kuwa-bg)" }}>
         <header
           className="sticky top-0 z-20 px-5 py-3.5 flex items-center gap-3"
           style={{
-            background: "rgba(246, 239, 227, 0.85)",
+            background: "rgba(234, 217, 189, 0.9)",
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
             borderBottom: "1px solid var(--kuwa-line)",

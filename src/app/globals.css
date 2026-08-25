@@ -113,18 +113,21 @@ textarea { font-size: 16px; }
    朽木・樹液・黒土・苔 — 飼育現場の自然色
    ════════════════════════════════════════════ */
 :root {
-  --kuwa-bg:        #f6efe3;  /* 生成り (背景) */
-  --kuwa-card:      #fffdf8;  /* カード面 */
-  --kuwa-ink:       #40352a;  /* 本文 (黒土寄りのダークブラウン) */
-  --kuwa-ink-soft:  #8b7a64;  /* 補足テキスト */
-  --kuwa-bark:      #7c5a36;  /* 朽木茶 */
-  --kuwa-bark-bg:   #f1e7d4;  /* 朽木茶の淡色面 */
-  --kuwa-amber:     #b97f24;  /* 樹液・ゼリーの琥珀 */
-  --kuwa-amber-soft:#f4e3c2;
-  --kuwa-soil:      #32271b;  /* 黒土 (ヒーローの深色) */
-  --kuwa-moss:      #6e7f4e;  /* 苔・葉の緑 */
-  --kuwa-moss-bg:   #eaeddb;
-  --kuwa-line:      rgba(160, 128, 88, 0.18); /* 罫線・カード縁 */
+  --kuwa-bg:        #ead9bd;  /* 地色: 茶みのある生成り */
+  --kuwa-card:      #fffdf6;  /* カード面 (地色から浮かせる) */
+  --kuwa-ink:       #31241a;  /* 本文 (黒土) */
+  --kuwa-ink-soft:  #77644b;  /* 補足テキスト */
+  --kuwa-bark:      #6b4423;  /* 朽木茶 */
+  --kuwa-bark-bg:   #e3ceaa;  /* 朽木茶の面 */
+  --kuwa-amber:     #a3660f;  /* 樹液・ゼリーの琥珀 */
+  --kuwa-amber-soft:#f0d49b;
+  --kuwa-gold:      #e0a63f;  /* 暗色面に載せる金 */
+  --kuwa-soil:      #241a11;  /* 黒土 */
+  --kuwa-moss:      #55682f;  /* 苔・葉の緑 */
+  --kuwa-moss-bg:   #d7e0b8;
+  --kuwa-clay:      #a3502f;  /* 期限超過などの警告 (テラコッタ) */
+  --kuwa-clay-bg:   #f0d3c2;
+  --kuwa-line:      rgba(107, 68, 35, 0.16); /* 罫線・カード縁 */
 }
 
 /* 丸ゴシック見出し (Zen Maru Gothic → iOSはヒラギノ丸ゴ) */
@@ -134,8 +137,8 @@ textarea { font-size: 16px; }
 }
 
 /* ぼかしの入った薄いソフトシャドウ */
-.kuwa-shadow    { box-shadow: 0 6px 24px rgba(124, 90, 54, 0.08); }
-.kuwa-shadow-lg { box-shadow: 0 12px 36px rgba(50, 39, 27, 0.18); }
+.kuwa-shadow    { box-shadow: 0 6px 20px rgba(84, 58, 30, 0.10); }
+.kuwa-shadow-lg { box-shadow: 0 14px 38px rgba(36, 26, 17, 0.26); }
 
 /* ここぞの1箇所用: 優しく弾むポップ */
 @keyframes kuwaPop {

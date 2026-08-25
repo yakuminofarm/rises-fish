@@ -8,6 +8,7 @@ import { BreedingTab } from "@/components/kuwagata/tabs/BreedingTab";
 import { LarvaTab } from "@/components/kuwagata/tabs/LarvaTab";
 import { CostTab } from "@/components/kuwagata/tabs/CostTab";
 import { ArticlesTab } from "@/components/kuwagata/tabs/ArticlesTab";
+import { ForestBackdrop } from "@/components/kuwagata/ForestBackdrop";
 import { ToastProvider } from "@/components/ui/Toast";
 
 const TAB_TITLES: Record<KuwagataTabId, string> = {
@@ -33,7 +34,8 @@ export default function KuwagataPage() {
       />
       {/* 画面全体の地色 (共通bodyの色を上書き) */}
       <style>{`body { background: var(--kuwa-bg); }`}</style>
-      <div className="min-h-screen max-w-md mx-auto" style={{ background: "var(--kuwa-bg)" }}>
+      <ForestBackdrop />
+      <div className="min-h-screen max-w-md mx-auto">
         <header
           className="sticky top-0 z-20 px-5 py-3.5 flex items-center gap-3"
           style={{

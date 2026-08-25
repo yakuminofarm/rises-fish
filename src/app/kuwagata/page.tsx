@@ -25,17 +25,10 @@ export default function KuwagataPage() {
 
   return (
     <ToastProvider>
-      {/* 丸ゴシック見出し用 Web フォント */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap"
-      />
       {/* 画面全体の地色 (共通bodyの色を上書き) */}
       <style>{`body { background: var(--kuwa-bg); }`}</style>
       <ForestBackdrop />
-      <div className="min-h-screen max-w-md mx-auto">
+      <div className="min-h-screen w-full max-w-md mx-auto">
         <header
           className="sticky top-0 z-20 px-5 py-3.5 flex items-center gap-3"
           style={{

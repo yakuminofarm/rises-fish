@@ -11,7 +11,9 @@ import {
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { KuwagataTabId } from "@/components/kuwagata/KuwagataBottomNav";
 import { KuwagataSVG } from "@/components/kuwagata/KuwagataSVG";
+import { SectionTitle } from "@/components/kuwagata/KuwaUI";
 import {
+  LINE_STATUS_COLORS,
   LINE_STATUS_LABELS,
   calcCostSummary,
   deriveUpcomingTasks,
@@ -20,44 +22,9 @@ import {
   speciesGradient,
 } from "@/lib/kuwagataUtils";
 import { formatDateShort } from "@/lib/utils";
-import { LineStatus } from "@/types/kuwagata";
 
 interface KuwagataHomeTabProps {
   onNavigate: (tab: KuwagataTabId) => void;
-}
-
-/* 自然色パレットに合わせたステータス色 */
-const STATUS_WARM: Record<LineStatus, { bg: string; fg: string }> = {
-  pairing:       { bg: "#eccfc2", fg: "#94472a" },
-  laying:        { bg: "var(--kuwa-amber-soft)", fg: "var(--kuwa-amber)" },
-  waiting_split: { bg: "#eec98f", fg: "#8a5410" },
-  split_done:    { bg: "var(--kuwa-moss-bg)", fg: "var(--kuwa-moss)" },
-  finished:      { bg: "#ded5c6", fg: "#7a7062" },
-};
-
-/* セクション見出し */
-function SectionTitle({
-  icon: Icon,
-  color,
-  children,
-}: {
-  icon: typeof Bug;
-  color: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <span
-        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-        style={{ background: color, color: "#fffdf6" }}
-      >
-        <Icon className="w-[15px] h-[15px]" strokeWidth={2.4} />
-      </span>
-      <h2 className="font-maru text-[15px] font-bold" style={{ color: "var(--kuwa-ink)" }}>
-        {children}
-      </h2>
-    </div>
-  );
 }
 
 export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
@@ -241,9 +208,7 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            {activeLines.map((line) => {
-              const c = STATUS_WARM[line.status];
-              return (
+            {activeLines.map((line) => (
                 <div
                   key={line.id}
                   className="rounded-2xl pl-6 pr-5 py-4 flex items-center justify-between gap-3 kuwa-shadow relative overflow-hidden"
@@ -269,14 +234,12 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
                     )}
                   </div>
                   <span
-                    className="font-maru text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0"
-                    style={{ background: c.bg, color: c.fg }}
+                    className={`kuwa-badge font-maru flex-shrink-0 ${LINE_STATUS_COLORS[line.status]}`}
                   >
                     {LINE_STATUS_LABELS[line.status]}
                   </span>
                 </div>
-              );
-            })}
+            ))}
           </div>
         )}
       </section>

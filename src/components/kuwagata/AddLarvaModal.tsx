@@ -13,7 +13,7 @@ interface AddLarvaModalProps {
 }
 
 const inputCls =
-  "w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-emerald-400";
+  "kuwa-input";
 
 export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
   const { lines, addLarva } = useKuwagataStore();
@@ -63,25 +63,25 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
     };
     addLarva(larva);
     setDone(true);
-    showToast(`${larva.code} を登録しました`);
+    showToast(`${larva.code} を登録しました！`);
     setTimeout(() => onClose(), 800);
   };
 
   const stageOptions: LarvaStage[] = ["egg", "L1", "L2", "L3", "pupa"];
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-      <div className="bg-white w-full rounded-t-3xl max-h-[90vh] flex flex-col">
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-4 flex items-center justify-between flex-shrink-0">
-          <h2 className="text-lg font-bold text-gray-900">幼虫を登録</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">
+    <div className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(36,26,17,0.55)" }}>
+      <div className="kuwa-sheet w-full max-w-md mx-auto max-h-[90vh] flex flex-col">
+        <div className="kuwa-sheet-bar sticky top-0 px-5 py-4 flex items-center justify-between flex-shrink-0 rounded-t-[24px]">
+          <h2 className="text-lg font-bold text-[#31241a]">幼虫を登録</h2>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-[#e6dbc6]">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 px-4 pt-4 space-y-4">
+        <div className="overflow-y-auto flex-1 px-5 pt-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">管理番号 *</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">管理番号 *</label>
             <input
               value={form.code}
               onChange={(e) => setForm({ ...form, code: e.target.value })}
@@ -91,7 +91,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">出身ライン</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">出身ライン</label>
             <select
               value={form.lineId}
               onChange={(e) => handleLineChange(e.target.value)}
@@ -106,7 +106,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
 
           {!form.lineId && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">種類</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">種類</label>
               <select
                 value={form.species}
                 onChange={(e) => setForm({ ...form, species: e.target.value })}
@@ -128,7 +128,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ステージ</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">ステージ</label>
             <div className="flex gap-1.5">
               {stageOptions.map((s) => (
                 <button
@@ -137,8 +137,8 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
                   onClick={() => setForm({ ...form, stage: s })}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                     form.stage === s
-                      ? "bg-emerald-500 text-white border-emerald-500"
-                      : "border-gray-200 text-gray-600"
+                      ? "bg-[#55682f] text-[#fdf6e7] border-[#55682f]"
+                      : "border-[rgba(107,68,35,0.16)] text-[#77644b]"
                   }`}
                 >
                   {STAGE_LABELS[s]}
@@ -149,7 +149,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">孵化 / 割出日</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">孵化 / 割出日</label>
               <input
                 type="date"
                 value={form.hatchDate}
@@ -158,7 +158,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">雌雄</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">雌雄</label>
               <select
                 value={form.gender}
                 onChange={(e) => setForm({ ...form, gender: e.target.value as Gender })}
@@ -172,7 +172,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">入手金額 (円)</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">入手金額 (円)</label>
             <input
               type="number"
               min="0"
@@ -184,7 +184,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
           </div>
 
           <div className="pb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">メモ</label>
             <textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -195,26 +195,26 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
           </div>
         </div>
 
-        <div className="flex-shrink-0 px-4 pt-4 border-t border-gray-100 bg-white pb-safe-lg">
+        <div className="kuwa-sheet-foot flex-shrink-0 px-5 pt-4 pb-safe-lg">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting || done}
             className={`w-full font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-base min-h-[52px] ${
               done
-                ? "bg-emerald-500 text-white"
+                ? "bg-[#55682f] text-[#fdf6e7] animate-kuwa-pop"
                 : !canSubmit
-                ? "bg-gray-200 text-gray-400"
-                : "bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white"
+                ? "bg-[#d8c9ae] text-[#8b7a64]"
+                : "bg-[#55682f] hover:bg-[#475827] active:scale-[0.98] text-[#fdf6e7]"
             }`}
           >
             {done ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                登録しました！
+                登録できました！
               </>
             ) : submitting ? (
-              "登録中..."
+              "登録しています…"
             ) : (
               "登録する"
             )}

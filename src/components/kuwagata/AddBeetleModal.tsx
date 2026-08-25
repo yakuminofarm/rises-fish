@@ -13,7 +13,7 @@ interface AddBeetleModalProps {
 }
 
 const inputCls =
-  "w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-amber-400";
+  "kuwa-input";
 
 export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
   const addBeetle = useKuwagataStore((s) => s.addBeetle);
@@ -61,24 +61,24 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
     };
     addBeetle(beetle);
     setDone(true);
-    showToast(`${beetle.code} を登録しました`);
+    showToast(`${beetle.code} を迎えました！`);
     setTimeout(() => onClose(), 800);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-      <div className="bg-white w-full rounded-t-3xl max-h-[90vh] flex flex-col">
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-4 flex items-center justify-between flex-shrink-0">
-          <h2 className="text-lg font-bold text-gray-900">成虫を登録</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">
+    <div className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(36,26,17,0.55)" }}>
+      <div className="kuwa-sheet w-full max-w-md mx-auto max-h-[90vh] flex flex-col">
+        <div className="kuwa-sheet-bar sticky top-0 px-5 py-4 flex items-center justify-between flex-shrink-0 rounded-t-[24px]">
+          <h2 className="text-lg font-bold text-[#31241a]">成虫を登録</h2>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-[#e6dbc6]">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 px-4 pt-4 space-y-4">
+        <div className="overflow-y-auto flex-1 px-5 pt-5 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">管理番号 *</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">管理番号 *</label>
               <input
                 value={form.code}
                 onChange={(e) => setForm({ ...form, code: e.target.value })}
@@ -87,7 +87,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">愛称</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">愛称</label>
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -98,7 +98,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">種類</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">種類</label>
             <select
               value={form.species}
               onChange={(e) => setForm({ ...form, species: e.target.value })}
@@ -120,7 +120,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">産地・血統</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">産地・血統</label>
               <input
                 value={form.locality}
                 onChange={(e) => setForm({ ...form, locality: e.target.value })}
@@ -129,7 +129,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">累代</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">累代</label>
               <input
                 value={form.generation}
                 onChange={(e) => setForm({ ...form, generation: e.target.value })}
@@ -140,7 +140,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">性別</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">性別</label>
             <div className="flex gap-2">
               {[
                 { value: "male", label: "♂ オス" },
@@ -153,8 +153,8 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
                   onClick={() => setForm({ ...form, gender: g.value as Gender })}
                   className={`flex-1 py-3 rounded-xl text-sm font-semibold border transition-colors min-h-[44px] ${
                     form.gender === g.value
-                      ? "bg-amber-600 text-white border-amber-600"
-                      : "border-gray-200 text-gray-600"
+                      ? "bg-[#6b4423] text-[#fdf6e7] border-[#6b4423]"
+                      : "border-[rgba(107,68,35,0.16)] text-[#77644b]"
                   }`}
                 >
                   {g.label}
@@ -165,7 +165,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">体長 (mm)</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">体長 (mm)</label>
               <input
                 type="number"
                 step="0.1"
@@ -177,7 +177,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">羽化日</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">羽化日</label>
               <input
                 type="date"
                 value={form.emergedDate}
@@ -189,7 +189,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
 
           <div className="grid grid-cols-2 gap-3 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">入手日 *</label>
+              <label className="block text-sm font-medium text-[#40352a] mb-1">入手日 *</label>
               <input
                 type="date"
                 value={form.acquiredDate}
@@ -202,8 +202,8 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
               onClick={() => setForm({ ...form, matured: !form.matured })}
               className={`py-3 rounded-xl text-sm font-semibold border transition-colors min-h-[44px] ${
                 form.matured
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "border-gray-200 text-gray-600"
+                  ? "bg-[#55682f] text-[#fdf6e7] border-[#55682f]"
+                  : "border-[rgba(107,68,35,0.16)] text-[#77644b]"
               }`}
             >
               後食済み
@@ -211,7 +211,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">入手金額 (円)</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">入手金額 (円)</label>
             <input
               type="number"
               min="0"
@@ -223,7 +223,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
           </div>
 
           <div className="pb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
+            <label className="block text-sm font-medium text-[#40352a] mb-1">メモ</label>
             <textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -234,26 +234,26 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
           </div>
         </div>
 
-        <div className="flex-shrink-0 px-4 pt-4 border-t border-gray-100 bg-white pb-safe-lg">
+        <div className="kuwa-sheet-foot flex-shrink-0 px-5 pt-4 pb-safe-lg">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit || submitting || done}
             className={`w-full font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-base min-h-[52px] ${
               done
-                ? "bg-emerald-500 text-white"
+                ? "bg-[#55682f] text-[#fdf6e7] animate-kuwa-pop"
                 : !canSubmit
-                ? "bg-gray-200 text-gray-400"
-                : "bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white"
+                ? "bg-[#d8c9ae] text-[#8b7a64]"
+                : "bg-[#6b4423] hover:bg-[#5a381c] active:scale-[0.98] text-[#fdf6e7]"
             }`}
           >
             {done ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                登録しました！
+                登録できました！
               </>
             ) : submitting ? (
-              "登録中..."
+              "登録しています…"
             ) : (
               "登録する"
             )}

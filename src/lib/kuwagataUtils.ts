@@ -25,11 +25,11 @@ export const LINE_STATUS_LABELS: Record<LineStatus, string> = {
 };
 
 export const LINE_STATUS_COLORS: Record<LineStatus, string> = {
-  pairing: "bg-pink-100 text-pink-700",
-  laying: "bg-amber-100 text-amber-700",
-  waiting_split: "bg-orange-100 text-orange-700",
-  split_done: "bg-emerald-100 text-emerald-700",
-  finished: "bg-gray-100 text-gray-500",
+  pairing:       "bg-[#eccfc2] text-[#94472a]",
+  laying:        "bg-[#f0d49b] text-[#a3660f]",
+  waiting_split: "bg-[#eec98f] text-[#8a5410]",
+  split_done:    "bg-[#d7e0b8] text-[#55682f]",
+  finished:      "bg-[#ded5c6] text-[#7a7062]",
 };
 
 export const LINE_STATUS_ORDER: LineStatus[] = [
@@ -50,13 +50,20 @@ export const STAGE_LABELS: Record<LarvaStage, string> = {
 };
 
 export const STAGE_COLORS: Record<LarvaStage, string> = {
-  egg: "bg-gray-100 text-gray-600",
-  L1: "bg-lime-100 text-lime-700",
-  L2: "bg-green-100 text-green-700",
-  L3: "bg-emerald-100 text-emerald-700",
-  pupa: "bg-amber-100 text-amber-700",
-  adult: "bg-violet-100 text-violet-700",
+  egg:   "bg-[#e4dbc9] text-[#6f6250]",
+  L1:    "bg-[#e6ecca] text-[#66783c]",
+  L2:    "bg-[#dbe5b9] text-[#5b6c33]",
+  L3:    "bg-[#d1dcaa] text-[#4f5f2a]",
+  pupa:  "bg-[#f0d49b] text-[#8a5410]",
+  adult: "bg-[#e6cfa8] text-[#7a4f1e]",
 };
+
+/** 雌雄の表示色 (自然色パレット版: 藍とテラコッタ) */
+export function genderColor(gender: string): string {
+  if (gender === "male") return "text-[#3f5a72]";
+  if (gender === "female") return "text-[#a3502f]";
+  return "text-[#8b7a64]";
+}
 
 export const STAGE_ORDER: LarvaStage[] = ["egg", "L1", "L2", "L3", "pupa", "adult"];
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { Bug, GitBranch, Home, JapaneseYen, Worm } from "lucide-react";
+import { BookOpen, Bug, GitBranch, Home, JapaneseYen, Worm } from "lucide-react";
 
-export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost";
+export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost" | "articles";
 
 interface KuwagataBottomNavProps {
   activeTab: KuwagataTabId;
@@ -15,6 +15,7 @@ const tabs: { id: KuwagataTabId; label: string }[] = [
   { id: "breeding", label: "ブリード" },
   { id: "larvae",   label: "幼虫" },
   { id: "cost",     label: "収支" },
+  { id: "articles", label: "記事" },
 ];
 
 function TabIcon({ id }: { id: KuwagataTabId }) {
@@ -23,7 +24,8 @@ function TabIcon({ id }: { id: KuwagataTabId }) {
   if (id === "adults")   return <Bug         {...props} />;
   if (id === "breeding") return <GitBranch   {...props} />;
   if (id === "larvae")   return <Worm        {...props} />;
-  return                        <JapaneseYen {...props} />;
+  if (id === "cost")     return <JapaneseYen {...props} />;
+  return                        <BookOpen    {...props} />;
 }
 
 export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProps) {
@@ -48,7 +50,7 @@ export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProp
                 className="flex-1 flex flex-col items-center py-3 gap-1 transition-all duration-200 min-h-[58px]"
               >
                 <div
-                  className="px-3 py-1.5 rounded-xl transition-all duration-200"
+                  className="px-2.5 py-1.5 rounded-xl transition-all duration-200"
                   style={
                     isActive
                       ? { background: "var(--kuwa-amber-soft)", color: "var(--kuwa-bark)" }

@@ -10,7 +10,7 @@ import { CostTab } from "@/components/kuwagata/tabs/CostTab";
 import { ToastProvider } from "@/components/ui/Toast";
 
 const TAB_TITLES: Record<KuwagataTabId, string> = {
-  home: "クワガタ手帳",
+  home: "くわらぼ",
   adults: "成虫管理",
   breeding: "ブリード管理",
   larvae: "幼虫管理",
@@ -22,15 +22,41 @@ export default function KuwagataPage() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-[#fbf7ef] max-w-md mx-auto">
-        <header className="sticky top-0 z-20 glass border-b border-white/60 px-4 py-3 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-amber-100 text-lg">
+      {/* 丸ゴシック見出し用 Web フォント */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap"
+      />
+      {/* 画面全体の地色 (共通bodyの色を上書き) */}
+      <div
+        className="fixed inset-0 -z-10"
+        style={{ background: "var(--kuwa-bg)" }}
+        aria-hidden
+      />
+      <div className="min-h-screen max-w-md mx-auto" style={{ background: "var(--kuwa-bg)" }}>
+        <header
+          className="sticky top-0 z-20 px-5 py-3.5 flex items-center gap-3"
+          style={{
+            background: "rgba(246, 239, 227, 0.85)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            borderBottom: "1px solid var(--kuwa-line)",
+          }}
+        >
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+            style={{ background: "var(--kuwa-amber-soft)" }}
+          >
             🪲
           </div>
-          <h1 className="text-base font-bold text-gray-900">{TAB_TITLES[activeTab]}</h1>
+          <h1 className="font-maru text-lg font-bold" style={{ color: "var(--kuwa-ink)" }}>
+            {TAB_TITLES[activeTab]}
+          </h1>
         </header>
 
-        <main className="px-4 pt-4 pb-24">
+        <main className="px-4 pt-5 pb-24">
           {activeTab === "home" && (
             <KuwagataHomeTab onNavigate={setActiveTab} />
           )}

@@ -17,19 +17,27 @@ const tabs: { id: KuwagataTabId; label: string }[] = [
   { id: "cost",     label: "収支" },
 ];
 
-function TabIcon({ id, isActive }: { id: KuwagataTabId; isActive: boolean }) {
-  const cls = `w-5 h-5 transition-all ${isActive ? "scale-110" : "scale-100"}`;
-  if (id === "home")     return <Home        className={cls} />;
-  if (id === "adults")   return <Bug         className={cls} />;
-  if (id === "breeding") return <GitBranch   className={cls} />;
-  if (id === "larvae")   return <Worm        className={cls} />;
-  return                        <JapaneseYen className={cls} />;
+function TabIcon({ id }: { id: KuwagataTabId }) {
+  const props = { className: "w-[19px] h-[19px]", strokeWidth: 2 };
+  if (id === "home")     return <Home        {...props} />;
+  if (id === "adults")   return <Bug         {...props} />;
+  if (id === "breeding") return <GitBranch   {...props} />;
+  if (id === "larvae")   return <Worm        {...props} />;
+  return                        <JapaneseYen {...props} />;
 }
 
 export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 max-w-md mx-auto">
-      <div className="glass border-t border-white/60 px-2 pb-safe">
+      <div
+        className="px-2 pb-safe"
+        style={{
+          background: "rgba(246, 239, 227, 0.88)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderTop: "1px solid var(--kuwa-line)",
+        }}
+      >
         <div className="flex">
           {tabs.map(({ id, label }) => {
             const isActive = activeTab === id;
@@ -37,22 +45,25 @@ export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProp
               <button
                 key={id}
                 onClick={() => onChange(id)}
-                className="flex-1 flex flex-col items-center py-3 gap-0.5 relative transition-all duration-200 min-h-[56px]"
+                className="flex-1 flex flex-col items-center py-3 gap-1 transition-all duration-200 min-h-[58px]"
               >
-                {isActive && (
-                  <span className="absolute top-1.5 w-8 h-1 bg-amber-600 rounded-full" />
-                )}
                 <div
-                  className={`p-1.5 rounded-xl transition-all duration-200 ${
-                    isActive ? "bg-amber-50 text-amber-700" : "text-gray-400"
-                  }`}
+                  className="px-3 py-1.5 rounded-xl transition-all duration-200"
+                  style={
+                    isActive
+                      ? { background: "var(--kuwa-amber-soft)", color: "var(--kuwa-bark)" }
+                      : { color: "var(--kuwa-ink-soft)", opacity: 0.65 }
+                  }
                 >
-                  <TabIcon id={id} isActive={isActive} />
+                  <TabIcon id={id} />
                 </div>
                 <span
-                  className={`text-[10px] font-semibold transition-colors ${
-                    isActive ? "text-amber-700" : "text-gray-400"
-                  }`}
+                  className="font-maru text-[10px] font-bold transition-colors"
+                  style={
+                    isActive
+                      ? { color: "var(--kuwa-bark)" }
+                      : { color: "var(--kuwa-ink-soft)", opacity: 0.65 }
+                  }
                 >
                   {label}
                 </span>

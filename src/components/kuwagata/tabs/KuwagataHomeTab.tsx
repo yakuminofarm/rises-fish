@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AlertTriangle,
   Bug,
   CalendarClock,
   ChevronRight,
@@ -13,19 +12,27 @@ import { useKuwagataStore } from "@/store/kuwagataStore";
 import { KuwagataTabId } from "@/components/kuwagata/KuwagataBottomNav";
 import { KuwagataSVG } from "@/components/kuwagata/KuwagataSVG";
 import {
-  LINE_STATUS_COLORS,
   LINE_STATUS_LABELS,
   calcCostSummary,
   deriveUpcomingTasks,
   formatYen,
   latestWeight,
-  speciesGradient,
 } from "@/lib/kuwagataUtils";
 import { formatDateShort } from "@/lib/utils";
+import { LineStatus } from "@/types/kuwagata";
 
 interface KuwagataHomeTabProps {
   onNavigate: (tab: KuwagataTabId) => void;
 }
+
+/* 自然色パレットに合わせたステータス色 (ホーム画面用) */
+const STATUS_WARM: Record<LineStatus, { bg: string; fg: string }> = {
+  pairing:       { bg: "#f3e0da", fg: "#a05c48" },
+  laying:        { bg: "var(--kuwa-amber-soft)", fg: "var(--kuwa-amber)" },
+  waiting_split: { bg: "#f2e3c8", fg: "#a3701f" },
+  split_done:    { bg: "var(--kuwa-moss-bg)", fg: "var(--kuwa-moss)" },
+  finished:      { bg: "#eceae5", fg: "#9b948a" },
+};
 
 export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
   const { beetles, lines, larvae, expenses } = useKuwagataStore();
@@ -55,41 +62,56 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
   ];
 
   return (
-    <div className="space-y-5">
-      {/* ヒーロー: 夜の雑木林 */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-stone-800 via-stone-900 to-amber-950 p-5 text-white shadow-lg">
-        {/* 背景のシルエット */}
-        <div className="absolute -right-6 -bottom-8 opacity-[0.14] rotate-12 pointer-events-none">
-          <KuwagataSVG size={170} color="#fcd34d" />
+    <div className="space-y-7">
+      {/* ヒーロー: 黒土と樹液の色 */}
+      <div
+        className="relative overflow-hidden rounded-[20px] p-6 text-white kuwa-shadow-lg"
+        style={{
+          background: "linear-gradient(135deg, #4a3823 0%, var(--kuwa-soil) 55%, #201810 100%)",
+        }}
+      >
+        <div className="absolute -right-7 -bottom-9 opacity-[0.13] rotate-12 pointer-events-none">
+          <KuwagataSVG size={175} color="#e8b45f" />
         </div>
         <div className="relative">
-          <p className="text-[11px] font-bold tracking-wider text-amber-200/70">{dateLabel}</p>
-          <h2 className="text-xl font-bold mt-0.5">
-            今日も<span className="text-amber-300">ブリード日和</span>
+          <p className="text-[11px] font-bold tracking-wider" style={{ color: "rgba(232,180,95,0.75)" }}>
+            {dateLabel}
+          </p>
+          <h2 className="font-maru text-xl font-bold mt-1.5 leading-snug">
+            今日も<span style={{ color: "#e8b45f" }}>ブリード日和</span>
           </h2>
-          <p className="text-xs text-amber-100/60 mt-1">
+          <p
+            className="text-xs mt-1.5"
+            style={{ color: "rgba(244,227,194,0.65)", textWrap: "pretty" }}
+          >
             {tasks.length > 0
-              ? `やること ${tasks.length}件 — 忘れずにチェック`
-              : "予定の作業はありません。個体をゆっくり観察しましょう"}
+              ? `やることが ${tasks.length}件。忘れないうちにチェックを`
+              : "作業予定はありません。ゆっくり観察を楽しみましょう"}
           </p>
 
-          <div className="flex gap-2.5 mt-4">
+          <div className="flex gap-3 mt-5">
             {stats.map((s) => (
               <button
                 key={s.label}
                 onClick={() => onNavigate(s.tab)}
-                className="flex-1 bg-white/10 backdrop-blur rounded-2xl px-3 py-2.5 text-left active:scale-[0.96] transition-all border border-white/10"
+                className="flex-1 rounded-2xl px-3.5 py-3 text-left active:scale-[0.96] transition-all"
+                style={{
+                  background: "rgba(255, 245, 225, 0.09)",
+                  border: "1px solid rgba(232, 180, 95, 0.16)",
+                }}
               >
-                <div className="flex items-center gap-1.5 text-amber-200/80">
-                  <s.icon className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-bold">{s.label}</span>
+                <div className="flex items-center gap-1.5" style={{ color: "rgba(232,180,95,0.85)" }}>
+                  <s.icon className="w-3.5 h-3.5" strokeWidth={2.2} />
+                  <span className="font-maru text-[10px] font-bold">{s.label}</span>
                 </div>
                 <p
-                  className="text-xl font-bold mt-0.5"
+                  className="text-[22px] font-bold mt-1"
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 >
                   {s.value}
-                  <span className="text-[10px] font-semibold text-amber-100/50 ml-0.5">{s.unit}</span>
+                  <span className="text-[10px] font-semibold ml-0.5" style={{ color: "rgba(244,227,194,0.55)" }}>
+                    {s.unit}
+                  </span>
                 </p>
               </button>
             ))}
@@ -99,37 +121,56 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
 
       {/* やること */}
       <section>
-        <div className="flex items-center gap-1.5 mb-2 px-0.5">
-          <CalendarClock className="w-4 h-4 text-amber-600" />
-          <h2 className="text-sm font-bold text-gray-800">やることリスト</h2>
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <CalendarClock className="w-4 h-4" style={{ color: "var(--kuwa-amber)" }} />
+          <h2 className="font-maru text-[15px] font-bold" style={{ color: "var(--kuwa-ink)" }}>
+            やることリスト
+          </h2>
         </div>
         {tasks.length === 0 ? (
-          <div className="bg-white rounded-2xl p-5 text-center border border-amber-100/60">
-            <p className="text-sm text-gray-400">直近の作業予定はありません 🎉</p>
+          <div
+            className="rounded-2xl p-6 text-center kuwa-shadow"
+            style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
+          >
+            <p className="text-sm" style={{ color: "var(--kuwa-ink-soft)" }}>
+              今日はおやすみ。次の作業時期が来たらここでお知らせします
+            </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {tasks.map((t) => (
               <div
                 key={t.id}
-                className={`bg-white rounded-2xl px-4 py-3 flex items-center gap-3 border ${
-                  t.overdue ? "border-red-200" : "border-amber-100/60"
-                }`}
+                className="rounded-2xl px-5 py-4 flex items-center gap-4 kuwa-shadow"
+                style={{
+                  background: "var(--kuwa-card)",
+                  border: t.overdue ? "1px solid #dcb4a4" : "1px solid var(--kuwa-line)",
+                }}
               >
                 <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    t.overdue ? "bg-red-50 text-red-500" : "bg-amber-50 text-amber-600"
-                  }`}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={
+                    t.overdue
+                      ? { background: "#f4e0d7", color: "#b0614a" }
+                      : { background: "var(--kuwa-amber-soft)", color: "var(--kuwa-amber)" }
+                  }
                 >
-                  {t.overdue ? <AlertTriangle className="w-4 h-4" /> : <CalendarClock className="w-4 h-4" />}
+                  <CalendarClock className="w-4 h-4" strokeWidth={2.2} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-800 truncate">{t.title}</p>
-                  <p className="text-xs text-gray-400">{t.detail}</p>
+                  <p className="text-sm font-semibold truncate" style={{ color: "var(--kuwa-ink)" }}>
+                    {t.title}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--kuwa-ink-soft)" }}>
+                    {t.detail}
+                  </p>
                 </div>
                 {t.overdue && (
-                  <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full flex-shrink-0">
-                    要対応
+                  <span
+                    className="font-maru text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+                    style={{ background: "#f4e0d7", color: "#b0614a" }}
+                  >
+                    そろそろ！
                   </span>
                 )}
               </div>
@@ -142,46 +183,57 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
       <section>
         <button
           onClick={() => onNavigate("breeding")}
-          className="w-full flex items-center justify-between mb-2 px-0.5"
+          className="w-full flex items-center justify-between mb-3 px-1"
         >
-          <div className="flex items-center gap-1.5">
-            <GitBranch className="w-4 h-4 text-orange-600" />
-            <h2 className="text-sm font-bold text-gray-800">進行中のブリードライン</h2>
+          <div className="flex items-center gap-2">
+            <GitBranch className="w-4 h-4" style={{ color: "var(--kuwa-bark)" }} />
+            <h2 className="font-maru text-[15px] font-bold" style={{ color: "var(--kuwa-ink)" }}>
+              進行中のブリードライン
+            </h2>
           </div>
-          <ChevronRight className="w-4 h-4 text-gray-300" />
+          <ChevronRight className="w-4 h-4" style={{ color: "var(--kuwa-ink-soft)", opacity: 0.5 }} />
         </button>
         {activeLines.length === 0 ? (
-          <div className="bg-white rounded-2xl p-5 text-center border border-amber-100/60">
-            <p className="text-sm text-gray-400">進行中のラインはありません</p>
+          <div
+            className="rounded-2xl p-6 text-center kuwa-shadow"
+            style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
+          >
+            <p className="text-sm" style={{ color: "var(--kuwa-ink-soft)" }}>
+              まだラインがありません。ペアを組んで最初のラインを作ってみましょう
+            </p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {activeLines.map((line) => (
-              <div
-                key={line.id}
-                className="bg-white rounded-2xl pl-1.5 pr-4 py-1.5 border border-amber-100/60 flex items-center gap-3"
-              >
+          <div className="space-y-3">
+            {activeLines.map((line) => {
+              const c = STATUS_WARM[line.status];
+              return (
                 <div
-                  className={`self-stretch w-1.5 rounded-full bg-gradient-to-b ${speciesGradient(line.species)}`}
-                />
-                <div className="min-w-0 flex-1 py-1.5">
-                  <p className="text-sm font-bold text-gray-800">
-                    {line.name}
-                    <span className="text-xs font-medium text-gray-400 ml-1.5">{line.species}</span>
-                  </p>
-                  {line.setDate && (
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      セット投入 {formatDateShort(line.setDate)}
-                    </p>
-                  )}
-                </div>
-                <span
-                  className={`text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 ${LINE_STATUS_COLORS[line.status]}`}
+                  key={line.id}
+                  className="rounded-2xl px-5 py-4 flex items-center justify-between gap-3 kuwa-shadow"
+                  style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
                 >
-                  {LINE_STATUS_LABELS[line.status]}
-                </span>
-              </div>
-            ))}
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold" style={{ color: "var(--kuwa-ink)" }}>
+                      {line.name}
+                      <span className="text-xs font-medium ml-2" style={{ color: "var(--kuwa-ink-soft)" }}>
+                        {line.species}
+                      </span>
+                    </p>
+                    {line.setDate && (
+                      <p className="text-xs mt-1" style={{ color: "var(--kuwa-ink-soft)" }}>
+                        セット投入 {formatDateShort(line.setDate)}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className="font-maru text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+                    style={{ background: c.bg, color: c.fg }}
+                  >
+                    {LINE_STATUS_LABELS[line.status]}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>
@@ -191,39 +243,49 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
         <section>
           <button
             onClick={() => onNavigate("larvae")}
-            className="w-full flex items-center justify-between mb-2 px-0.5"
+            className="w-full flex items-center justify-between mb-3 px-1"
           >
-            <div className="flex items-center gap-1.5">
-              <Worm className="w-4 h-4 text-emerald-600" />
-              <h2 className="text-sm font-bold text-gray-800">大型候補 (体重上位)</h2>
+            <div className="flex items-center gap-2">
+              <Worm className="w-4 h-4" style={{ color: "var(--kuwa-moss)" }} />
+              <h2 className="font-maru text-[15px] font-bold" style={{ color: "var(--kuwa-ink)" }}>
+                大型候補たち
+              </h2>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-300" />
+            <ChevronRight className="w-4 h-4" style={{ color: "var(--kuwa-ink-soft)", opacity: 0.5 }} />
           </button>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {topLarvae.map((l, i) => (
               <div
                 key={l.id}
-                className="bg-white rounded-2xl px-4 py-3 border border-amber-100/60 flex items-center gap-3"
+                className="rounded-2xl px-5 py-4 flex items-center gap-4 kuwa-shadow"
+                style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
               >
                 <span
-                  className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 ${
+                  className="font-maru w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0"
+                  style={
                     i === 0
-                      ? "bg-gradient-to-br from-amber-400 to-yellow-600 text-white shadow-sm"
-                      : "bg-emerald-50 text-emerald-700"
-                  }`}
+                      ? { background: "linear-gradient(135deg, #e8b45f, #b97f24)", color: "#fffdf8" }
+                      : { background: "var(--kuwa-moss-bg)", color: "var(--kuwa-moss)" }
+                  }
                 >
                   {i + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-800 truncate">{l.code}</p>
-                  <p className="text-xs text-gray-400 truncate">{l.species}</p>
+                  <p className="text-sm font-semibold truncate" style={{ color: "var(--kuwa-ink)" }}>
+                    {l.code}
+                  </p>
+                  <p className="text-xs truncate mt-0.5" style={{ color: "var(--kuwa-ink-soft)" }}>
+                    {l.species}
+                  </p>
                 </div>
                 <p
-                  className="text-base font-bold text-emerald-600 flex-shrink-0"
-                  style={{ fontVariantNumeric: "tabular-nums" }}
+                  className="text-lg font-bold flex-shrink-0"
+                  style={{ color: "var(--kuwa-moss)", fontVariantNumeric: "tabular-nums" }}
                 >
                   {latestWeight(l)}
-                  <span className="text-xs font-semibold text-gray-400 ml-0.5">g</span>
+                  <span className="text-xs font-semibold ml-0.5" style={{ color: "var(--kuwa-ink-soft)" }}>
+                    g
+                  </span>
                 </p>
               </div>
             ))}
@@ -231,22 +293,28 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
         </section>
       )}
 
-      {/* 収支サマリー */}
+      {/* 収支 */}
       <section className="pb-1">
         <button
           onClick={() => onNavigate("cost")}
-          className="w-full bg-white rounded-2xl px-4 py-3.5 border border-amber-100/60 flex items-center gap-3 active:scale-[0.98] transition-all"
+          className="w-full rounded-2xl px-5 py-4 flex items-center gap-4 active:scale-[0.98] transition-all kuwa-shadow"
+          style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
         >
-          <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0">
-            <JapaneseYen className="w-4 h-4" />
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: "var(--kuwa-bark-bg)", color: "var(--kuwa-bark)" }}
+          >
+            <JapaneseYen className="w-4 h-4" strokeWidth={2.2} />
           </div>
           <div className="min-w-0 flex-1 text-left">
-            <p className="text-sm font-bold text-gray-800">収支管理</p>
-            <p className="text-xs text-gray-400">
-              総支出 {formatYen(summary.totalSpent)} / 売上 {formatYen(summary.salesTotal)}
+            <p className="font-maru text-sm font-bold" style={{ color: "var(--kuwa-ink)" }}>
+              収支をみる
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--kuwa-ink-soft)" }}>
+              つかったお金 {formatYen(summary.totalSpent)} / 売上 {formatYen(summary.salesTotal)}
             </p>
           </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+          <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: "var(--kuwa-ink-soft)", opacity: 0.5 }} />
         </button>
       </section>
     </div>

@@ -107,3 +107,41 @@ input, select {
   font-size: 16px; /* iOS で自動ズームしない最低サイズ */
 }
 textarea { font-size: 16px; }
+
+/* ════════════════════════════════════════════
+   くわらぼ デザイントークン (クワガタ手帳)
+   朽木・樹液・黒土・苔 — 飼育現場の自然色
+   ════════════════════════════════════════════ */
+:root {
+  --kuwa-bg:        #f6efe3;  /* 生成り (背景) */
+  --kuwa-card:      #fffdf8;  /* カード面 */
+  --kuwa-ink:       #40352a;  /* 本文 (黒土寄りのダークブラウン) */
+  --kuwa-ink-soft:  #8b7a64;  /* 補足テキスト */
+  --kuwa-bark:      #7c5a36;  /* 朽木茶 */
+  --kuwa-bark-bg:   #f1e7d4;  /* 朽木茶の淡色面 */
+  --kuwa-amber:     #b97f24;  /* 樹液・ゼリーの琥珀 */
+  --kuwa-amber-soft:#f4e3c2;
+  --kuwa-soil:      #32271b;  /* 黒土 (ヒーローの深色) */
+  --kuwa-moss:      #6e7f4e;  /* 苔・葉の緑 */
+  --kuwa-moss-bg:   #eaeddb;
+  --kuwa-line:      rgba(160, 128, 88, 0.18); /* 罫線・カード縁 */
+}
+
+/* 丸ゴシック見出し (Zen Maru Gothic → iOSはヒラギノ丸ゴ) */
+.font-maru {
+  font-family: "Zen Maru Gothic", "Hiragino Maru Gothic ProN",
+    "M PLUS Rounded 1c", "BIZ UDGothic", sans-serif;
+}
+
+/* ぼかしの入った薄いソフトシャドウ */
+.kuwa-shadow    { box-shadow: 0 6px 24px rgba(124, 90, 54, 0.08); }
+.kuwa-shadow-lg { box-shadow: 0 12px 36px rgba(50, 39, 27, 0.18); }
+
+/* ここぞの1箇所用: 優しく弾むポップ */
+@keyframes kuwaPop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.12); }
+  65%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+.animate-kuwa-pop { animation: kuwaPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }

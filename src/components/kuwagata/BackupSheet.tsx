@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   Check,
@@ -22,6 +22,7 @@ import {
   formatBytes,
   parseBackup,
 } from "@/lib/kuwagataBackup";
+import { ViewerSave, getViewerSave, saveTextFile } from "@/lib/kuwagataDownload";
 
 /** 取り込み待ちのファイル (中身を見せてから、どう入れるか選んでもらう) */
 type Pending = ParseResult & { fileName: string };
@@ -58,6 +59,18 @@ export function BackupSheet({ onClose }: { onClose: () => void }) {
   const [pending, setPending] = useState<Pending | null>(null);
   const [confirmReplace, setConfirmReplace] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  // 共有ページでは閲覧側の保存ダイアログ経由でないとファイルを渡せない
+  const [viewerSave, setViewerSave] = useState<ViewerSave | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    getViewerSave().then((fn) => {
+      if (alive) setViewerSave(() => fn);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // 写真を含めるかで大きさが変わるので、都度作り直して実サイズを見せる
   const json = useMemo(() => {
@@ -69,22 +82,12 @@ export function BackupSheet({ onClose }: { onClose: () => void }) {
   const total =
     json.counts.beetles + json.counts.lines + json.counts.larvae + json.counts.expenses;
 
-  const save = () => {
-    try {
-      const blob = new Blob([json.text], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = backupFileName();
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      // 即座に revoke するとダウンロードが始まらない端末があるので少し待つ
-      setTimeout(() => URL.revokeObjectURL(url), 10_000);
-      showToast("バックアップを書き出しました");
-    } catch {
+  const save = async () => {
+    const result = await saveTextFile(viewerSave, backupFileName(), json.text);
+    if (result === "saved") showToast("バックアップを書き出しました");
+    else if (result === "failed")
       showToast("保存できませんでした。コピーの方をお試しください", "error");
-    }
+    // 断られた場合は本人の意思なので何も言わない
   };
 
   const copy = async () => {

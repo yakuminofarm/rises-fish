@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, HandCoins, Heart, Skull, Trash2, X } from "lucide-react";
+import { Check, CheckCircle2, HandCoins, Heart, Skull, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { Beetle } from "@/types/kuwagata";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
-import { formatYen, genderColor } from "@/lib/kuwagataUtils";
+import { formatYen, genderColor, todayStr } from "@/lib/kuwagataUtils";
 import { formatDate, getGenderLabel } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { PhotoPicker, PhotoThumb } from "@/components/kuwagata/KuwaUI";
@@ -29,7 +29,8 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
 }
 
 export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModalProps) {
-  const { beetles, lines, updateBeetle, deleteBeetle, toggleFavorite } = useKuwagataStore();
+  const { beetles, lines, updateBeetle, deleteBeetle, toggleFavorite, toggleFedToday } =
+    useKuwagataStore();
   const { showToast } = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showSellForm, setShowSellForm] = useState(false);
@@ -94,6 +95,56 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
             onChange={(url) => updateBeetle(beetle.id, { photoUrl: url })}
             label="この子の写真"
           />
+
+          {/* 今日のエサやり */}
+          {beetle.matured && beetle.isAlive && beetle.soldPriceYen == null && (
+            <button
+              onClick={() => toggleFedToday(beetle.id)}
+              className="w-full rounded-2xl px-4 py-4 flex items-center gap-3.5 active:scale-[0.98] transition-all"
+              style={
+                beetle.lastFedDate === todayStr()
+                  ? { background: "var(--kuwa-moss-bg)", border: "1px solid rgba(85,104,47,0.35)" }
+                  : { background: "var(--kuwa-amber-soft)", border: "1px solid rgba(163,102,15,0.3)" }
+              }
+            >
+              <span
+                className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={
+                  beetle.lastFedDate === todayStr()
+                    ? { background: "var(--kuwa-moss)", color: "#fdf6e7" }
+                    : { background: "var(--kuwa-amber)", color: "#fdf6e7" }
+                }
+              >
+                {beetle.lastFedDate === todayStr() ? (
+                  <Check className="w-5 h-5" strokeWidth={3} />
+                ) : (
+                  <UtensilsCrossed className="w-5 h-5" strokeWidth={2.2} />
+                )}
+              </span>
+              <div className="min-w-0 flex-1 text-left">
+                <p
+                  className="font-maru text-sm font-bold"
+                  style={{
+                    color: beetle.lastFedDate === todayStr() ? "#4f5f2a" : "#8a5410",
+                  }}
+                >
+                  {beetle.lastFedDate === todayStr()
+                    ? "今日はもうあげました"
+                    : "エサをあげたら押してください"}
+                </p>
+                <p
+                  className="text-xs mt-0.5"
+                  style={{ color: beetle.lastFedDate === todayStr() ? "#5f7040" : "#8a6a3a" }}
+                >
+                  {beetle.lastFedDate === todayStr()
+                    ? "日付が変わるとまた未完了に戻ります"
+                    : beetle.lastFedDate
+                    ? `前回は ${formatDate(beetle.lastFedDate)}`
+                    : "まだ記録がありません"}
+                </p>
+              </div>
+            </button>
+          )}
 
           <div className="bg-[#e3ceaa]/55 rounded-2xl px-4 py-1">
             <InfoRow label="種類" value={beetle.species} />

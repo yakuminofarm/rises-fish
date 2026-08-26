@@ -9,6 +9,9 @@ import { LarvaTab } from "@/components/kuwagata/tabs/LarvaTab";
 import { CostTab } from "@/components/kuwagata/tabs/CostTab";
 import { ArticlesTab } from "@/components/kuwagata/tabs/ArticlesTab";
 import { ForestBackdrop } from "@/components/kuwagata/ForestBackdrop";
+import { FeedingReminder } from "@/components/kuwagata/FeedingReminder";
+import { ReminderSheet } from "@/components/kuwagata/ReminderSheet";
+import { Bell } from "lucide-react";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
 
 const TAB_TITLES: Record<KuwagataTabId, string> = {
@@ -33,10 +36,12 @@ function StorageFullNotice() {
 
 export default function KuwagataPage() {
   const [activeTab, setActiveTab] = useState<KuwagataTabId>("home");
+  const [showReminder, setShowReminder] = useState(false);
 
   return (
-    <ToastProvider>
+    <ToastProvider variant="kuwa">
       <StorageFullNotice />
+      <FeedingReminder />
       {/* 画面全体の地色 (共通bodyの色を上書き) */}
       <style>{`body { background: var(--kuwa-bg); }`}</style>
       <ForestBackdrop />
@@ -56,9 +61,17 @@ export default function KuwagataPage() {
           >
             🪲
           </div>
-          <h1 className="font-maru text-lg font-bold" style={{ color: "var(--kuwa-ink)" }}>
+          <h1 className="font-maru text-lg font-bold flex-1" style={{ color: "var(--kuwa-ink)" }}>
             {TAB_TITLES[activeTab]}
           </h1>
+          <button
+            onClick={() => setShowReminder(true)}
+            aria-label="エサやりのお知らせ設定"
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 active:scale-90 transition-all"
+            style={{ background: "var(--kuwa-card)", color: "var(--kuwa-bark)", border: "1px solid var(--kuwa-line)" }}
+          >
+            <Bell className="w-[18px] h-[18px]" strokeWidth={2.2} />
+          </button>
         </header>
 
         <main className="px-4 pt-5 pb-24">
@@ -73,6 +86,8 @@ export default function KuwagataPage() {
         </main>
 
         <KuwagataBottomNav activeTab={activeTab} onChange={setActiveTab} />
+
+        {showReminder && <ReminderSheet onClose={() => setShowReminder(false)} />}
       </div>
     </ToastProvider>
   );

@@ -8,11 +8,13 @@ import { BeetleCard } from "@/components/kuwagata/BeetleCard";
 import { AddBeetleModal } from "@/components/kuwagata/AddBeetleModal";
 import { BeetleDetailModal } from "@/components/kuwagata/BeetleDetailModal";
 import { EmptyState, Fab } from "@/components/kuwagata/KuwaUI";
+import { needsFeedingToday } from "@/lib/kuwagataUtils";
 
-type FilterKey = "alive" | "male" | "female" | "matured" | "favorite" | "sold";
+type FilterKey = "alive" | "unfed" | "male" | "female" | "matured" | "favorite" | "sold";
 
 const FILTER_OPTIONS: { key: FilterKey; label: string }[] = [
   { key: "alive",    label: "飼育中" },
+  { key: "unfed",    label: "エサまだ" },
   { key: "male",     label: "♂ オス" },
   { key: "female",   label: "♀ メス" },
   { key: "matured",  label: "後食済み" },
@@ -33,6 +35,7 @@ function applyFilter(beetles: Beetle[], active: Set<FilterKey>): Beetle[] {
   if (active.size === 0) return beetles;
   return beetles.filter((b) => {
     if (active.has("alive") && (!b.isAlive || b.soldPriceYen != null)) return false;
+    if (active.has("unfed") && !needsFeedingToday(b)) return false;
     if (active.has("sold") && b.soldPriceYen == null) return false;
     if (active.has("male") && b.gender !== "male") return false;
     if (active.has("female") && b.gender !== "female") return false;

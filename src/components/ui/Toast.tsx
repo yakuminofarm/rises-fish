@@ -21,7 +21,16 @@ export function useToast() {
   return useContext(ToastContext);
 }
 
-export function ToastProvider({ children }: { children: ReactNode }) {
+/** くわらぼ用の配色に切り替えるためのバリアント (既定はめだか手帳の配色) */
+type ToastVariant = "default" | "kuwa";
+
+export function ToastProvider({
+  children,
+  variant = "default",
+}: {
+  children: ReactNode;
+  variant?: ToastVariant;
+}) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const showToast = useCallback((message: string, type: ToastType = "success") => {
@@ -32,17 +41,25 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }, 2800);
   }, []);
 
+  const isKuwa = variant === "kuwa";
+
   const ICONS = {
-    success: <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />,
-    error:   <AlertCircle  className="w-4 h-4 text-red-400 flex-shrink-0" />,
-    info:    <Info         className="w-4 h-4 text-cyan-400 flex-shrink-0" />,
+    success: (
+      <CheckCircle2
+        className={`w-4 h-4 flex-shrink-0 ${isKuwa ? "text-[#d1dcaa]" : "text-emerald-400"}`}
+      />
+    ),
+    error: (
+      <AlertCircle className={`w-4 h-4 flex-shrink-0 ${isKuwa ? "text-[#eccfc2]" : "text-red-400"}`} />
+    ),
+    info: (
+      <Info className={`w-4 h-4 flex-shrink-0 ${isKuwa ? "text-[#e0a63f]" : "text-cyan-400"}`} />
+    ),
   };
 
-  const BG = {
-    success: "bg-gray-900",
-    error:   "bg-red-900",
-    info:    "bg-gray-900",
-  };
+  const BG = isKuwa
+    ? { success: "bg-[#3a2917]", error: "bg-[#5c3020]", info: "bg-[#3a2917]" }
+    : { success: "bg-gray-900", error: "bg-red-900", info: "bg-gray-900" };
 
   return (
     <ToastContext.Provider value={{ showToast }}>
@@ -52,7 +69,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`${BG[toast.type]} text-white text-sm font-medium px-4 py-3 rounded-2xl flex items-center gap-2.5 shadow-xl w-full animate-slide-up`}
+            className={`${BG[toast.type]} ${isKuwa ? "text-[#fdf6e7]" : "text-white"} text-sm font-medium px-4 py-3 rounded-2xl flex items-center gap-2.5 shadow-xl w-full animate-slide-up`}
             style={{ backdropFilter: "blur(8px)" }}
           >
             {ICONS[toast.type]}

@@ -1,11 +1,11 @@
 "use client";
 
-import { Heart, Ruler } from "lucide-react";
+import { Check, Heart, Ruler, UtensilsCrossed } from "lucide-react";
 import { Beetle } from "@/types/kuwagata";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
 import { PhotoThumb } from "@/components/kuwagata/KuwaUI";
-import { genderColor } from "@/lib/kuwagataUtils";
+import { genderColor, needsFeedingToday, todayStr } from "@/lib/kuwagataUtils";
 import { getGenderLabel } from "@/lib/utils";
 
 interface BeetleCardProps {
@@ -15,8 +15,12 @@ interface BeetleCardProps {
 
 export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
   const toggleFavorite = useKuwagataStore((s) => s.toggleFavorite);
+  const toggleFedToday = useKuwagataStore((s) => s.toggleFedToday);
   const isSold = beetle.soldPriceYen != null;
   const inactive = isSold || !beetle.isAlive;
+  const fedToday = beetle.lastFedDate === todayStr();
+  const showFeed = beetle.matured && !inactive;
+  const pendingFeed = needsFeedingToday(beetle);
 
   return (
     <button
@@ -67,32 +71,70 @@ export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
             {beetle.matured && !inactive && (
               <span className="kuwa-badge bg-[#d7e0b8] text-[#55682f]">後食済み</span>
             )}
+            {pendingFeed && (
+              <span className="kuwa-badge font-maru bg-[#f0d49b] text-[#a3660f]">エサまだ</span>
+            )}
           </div>
         </div>
-        <span
-          role="button"
-          tabIndex={0}
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleFavorite(beetle.id);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
+        <div className="flex flex-col items-center gap-2 flex-shrink-0">
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label="お気に入り"
+            onClick={(e) => {
               e.stopPropagation();
               toggleFavorite(beetle.id);
-            }
-          }}
-          className="p-1.5 flex-shrink-0"
-        >
-          <Heart
-            className="w-[18px] h-[18px] transition-colors"
-            strokeWidth={2.2}
-            style={{
-              color: beetle.isFavorite ? "#b0492f" : "#c0ac8f",
-              fill: beetle.isFavorite ? "#b0492f" : "none",
             }}
-          />
-        </span>
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                toggleFavorite(beetle.id);
+              }
+            }}
+            className="p-1.5"
+          >
+            <Heart
+              className="w-[18px] h-[18px] transition-colors"
+              strokeWidth={2.2}
+              style={{
+                color: beetle.isFavorite ? "#b0492f" : "#c0ac8f",
+                fill: beetle.isFavorite ? "#b0492f" : "none",
+              }}
+            />
+          </span>
+
+          {showFeed && (
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label={fedToday ? "エサやり済み" : "エサをあげた"}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFedToday(beetle.id);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  toggleFedToday(beetle.id);
+                }
+              }}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90 ${
+                fedToday ? "" : "animate-kuwa-pop"
+              }`}
+              style={
+                fedToday
+                  ? { background: "var(--kuwa-moss)", color: "#fdf6e7" }
+                  : { background: "var(--kuwa-amber-soft)", color: "var(--kuwa-amber)" }
+              }
+            >
+              {fedToday ? (
+                <Check className="w-[18px] h-[18px]" strokeWidth={3} />
+              ) : (
+                <UtensilsCrossed className="w-[17px] h-[17px]" strokeWidth={2.2} />
+              )}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Beetle, BottleChange, BreedingLine, Expense, Larva } from "@/types/kuwagata";
+import { Beetle, BottleChange, BreedingLine, Expense, Larva, ReminderSettings } from "@/types/kuwagata";
+import { todayStr } from "@/lib/kuwagataUtils";
 import { mockBeetles, mockExpenses, mockLarvae, mockLines } from "@/lib/kuwagataMockData";
 
 interface KuwagataStore {
@@ -14,6 +15,13 @@ interface KuwagataStore {
   deleteBeetle: (id: string) => void;
   toggleFavorite: (id: string) => void;
   getBeetle: (id: string) => Beetle | undefined;
+  /** 今日のエサやり完了 (もう一度押すと取り消し) */
+  toggleFedToday: (id: string) => void;
+  /** 未給餌の成虫にまとめて記録 */
+  feedAllToday: () => number;
+
+  reminder: ReminderSettings;
+  setReminder: (r: Partial<ReminderSettings>) => void;
 
   addLine: (line: BreedingLine) => void;
   updateLine: (id: string, updates: Partial<BreedingLine>) => void;
@@ -42,6 +50,36 @@ export const useKuwagataStore = create<KuwagataStore>()(
       lines: mockLines,
       larvae: mockLarvae,
       expenses: mockExpenses,
+      reminder: { enabled: false, time: "19:00" },
+
+      toggleFedToday: (id) =>
+        set((s) => {
+          const today = todayStr();
+          return {
+            beetles: s.beetles.map((b) =>
+              b.id === id
+                ? { ...b, lastFedDate: b.lastFedDate === today ? undefined : today }
+                : b
+            ),
+          };
+        }),
+
+      feedAllToday: () => {
+        const today = todayStr();
+        const pending = get().beetles.filter(
+          (b) => b.isAlive && b.soldPriceYen == null && b.matured && b.lastFedDate !== today
+        );
+        set((s) => ({
+          beetles: s.beetles.map((b) =>
+            b.isAlive && b.soldPriceYen == null && b.matured && b.lastFedDate !== today
+              ? { ...b, lastFedDate: today }
+              : b
+          ),
+        }));
+        return pending.length;
+      },
+
+      setReminder: (r) => set((s) => ({ reminder: { ...s.reminder, ...r } })),
 
       addBeetle: (beetle) => set((s) => ({ beetles: [...s.beetles, beetle] })),
 
@@ -157,6 +195,7 @@ export const useKuwagataStore = create<KuwagataStore>()(
           lines: p?.lines?.length ? p.lines : current.lines,
           larvae: p?.larvae?.length ? p.larvae : current.larvae,
           expenses: p?.expenses?.length ? p.expenses : current.expenses,
+          reminder: p?.reminder ?? current.reminder,
         };
       },
     }

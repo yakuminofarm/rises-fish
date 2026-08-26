@@ -1,5 +1,27 @@
 import { Beetle, BreedingLine, Expense, ExpenseCategory, Larva, LarvaStage, LineStatus } from "@/types/kuwagata";
 
+/** 端末のローカル日付を YYYY-MM-DD で返す (日付が変われば別の値になる) */
+export function todayStr(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** 今日エサをあげる必要があるか。後食前・販売済み・飼育終了は対象外 */
+export function needsFeedingToday(b: Beetle, today = todayStr()): boolean {
+  if (!b.isAlive || b.soldPriceYen != null) return false;
+  if (!b.matured) return false;
+  return b.lastFedDate !== today;
+}
+
+/** 今日の給餌対象と、そのうち未完了の数 */
+export function feedingSummary(beetles: Beetle[], today = todayStr()) {
+  const targets = beetles.filter(
+    (b) => b.isAlive && b.soldPriceYen == null && b.matured
+  );
+  const pending = targets.filter((b) => b.lastFedDate !== today);
+  return { targets, pending, done: targets.length - pending.length };
+}
+
 export const SPECIES_OPTIONS = [
   "オオクワガタ",
   "ヒラタクワガタ",

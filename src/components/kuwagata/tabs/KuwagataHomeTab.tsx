@@ -8,6 +8,7 @@ import {
   GitBranch,
   JapaneseYen,
   Sparkles,
+  UtensilsCrossed,
   Worm,
 } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
@@ -19,19 +20,23 @@ import {
   LINE_STATUS_LABELS,
   calcCostSummary,
   deriveUpcomingTasks,
+  feedingSummary,
   isPupaStage,
   formatYen,
   latestWeight,
   speciesGradient,
 } from "@/lib/kuwagataUtils";
 import { formatDateShort } from "@/lib/utils";
+import { useToast } from "@/components/ui/Toast";
 
 interface KuwagataHomeTabProps {
   onNavigate: (tab: KuwagataTabId) => void;
 }
 
 export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
-  const { beetles, lines, larvae, expenses } = useKuwagataStore();
+  const { beetles, lines, larvae, expenses, feedAllToday } = useKuwagataStore();
+  const { showToast } = useToast();
+  const feeding = feedingSummary(beetles);
 
   const aliveBeetles = beetles.filter((b) => b.isAlive && !b.soldDate);
   const aliveLarvae = larvae.filter((l) => l.isAlive && !isPupaStage(l.stage) && l.stage !== "adult");
@@ -129,6 +134,89 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
           </div>
         </div>
       </div>
+
+      {/* 今日のエサやり */}
+      {feeding.targets.length > 0 && (
+        <section>
+          <div className="mb-3 px-0.5">
+            <SectionTitle icon={UtensilsCrossed} color="var(--kuwa-amber)">
+              今日のエサやり
+            </SectionTitle>
+          </div>
+          <div className="kuwa-card px-5 py-4">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p
+                  className="text-[26px] font-bold leading-none"
+                  style={{
+                    color: feeding.pending.length === 0 ? "var(--kuwa-moss)" : "var(--kuwa-amber)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {feeding.done}
+                  <span className="text-sm font-semibold" style={{ color: "var(--kuwa-ink-soft)" }}>
+                    {" / "}
+                    {feeding.targets.length}頭
+                  </span>
+                </p>
+                <p className="text-xs mt-1.5" style={{ color: "var(--kuwa-ink-soft)" }}>
+                  {feeding.pending.length === 0
+                    ? "今日はぜんぶ完了しました。おつかれさまです"
+                    : `あと ${feeding.pending.length}頭 にエサをあげましょう`}
+                </p>
+              </div>
+              {feeding.pending.length > 0 && (
+                <button
+                  onClick={() => {
+                    const n = feedAllToday();
+                    showToast(`${n}頭にエサをあげました！`);
+                  }}
+                  className="kuwa-btn-primary px-4 py-3 text-sm flex items-center gap-1.5 flex-shrink-0 active:scale-[0.97] transition-all"
+                >
+                  <UtensilsCrossed className="w-4 h-4" strokeWidth={2.2} />
+                  まとめて
+                </button>
+              )}
+            </div>
+
+            {/* 進み具合 */}
+            <div
+              className="h-2.5 rounded-full overflow-hidden mt-4"
+              style={{ background: "var(--kuwa-bark-bg)" }}
+            >
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${(feeding.done / feeding.targets.length) * 100}%`,
+                  background:
+                    feeding.pending.length === 0
+                      ? "var(--kuwa-moss)"
+                      : "linear-gradient(90deg, #c9861f, var(--kuwa-amber))",
+                }}
+              />
+            </div>
+
+            {feeding.pending.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3.5">
+                {feeding.pending.slice(0, 8).map((b) => (
+                  <span
+                    key={b.id}
+                    className="kuwa-badge"
+                    style={{ background: "var(--kuwa-amber-soft)", color: "#8a5410" }}
+                  >
+                    {b.code}
+                  </span>
+                ))}
+                {feeding.pending.length > 8 && (
+                  <span className="kuwa-badge" style={{ color: "var(--kuwa-ink-soft)" }}>
+                    ほか{feeding.pending.length - 8}頭
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* やること */}
       <section>

@@ -29,6 +29,7 @@ export interface Beetle {
   acquiredDate: string;    // 入手日
   priceYen?: number;       // 入手金額 (円)
   matured?: boolean;       // 後食済み (ブリード可能な成熟状態)
+  lastFedDate?: string;    // 最終給餌日 (YYYY-MM-DD)。日付が変わると未給餌に戻る
   sourceLineId?: string;   // 出身ブリードライン
   photoUrl?: string;       // 個体写真 (リサイズ済み data URI)
   isAlive: boolean;
@@ -114,4 +115,10 @@ export interface Expense {
   category: ExpenseCategory;
   amountYen: number;
   memo?: string;
+}
+
+/** 給餌リマインダーの設定 */
+export interface ReminderSettings {
+  enabled: boolean;
+  time: string;            // "HH:MM" (24時間表記)
 }

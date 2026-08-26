@@ -29,26 +29,34 @@ export function SectionTitle({
   );
 }
 
-/** 空状態: 次の行動を促す一言を添える */
+/** 空状態: 挿絵と、次の行動を促す一言を添える */
 export function EmptyState({
   icon: Icon,
   color,
+  image,
   title,
   hint,
 }: {
   icon: LucideIcon;
   color: string;
+  /** 挿絵。無い場合はアイコンで代用する */
+  image?: string;
   title: string;
   hint?: string;
 }) {
   return (
-    <div className="kuwa-card px-6 py-10 text-center">
-      <span
-        className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center"
-        style={{ background: color, opacity: 0.16 }}
-      >
-        <Icon className="w-7 h-7" strokeWidth={1.8} style={{ color, opacity: 1 }} />
-      </span>
+    <div className="kuwa-card px-6 py-9 text-center">
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={image} alt="" width={112} height={112} className="mx-auto mb-4 block" />
+      ) : (
+        <span
+          className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+          style={{ background: color, opacity: 0.16 }}
+        >
+          <Icon className="w-7 h-7" strokeWidth={1.8} style={{ color, opacity: 1 }} />
+        </span>
+      )}
       <p
         className="font-maru text-sm font-bold"
         style={{ color: "var(--kuwa-ink)", textWrap: "pretty" }}
@@ -56,7 +64,7 @@ export function EmptyState({
         {title}
       </p>
       {hint && (
-        <p className="text-xs mt-2" style={{ color: "var(--kuwa-ink-soft)", textWrap: "pretty" }}>
+        <p className="text-xs mt-2 leading-relaxed" style={{ color: "var(--kuwa-ink-soft)", textWrap: "pretty" }}>
           {hint}
         </p>
       )}

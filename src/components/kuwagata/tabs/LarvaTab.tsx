@@ -24,6 +24,7 @@ import { getGenderLabel } from "@/lib/utils";
 import { AddLarvaModal } from "@/components/kuwagata/AddLarvaModal";
 import { LarvaDetailModal } from "@/components/kuwagata/LarvaDetailModal";
 import { EmptyState, Fab, PhotoThumb } from "@/components/kuwagata/KuwaUI";
+import { EMPTY_IMAGE } from "@/lib/kuwagataAssets";
 import { STAGE_IMAGE } from "@/lib/kuwagataAssets";
 
 type StageFilter = "all" | LarvaStage;
@@ -257,6 +258,7 @@ export function LarvaTab() {
 
       {total === 0 ? (
         <EmptyState
+          image={EMPTY_IMAGE.larva}
           icon={Worm}
           color="var(--kuwa-moss)"
           title={

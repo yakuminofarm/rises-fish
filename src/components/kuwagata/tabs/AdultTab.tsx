@@ -8,6 +8,7 @@ import { BeetleCard } from "@/components/kuwagata/BeetleCard";
 import { AddBeetleModal } from "@/components/kuwagata/AddBeetleModal";
 import { BeetleDetailModal } from "@/components/kuwagata/BeetleDetailModal";
 import { EmptyState, Fab } from "@/components/kuwagata/KuwaUI";
+import { EMPTY_IMAGE } from "@/lib/kuwagataAssets";
 import { needsFeedingToday } from "@/lib/kuwagataUtils";
 
 type FilterKey = "alive" | "unfed" | "male" | "female" | "matured" | "favorite" | "sold";
@@ -137,6 +138,7 @@ export function AdultTab() {
 
       {sorted.length === 0 ? (
         <EmptyState
+          image={EMPTY_IMAGE.adult}
           icon={Bug}
           color="var(--kuwa-bark)"
           title={

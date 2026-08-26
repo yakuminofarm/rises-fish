@@ -15,6 +15,7 @@ import { formatDateShort } from "@/lib/utils";
 import { AddLineModal } from "@/components/kuwagata/AddLineModal";
 import { LineDetailModal } from "@/components/kuwagata/LineDetailModal";
 import { EmptyState, Fab } from "@/components/kuwagata/KuwaUI";
+import { EMPTY_IMAGE } from "@/lib/kuwagataAssets";
 
 type StatusFilter = "all" | LineStatus;
 
@@ -113,6 +114,7 @@ export function BreedingTab() {
 
       {sorted.length === 0 ? (
         <EmptyState
+          image={EMPTY_IMAGE.line}
           icon={GitBranch}
           color="var(--kuwa-bark)"
           title={

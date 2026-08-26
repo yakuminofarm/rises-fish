@@ -9,6 +9,7 @@ import { LarvaTab } from "@/components/kuwagata/tabs/LarvaTab";
 import { CostTab } from "@/components/kuwagata/tabs/CostTab";
 import { ArticlesTab } from "@/components/kuwagata/tabs/ArticlesTab";
 import { ForestBackdrop } from "@/components/kuwagata/ForestBackdrop";
+import { KuwaAppIcon } from "@/components/kuwagata/KuwagataSVG";
 import { FeedingReminder } from "@/components/kuwagata/FeedingReminder";
 import { ReminderSheet } from "@/components/kuwagata/ReminderSheet";
 import { Bell } from "lucide-react";
@@ -55,12 +56,7 @@ export default function KuwagataPage() {
             borderBottom: "1px solid var(--kuwa-line)",
           }}
         >
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-            style={{ background: "var(--kuwa-amber-soft)" }}
-          >
-            🪲
-          </div>
+          <KuwaAppIcon size={36} />
           <h1 className="font-maru text-lg font-bold flex-1" style={{ color: "var(--kuwa-ink)" }}>
             {TAB_TITLES[activeTab]}
           </h1>

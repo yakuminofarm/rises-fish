@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
-import { speciesGradient } from "@/lib/kuwagataUtils";
-import { APP_ICON_SRC, BEETLE_TOP_SRC } from "@/lib/kuwagataAssets";
+import { APP_ICON_SRC, speciesImage } from "@/lib/kuwagataAssets";
 
 /**
  * くわらぼのクワガタ表示。
@@ -29,21 +28,25 @@ interface SpeciesAvatarProps {
   className?: string;
 }
 
-/** 種類別カラーのタイルにクワガタを載せたアバター */
+/**
+ * 種類ごとのクワガタを載せたアバター。
+ * 虫そのものが種類の色を持つため、タイルは明るい無地にしている
+ * (濃色タイルだと黒系の種が背景に沈んで見えなくなる)。
+ */
 export function SpeciesAvatar({ species, size = "md", className }: SpeciesAvatarProps) {
   const dims = size === "lg" ? "w-14 h-14 rounded-2xl" : "w-11 h-11 rounded-xl";
-  const inner = size === "lg" ? 46 : 36;
+  const inner = size === "lg" ? 48 : 38;
   return (
     <div
       className={cn(
         dims,
-        "bg-gradient-to-br flex items-center justify-center flex-shrink-0 overflow-hidden",
-        speciesGradient(species),
+        "flex items-center justify-center flex-shrink-0 overflow-hidden",
         className
       )}
+      style={{ background: "#f4e7cf" }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={BEETLE_TOP_SRC} alt="" width={inner} height={inner} />
+      <img src={speciesImage(species)} alt="" width={inner} height={inner} />
     </div>
   );
 }

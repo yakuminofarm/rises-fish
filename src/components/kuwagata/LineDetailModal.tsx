@@ -10,6 +10,7 @@ import {
 } from "@/lib/kuwagataUtils";
 import { formatDate, generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { TOOL_IMAGE } from "@/lib/kuwagataAssets";
 
 interface LineDetailModalProps {
   line: BreedingLine;
@@ -181,7 +182,11 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
           {/* ステータス操作 */}
           {line.status === "pairing" && (
             <div className="bg-[#e3ceaa]/55 rounded-2xl p-4 space-y-3">
-              <h3 className="text-sm font-bold text-[#31241a]">産卵セット投入を記録</h3>
+              <h3 className="text-sm font-bold text-[#31241a] flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={TOOL_IMAGE.log} alt="" width={20} height={20} />
+                産卵セット投入を記録
+              </h3>
               <div className="grid grid-cols-2 gap-2.5">
                 <input
                   type="date"

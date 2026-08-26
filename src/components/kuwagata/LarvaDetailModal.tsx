@@ -27,7 +27,7 @@ import {
 import { formatDate, formatDateShort, generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { PhotoPicker } from "@/components/kuwagata/KuwaUI";
-import { STAGE_IMAGE } from "@/lib/kuwagataAssets";
+import { STAGE_IMAGE, TOOL_IMAGE } from "@/lib/kuwagataAssets";
 
 interface LarvaDetailModalProps {
   larva: Larva;
@@ -454,7 +454,11 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
           {/* ビン交換履歴 */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-bold text-[#31241a]">ビン交換履歴</h3>
+              <h3 className="text-sm font-bold text-[#31241a] flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={TOOL_IMAGE.bottle} alt="" width={20} height={20} />
+                ビン交換履歴
+              </h3>
               {!showChangeForm && isFeedingStage(larva.stage) && (
                 <button
                   onClick={() => {

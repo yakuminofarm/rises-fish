@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Bug, GitBranch, Home, JapaneseYen, Worm } from "lucide-react";
+import { NAV_MASK } from "@/lib/kuwagataAssets";
 
 export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost" | "articles";
 
@@ -9,23 +9,31 @@ interface KuwagataBottomNavProps {
   onChange: (tab: KuwagataTabId) => void;
 }
 
-const tabs: { id: KuwagataTabId; label: string }[] = [
-  { id: "home",     label: "ホーム" },
-  { id: "adults",   label: "成虫" },
-  { id: "breeding", label: "ブリード" },
-  { id: "larvae",   label: "育成" },
-  { id: "cost",     label: "収支" },
-  { id: "articles", label: "記事" },
+const tabs: { id: KuwagataTabId; label: string; mask: string }[] = [
+  { id: "home",     label: "ホーム",   mask: NAV_MASK.home },
+  { id: "adults",   label: "成虫",     mask: NAV_MASK.adult },
+  { id: "breeding", label: "ブリード", mask: NAV_MASK.breeding },
+  { id: "larvae",   label: "育成",     mask: NAV_MASK.rearing },
+  { id: "cost",     label: "収支",     mask: NAV_MASK.cost },
+  { id: "articles", label: "記事",     mask: NAV_MASK.article },
 ];
 
-function TabIcon({ id }: { id: KuwagataTabId }) {
-  const props = { className: "w-[19px] h-[19px]", strokeWidth: 2 };
-  if (id === "home")     return <Home        {...props} />;
-  if (id === "adults")   return <Bug         {...props} />;
-  if (id === "breeding") return <GitBranch   {...props} />;
-  if (id === "larvae")   return <Worm        {...props} />;
-  if (id === "cost")     return <JapaneseYen {...props} />;
-  return                        <BookOpen    {...props} />;
+/**
+ * アイコンは黒1色のPNGをCSSマスクとして使い、背景色で塗り分ける。
+ * 画像を色ごとに用意しなくて済み、選択状態の切り替えも色の変更だけで済む。
+ */
+function TabIcon({ mask, color }: { mask: string; color: string }) {
+  return (
+    <span
+      aria-hidden
+      className="block w-[19px] h-[19px] transition-colors"
+      style={{
+        background: color,
+        WebkitMask: `url(${mask}) center/contain no-repeat`,
+        mask: `url(${mask}) center/contain no-repeat`,
+      }}
+    />
+  );
 }
 
 export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProps) {
@@ -41,31 +49,24 @@ export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProp
         }}
       >
         <div className="flex">
-          {tabs.map(({ id, label }) => {
+          {tabs.map(({ id, label, mask }) => {
             const isActive = activeTab === id;
+            const color = isActive ? "var(--kuwa-bark)" : "rgba(119, 100, 75, 0.6)";
             return (
               <button
                 key={id}
                 onClick={() => onChange(id)}
                 className="flex-1 flex flex-col items-center py-3 gap-1 transition-all duration-200 min-h-[58px]"
               >
-                <div
+                <span
                   className="px-2.5 py-1.5 rounded-xl transition-all duration-200"
-                  style={
-                    isActive
-                      ? { background: "var(--kuwa-amber-soft)", color: "var(--kuwa-bark)" }
-                      : { color: "var(--kuwa-ink-soft)", opacity: 0.65 }
-                  }
+                  style={isActive ? { background: "var(--kuwa-amber-soft)" } : undefined}
                 >
-                  <TabIcon id={id} />
-                </div>
+                  <TabIcon mask={mask} color={color} />
+                </span>
                 <span
                   className="font-maru text-[10px] font-bold transition-colors"
-                  style={
-                    isActive
-                      ? { color: "var(--kuwa-bark)" }
-                      : { color: "var(--kuwa-ink-soft)", opacity: 0.65 }
-                  }
+                  style={{ color }}
                 >
                   {label}
                 </span>

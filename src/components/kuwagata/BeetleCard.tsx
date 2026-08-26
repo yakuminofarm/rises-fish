@@ -1,12 +1,13 @@
 "use client";
 
-import { Check, Heart, Ruler, UtensilsCrossed } from "lucide-react";
+import { Check, Heart, Ruler } from "lucide-react";
 import { Beetle } from "@/types/kuwagata";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
 import { PhotoThumb } from "@/components/kuwagata/KuwaUI";
 import { genderColor, needsFeedingToday, todayStr } from "@/lib/kuwagataUtils";
 import { getGenderLabel } from "@/lib/utils";
+import { TOOL_IMAGE } from "@/lib/kuwagataAssets";
 
 interface BeetleCardProps {
   beetle: Beetle;
@@ -130,7 +131,8 @@ export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
               {fedToday ? (
                 <Check className="w-[18px] h-[18px]" strokeWidth={3} />
               ) : (
-                <UtensilsCrossed className="w-[17px] h-[17px]" strokeWidth={2.2} />
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={TOOL_IMAGE.jelly} alt="" width={20} height={20} />
               )}
             </span>
           )}

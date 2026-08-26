@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { KuwagataTabId } from "@/components/kuwagata/KuwagataBottomNav";
-import { KuwagataSVG } from "@/components/kuwagata/KuwagataSVG";
+import { HERO_BG_SRC, TOOL_IMAGE } from "@/lib/kuwagataAssets";
 import { SectionTitle } from "@/components/kuwagata/KuwaUI";
 import {
   LINE_STATUS_COLORS,
@@ -74,13 +74,20 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
       <div
         className="relative overflow-hidden rounded-[20px] p-6 text-white kuwa-shadow-lg"
         style={{
-          background:
-            "radial-gradient(120% 90% at 15% 0%, #5c4022 0%, #3a2917 45%, var(--kuwa-soil) 100%)",
+          backgroundColor: "var(--kuwa-soil)",
+          backgroundImage: `url(${HERO_BG_SRC})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center right",
         }}
       >
-        <div className="absolute -right-7 -bottom-9 opacity-[0.17] rotate-12 pointer-events-none">
-          <KuwagataSVG size={178} color="var(--kuwa-gold)" />
-        </div>
+        {/* 左半分をさらに暗くして文字を読みやすくする */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(100deg, rgba(26,18,11,0.92) 0%, rgba(26,18,11,0.72) 42%, rgba(26,18,11,0.18) 78%, rgba(26,18,11,0.05) 100%)",
+          }}
+        />
         <div className="relative">
           <p
             className="font-maru text-[11px] font-bold tracking-wider"
@@ -139,9 +146,18 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
       {feeding.targets.length > 0 && (
         <section>
           <div className="mb-3 px-0.5">
-            <SectionTitle icon={UtensilsCrossed} color="var(--kuwa-amber)">
-              今日のエサやり
-            </SectionTitle>
+            <div className="flex items-center gap-2">
+              <span
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={TOOL_IMAGE.jelly} alt="" width={22} height={22} />
+              </span>
+              <h2 className="font-maru text-[15px] font-bold" style={{ color: "var(--kuwa-ink)" }}>
+                今日のエサやり
+              </h2>
+            </div>
           </div>
           <div className="kuwa-card px-5 py-4">
             <div className="flex items-end justify-between gap-3">

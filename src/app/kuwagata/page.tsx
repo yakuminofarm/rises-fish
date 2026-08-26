@@ -12,7 +12,9 @@ import { ForestBackdrop } from "@/components/kuwagata/ForestBackdrop";
 import { KuwaAppIcon } from "@/components/kuwagata/KuwagataSVG";
 import { FeedingReminder } from "@/components/kuwagata/FeedingReminder";
 import { ReminderSheet } from "@/components/kuwagata/ReminderSheet";
-import { Bell } from "lucide-react";
+import { BackupSheet } from "@/components/kuwagata/BackupSheet";
+import { ServiceWorkerRegistrar } from "@/components/kuwagata/ServiceWorkerRegistrar";
+import { Bell, DatabaseBackup } from "lucide-react";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
 
 const TAB_TITLES: Record<KuwagataTabId, string> = {
@@ -38,17 +40,19 @@ function StorageFullNotice() {
 export default function KuwagataPage() {
   const [activeTab, setActiveTab] = useState<KuwagataTabId>("home");
   const [showReminder, setShowReminder] = useState(false);
+  const [showBackup, setShowBackup] = useState(false);
 
   return (
     <ToastProvider variant="kuwa">
       <StorageFullNotice />
       <FeedingReminder />
+      <ServiceWorkerRegistrar />
       {/* 画面全体の地色 (共通bodyの色を上書き) */}
       <style>{`body { background: var(--kuwa-bg); }`}</style>
       <ForestBackdrop />
       <div className="min-h-screen w-full max-w-md mx-auto">
         <header
-          className="sticky top-0 z-20 px-5 py-3.5 flex items-center gap-3"
+          className="sticky top-0 z-20 px-4 py-3.5 flex items-center gap-2.5"
           style={{
             background: "rgba(234, 217, 189, 0.9)",
             backdropFilter: "blur(16px)",
@@ -60,6 +64,14 @@ export default function KuwagataPage() {
           <h1 className="font-maru text-lg font-bold flex-1" style={{ color: "var(--kuwa-ink)" }}>
             {TAB_TITLES[activeTab]}
           </h1>
+          <button
+            onClick={() => setShowBackup(true)}
+            aria-label="データの持ち出し"
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 active:scale-90 transition-all"
+            style={{ background: "var(--kuwa-card)", color: "var(--kuwa-bark)", border: "1px solid var(--kuwa-line)" }}
+          >
+            <DatabaseBackup className="w-[18px] h-[18px]" strokeWidth={2.2} />
+          </button>
           <button
             onClick={() => setShowReminder(true)}
             aria-label="エサやりのお知らせ設定"
@@ -84,6 +96,7 @@ export default function KuwagataPage() {
         <KuwagataBottomNav activeTab={activeTab} onChange={setActiveTab} />
 
         {showReminder && <ReminderSheet onClose={() => setShowReminder(false)} />}
+        {showBackup && <BackupSheet onClose={() => setShowBackup(false)} />}
       </div>
     </ToastProvider>
   );

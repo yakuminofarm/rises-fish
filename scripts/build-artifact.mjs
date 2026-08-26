@@ -61,7 +61,7 @@ html = html.replace(
 
 // 取得できない参照は消す (Artifact の CSP でブロックされるため)
 html = html.replace(/<link rel="preload"[^>]*\/>/g, "");
-html = html.replace(/<link rel="icon"[^>]*\/>/g, "");
+html = html.replace(/<link rel="(icon|apple-touch-icon|manifest)"[^>]*\/>/g, "");
 
 const head = html.match(/<head>([\s\S]*)<\/head>/)[1];
 const body = html.match(/<body[^>]*>([\s\S]*)<\/body>/)[1];

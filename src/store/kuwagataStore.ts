@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { Beetle, BottleChange, BreedingLine, Expense, Larva, ReminderSettings } from "@/types/kuwagata";
 import { todayStr } from "@/lib/kuwagataUtils";
 import { mockBeetles, mockExpenses, mockLarvae, mockLines } from "@/lib/kuwagataMockData";
+import type { BackupData, ImportResult } from "@/lib/kuwagataBackup";
 
 interface KuwagataStore {
   beetles: Beetle[];
@@ -41,6 +42,27 @@ interface KuwagataStore {
   deleteExpense: (id: string) => void;
 
   getLarvaeByLine: (lineId: string) => Larva[];
+
+  /** 今の記録をまるごと取り出す (バックアップ書き出し用) */
+  snapshot: () => BackupData;
+  /** 今の記録を捨てて、読み込んだ内容に入れ替える */
+  replaceAll: (d: BackupData) => ImportResult;
+  /** 今の記録を残したまま、まだ無いものだけ足す */
+  mergeAll: (d: BackupData) => ImportResult;
+}
+
+/** id が既にあるものは飛ばして、新しいものだけ返す */
+function appendNew<T extends { id: string }>(
+  current: T[],
+  incoming: T[]
+): { next: T[]; added: number; duplicated: number } {
+  const known = new Set(current.map((x) => x.id));
+  const fresh = incoming.filter((x) => !known.has(x.id));
+  return {
+    next: fresh.length ? [...current, ...fresh] : current,
+    added: fresh.length,
+    duplicated: incoming.length - fresh.length,
+  };
 }
 
 export const useKuwagataStore = create<KuwagataStore>()(
@@ -168,6 +190,56 @@ export const useKuwagataStore = create<KuwagataStore>()(
 
       getLarvaeByLine: (lineId) =>
         get().larvae.filter((l) => l.lineId === lineId),
+
+      snapshot: () => {
+        const s = get();
+        return {
+          beetles: s.beetles,
+          lines: s.lines,
+          larvae: s.larvae,
+          expenses: s.expenses,
+          reminder: s.reminder,
+        };
+      },
+
+      replaceAll: (d) => {
+        const replaced =
+          get().beetles.length +
+          get().lines.length +
+          get().larvae.length +
+          get().expenses.length;
+        set((s) => ({
+          beetles: d.beetles,
+          lines: d.lines,
+          larvae: d.larvae,
+          expenses: d.expenses,
+          reminder: d.reminder ?? s.reminder,
+        }));
+        return {
+          added: d.beetles.length + d.lines.length + d.larvae.length + d.expenses.length,
+          duplicated: 0,
+          replaced,
+        };
+      },
+
+      mergeAll: (d) => {
+        const s = get();
+        const b = appendNew(s.beetles, d.beetles);
+        const l = appendNew(s.lines, d.lines);
+        const v = appendNew(s.larvae, d.larvae);
+        const e = appendNew(s.expenses, d.expenses);
+        set({
+          beetles: b.next,
+          lines: l.next,
+          larvae: v.next,
+          expenses: e.next,
+        });
+        return {
+          added: b.added + l.added + v.added + e.added,
+          duplicated: b.duplicated + l.duplicated + v.duplicated + e.duplicated,
+          replaced: 0,
+        };
+      },
     }),
     {
       name: "kuwagata-storage",

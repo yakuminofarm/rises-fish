@@ -1,10 +1,8 @@
 "use client";
 
 import {
-  Bug,
   CalendarClock,
   ChevronRight,
-  Egg,
   GitBranch,
   JapaneseYen,
   Sparkles,
@@ -13,7 +11,7 @@ import {
 } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { KuwagataTabId } from "@/components/kuwagata/KuwagataBottomNav";
-import { HERO_BG_SRC, TOOL_IMAGE } from "@/lib/kuwagataAssets";
+import { HERO_BG_SRC, NAV_MASK, PUPA_MASK, TOOL_IMAGE } from "@/lib/kuwagataAssets";
 import { SectionTitle } from "@/components/kuwagata/KuwaUI";
 import {
   LINE_STATUS_COLORS,
@@ -56,11 +54,12 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
     weekday: "short",
   });
 
+  // アイコンは移動先のタブと同じものを使う (同じ意味には同じ絵)
   const stats = [
-    { label: "成虫", value: aliveBeetles.length, unit: "頭", icon: Bug, tab: "adults" as const },
-    { label: "幼虫", value: aliveLarvae.length, unit: "頭", icon: Worm, tab: "larvae" as const },
-    { label: "蛹", value: alivePupae.length, unit: "頭", icon: Egg, tab: "larvae" as const },
-    { label: "ライン", value: activeLines.length, unit: "本", icon: GitBranch, tab: "breeding" as const },
+    { label: "成虫",   value: aliveBeetles.length, unit: "頭", mask: NAV_MASK.adult,    tab: "adults" as const },
+    { label: "幼虫",   value: aliveLarvae.length,  unit: "頭", mask: NAV_MASK.rearing,  tab: "larvae" as const },
+    { label: "蛹",     value: alivePupae.length,   unit: "頭", mask: PUPA_MASK,         tab: "larvae" as const },
+    { label: "ライン", value: activeLines.length,  unit: "本", mask: NAV_MASK.breeding, tab: "breeding" as const },
   ];
 
   const cardStyle = {
@@ -119,7 +118,15 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
                 }}
               >
                 <div className="flex items-center gap-1" style={{ color: "var(--kuwa-gold)" }}>
-                  <s.icon className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2.4} />
+                  <span
+                    aria-hidden
+                    className="block w-[14px] h-[14px] flex-shrink-0"
+                    style={{
+                      background: "var(--kuwa-gold)",
+                      WebkitMask: `url(${s.mask}) center/contain no-repeat`,
+                      mask: `url(${s.mask}) center/contain no-repeat`,
+                    }}
+                  />
                   <span className="font-maru text-[10px] font-bold whitespace-nowrap">
                     {s.label}
                   </span>

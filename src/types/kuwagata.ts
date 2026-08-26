@@ -30,6 +30,7 @@ export interface Beetle {
   priceYen?: number;       // 入手金額 (円)
   matured?: boolean;       // 後食済み (ブリード可能な成熟状態)
   sourceLineId?: string;   // 出身ブリードライン
+  photoUrl?: string;       // 個体写真 (リサイズ済み data URI)
   isAlive: boolean;
   isFavorite?: boolean;
   soldDate?: string;       // 販売日
@@ -63,8 +64,8 @@ export interface BreedingLine {
   notes: string;
 }
 
-/** 幼虫の成長ステージ */
-export type LarvaStage = "egg" | "L1" | "L2" | "L3" | "pupa" | "adult";
+/** 成長ステージ (卵→初齢→2齢→3齢→前蛹→蛹→羽化) */
+export type LarvaStage = "egg" | "L1" | "L2" | "L3" | "prepupa" | "pupa" | "adult";
 
 /** ビン交換 (菌糸ビン・マット交換) の記録 */
 export interface BottleChange {
@@ -91,6 +92,8 @@ export interface Larva {
   pupaDate?: string;       // 蛹化日
   emergedDate?: string;    // 羽化日
   emergedSizeMm?: number;  // 羽化サイズ (mm)
+  dugOutDate?: string;     // 掘り出し日 (羽化後に取り出した日)
+  photoUrl?: string;       // 個体写真 (リサイズ済み data URI)
   isAlive: boolean;
   notes: string;
 }

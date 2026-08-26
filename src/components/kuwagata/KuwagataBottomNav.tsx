@@ -13,7 +13,7 @@ const tabs: { id: KuwagataTabId; label: string }[] = [
   { id: "home",     label: "ホーム" },
   { id: "adults",   label: "成虫" },
   { id: "breeding", label: "ブリード" },
-  { id: "larvae",   label: "幼虫" },
+  { id: "larvae",   label: "育成" },
   { id: "cost",     label: "収支" },
   { id: "articles", label: "記事" },
 ];

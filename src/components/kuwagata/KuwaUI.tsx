@@ -1,6 +1,8 @@
 "use client";
 
-import { LucideIcon, Plus } from "lucide-react";
+import { useRef, useState } from "react";
+import { Camera, LucideIcon, Plus, Trash2 } from "lucide-react";
+import { fileToThumbnailDataUrl } from "@/lib/kuwagataPhoto";
 
 /** セクション見出し (塗りアイコンタイル + 丸ゴシック) */
 export function SectionTitle({
@@ -127,6 +129,123 @@ export function Sheet({
 
         {footer && <div className="kuwa-sheet-foot flex-shrink-0 px-5 pt-4 pb-safe-lg">{footer}</div>}
       </div>
+    </div>
+  );
+}
+
+/** 個体写真のピッカー (長辺320pxへ縮小して data URI で受け渡す) */
+export function PhotoPicker({
+  value,
+  onChange,
+  label = "写真",
+}: {
+  value?: string;
+  onChange: (dataUrl: string | undefined) => void;
+  label?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const pick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    try {
+      onChange(await fileToThumbnailDataUrl(file));
+    } catch {
+      setError("この画像は読み込めませんでした。別の写真でお試しください");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-2" style={{ color: "var(--kuwa-ink)" }}>
+        {label}
+      </label>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+          className="w-20 h-20 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 overflow-hidden transition-all active:scale-[0.96]"
+          style={{
+            background: value ? "transparent" : "var(--kuwa-bark-bg)",
+            border: value ? "1px solid var(--kuwa-line)" : "1px dashed rgba(107,68,35,0.4)",
+          }}
+        >
+          {value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={value} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <>
+              <Camera className="w-6 h-6" strokeWidth={2} style={{ color: "var(--kuwa-bark)" }} />
+              <span className="text-[10px] font-bold mt-1" style={{ color: "var(--kuwa-bark)" }}>
+                {busy ? "処理中…" : "えらぶ"}
+              </span>
+            </>
+          )}
+        </button>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs leading-relaxed" style={{ color: "var(--kuwa-ink-soft)" }}>
+            {value
+              ? "タップすると撮り直せます"
+              : "1枚だけ登録できます。長辺320pxに縮小して保存します"}
+          </p>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange(undefined)}
+              className="mt-2 text-xs font-bold flex items-center gap-1"
+              style={{ color: "var(--kuwa-clay)" }}
+            >
+              <Trash2 className="w-3.5 h-3.5" strokeWidth={2.2} />
+              写真を外す
+            </button>
+          )}
+          {error && (
+            <p className="text-xs mt-1.5" style={{ color: "var(--kuwa-clay)" }}>
+              {error}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={pick}
+      />
+    </div>
+  );
+}
+
+/** 一覧のサムネイル。写真がなければ fallback (種類アバター等) を出す */
+export function PhotoThumb({
+  src,
+  fallback,
+  size = "md",
+}: {
+  src?: string;
+  fallback: React.ReactNode;
+  size?: "sm" | "md";
+}) {
+  if (!src) return <>{fallback}</>;
+  const cls = size === "sm" ? "w-10 h-10 rounded-xl" : "w-11 h-11 rounded-xl";
+  return (
+    <div
+      className={`${cls} overflow-hidden flex-shrink-0`}
+      style={{ border: "1px solid var(--kuwa-line)" }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt="" className="w-full h-full object-cover" />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KuwagataBottomNav, KuwagataTabId } from "@/components/kuwagata/KuwagataBottomNav";
 import { KuwagataHomeTab } from "@/components/kuwagata/tabs/KuwagataHomeTab";
 import { AdultTab } from "@/components/kuwagata/tabs/AdultTab";
@@ -9,22 +9,34 @@ import { LarvaTab } from "@/components/kuwagata/tabs/LarvaTab";
 import { CostTab } from "@/components/kuwagata/tabs/CostTab";
 import { ArticlesTab } from "@/components/kuwagata/tabs/ArticlesTab";
 import { ForestBackdrop } from "@/components/kuwagata/ForestBackdrop";
-import { ToastProvider } from "@/components/ui/Toast";
+import { ToastProvider, useToast } from "@/components/ui/Toast";
 
 const TAB_TITLES: Record<KuwagataTabId, string> = {
   home: "くわらぼ",
   adults: "成虫管理",
   breeding: "ブリード管理",
-  larvae: "幼虫管理",
+  larvae: "育成管理 (幼虫・蛹)",
   cost: "収支管理",
   articles: "読みもの",
 };
+
+function StorageFullNotice() {
+  const { showToast } = useToast();
+  useEffect(() => {
+    const onFull = () =>
+      showToast("保存できませんでした。写真を何枚か外すと空きが作れます");
+    window.addEventListener("kuwa-storage-full", onFull);
+    return () => window.removeEventListener("kuwa-storage-full", onFull);
+  }, [showToast]);
+  return null;
+}
 
 export default function KuwagataPage() {
   const [activeTab, setActiveTab] = useState<KuwagataTabId>("home");
 
   return (
     <ToastProvider>
+      <StorageFullNotice />
       {/* 画面全体の地色 (共通bodyの色を上書き) */}
       <style>{`body { background: var(--kuwa-bg); }`}</style>
       <ForestBackdrop />

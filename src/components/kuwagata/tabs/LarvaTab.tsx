@@ -1,16 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Search, Worm } from "lucide-react";
+import { AlertTriangle, Egg, Search, Sparkles, Worm } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { Larva, LarvaStage } from "@/types/kuwagata";
 import {
   BOTTLE_CHANGE_INTERVAL_DAYS,
+  DIG_OUT_DAYS,
+  PUPA_DAYS_MIN,
   STAGE_COLORS,
   STAGE_LABELS,
   STAGE_ORDER,
+  daysBetween,
   daysSinceLastChange,
   genderColor,
+  isFeedingStage,
+  isPupaStage,
   latestBottleChange,
   latestWeight,
   speciesGradient,
@@ -18,9 +23,15 @@ import {
 import { getGenderLabel } from "@/lib/utils";
 import { AddLarvaModal } from "@/components/kuwagata/AddLarvaModal";
 import { LarvaDetailModal } from "@/components/kuwagata/LarvaDetailModal";
-import { EmptyState, Fab } from "@/components/kuwagata/KuwaUI";
+import { EmptyState, Fab, PhotoThumb, SectionTitle } from "@/components/kuwagata/KuwaUI";
 
 type StageFilter = "all" | LarvaStage;
+
+/** 種類カラーの帯 + サムネイル (写真がなければ帯のみ) */
+function LarvaThumb({ larva }: { larva: Larva }) {
+  if (!larva.photoUrl) return null;
+  return <PhotoThumb src={larva.photoUrl} fallback={null} size="sm" />;
+}
 
 function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
   const lines = useKuwagataStore((s) => s.lines);
@@ -28,11 +39,20 @@ function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
   const weight = latestWeight(larva);
   const lastChange = latestBottleChange(larva);
   const days = daysSinceLastChange(larva);
+
   const needsChange =
-    larva.isAlive &&
-    (larva.stage === "L1" || larva.stage === "L2" || larva.stage === "L3") &&
-    days != null &&
-    days >= BOTTLE_CHANGE_INTERVAL_DAYS;
+    larva.isAlive && isFeedingStage(larva.stage) && days != null && days >= BOTTLE_CHANGE_INTERVAL_DAYS;
+
+  const pupaDays = larva.stage === "pupa" && larva.pupaDate ? daysBetween(larva.pupaDate) : null;
+  const emergeSoon = pupaDays != null && pupaDays >= PUPA_DAYS_MIN - 5;
+
+  const digDays =
+    larva.stage === "adult" && larva.emergedDate && !larva.dugOutDate
+      ? daysBetween(larva.emergedDate)
+      : null;
+  const digReady = digDays != null && digDays >= DIG_OUT_DAYS - 5;
+
+  const alert = needsChange || emergeSoon || digReady;
 
   return (
     <button
@@ -40,69 +60,81 @@ function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
       className="kuwa-card w-full text-left pl-6 pr-4 py-4 transition-all active:scale-[0.98] relative overflow-hidden"
       style={{
         opacity: larva.isAlive ? 1 : 0.62,
-        borderColor: needsChange ? "rgba(163,80,47,0.4)" : undefined,
+        borderColor: alert ? "rgba(163,102,15,0.45)" : undefined,
       }}
     >
       <span
         className={`absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b ${speciesGradient(larva.species)}`}
       />
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <p className="text-sm font-bold truncate" style={{ color: "var(--kuwa-ink)" }}>
-            {larva.code}
-          </p>
-          <span className={`kuwa-badge font-maru flex-shrink-0 ${STAGE_COLORS[larva.stage]}`}>
-            {STAGE_LABELS[larva.stage]}
-          </span>
-          {!larva.isAlive && (
-            <span className="kuwa-badge font-maru bg-[#ded5c6] text-[#7a7062]">飼育終了</span>
-          )}
-        </div>
-        {weight != null && larva.stage !== "adult" && (
-          <p
-            className="text-lg font-bold flex-shrink-0"
-            style={{ color: "var(--kuwa-moss)", fontVariantNumeric: "tabular-nums" }}
-          >
-            {weight}
-            <span className="text-xs font-semibold ml-0.5" style={{ opacity: 0.6 }}>
-              g
-            </span>
-          </p>
-        )}
-        {larva.stage === "adult" && larva.emergedSizeMm != null && (
-          <p
-            className="text-lg font-bold flex-shrink-0"
-            style={{ color: "var(--kuwa-bark)", fontVariantNumeric: "tabular-nums" }}
-          >
-            {larva.emergedSizeMm}
-            <span className="text-xs font-semibold ml-0.5" style={{ opacity: 0.6 }}>
-              mm
-            </span>
-          </p>
-        )}
-      </div>
+      <div className="flex items-start gap-3">
+        <LarvaThumb larva={larva} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-sm font-bold truncate" style={{ color: "var(--kuwa-ink)" }}>
+                {larva.code}
+              </p>
+              <span className={`kuwa-badge font-maru flex-shrink-0 ${STAGE_COLORS[larva.stage]}`}>
+                {STAGE_LABELS[larva.stage]}
+              </span>
+              {!larva.isAlive && (
+                <span className="kuwa-badge font-maru bg-[#ded5c6] text-[#7a7062]">飼育終了</span>
+              )}
+            </div>
+            {weight != null && larva.stage !== "adult" && (
+              <p
+                className="text-lg font-bold flex-shrink-0"
+                style={{ color: "var(--kuwa-moss)", fontVariantNumeric: "tabular-nums" }}
+              >
+                {weight}
+                <span className="text-xs font-semibold ml-0.5" style={{ opacity: 0.6 }}>
+                  g
+                </span>
+              </p>
+            )}
+            {larva.stage === "adult" && larva.emergedSizeMm != null && (
+              <p
+                className="text-lg font-bold flex-shrink-0"
+                style={{ color: "var(--kuwa-bark)", fontVariantNumeric: "tabular-nums" }}
+              >
+                {larva.emergedSizeMm}
+                <span className="text-xs font-semibold ml-0.5" style={{ opacity: 0.6 }}>
+                  mm
+                </span>
+              </p>
+            )}
+          </div>
 
-      <div
-        className="flex items-center gap-3 mt-2 flex-wrap text-xs"
-        style={{ color: "var(--kuwa-ink-soft)" }}
-      >
-        <span className="truncate">{larva.species}</span>
-        {line && (
-          <span className="font-bold" style={{ color: "var(--kuwa-amber)" }}>
-            {line.name}
-          </span>
-        )}
-        {larva.gender !== "unknown" && (
-          <span className={`font-bold ${genderColor(larva.gender)}`}>
-            {getGenderLabel(larva.gender)}
-          </span>
-        )}
-        {lastChange && larva.stage !== "adult" && larva.stage !== "pupa" && (
-          <span>
-            {lastChange.bottleType}
-            {lastChange.bottleSize && ` ${lastChange.bottleSize}`}
-          </span>
-        )}
+          <div
+            className="flex items-center gap-3 mt-2 flex-wrap text-xs"
+            style={{ color: "var(--kuwa-ink-soft)" }}
+          >
+            <span className="truncate">{larva.species}</span>
+            {line && (
+              <span className="font-bold" style={{ color: "var(--kuwa-amber)" }}>
+                {line.name}
+              </span>
+            )}
+            {larva.gender !== "unknown" && (
+              <span className={`font-bold ${genderColor(larva.gender)}`}>
+                {getGenderLabel(larva.gender)}
+              </span>
+            )}
+            {/* 蛹期はビン情報を出さない (交換しないため) */}
+            {lastChange && isFeedingStage(larva.stage) && (
+              <span>
+                {lastChange.bottleType}
+                {lastChange.bottleSize && ` ${lastChange.bottleSize}`}
+              </span>
+            )}
+            {pupaDays != null && <span>蛹化から{pupaDays}日</span>}
+            {larva.dugOutDate && (
+              <span className="font-bold" style={{ color: "var(--kuwa-moss)" }}>
+                掘り出しずみ
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       {needsChange && (
@@ -112,6 +144,24 @@ function LarvaCard({ larva, onClick }: { larva: Larva; onClick: () => void }) {
         >
           <AlertTriangle className="w-3.5 h-3.5" strokeWidth={2.4} />
           前回の交換から{days}日。そろそろ交換してあげましょう
+        </p>
+      )}
+      {emergeSoon && (
+        <p
+          className="mt-2.5 text-xs font-bold flex items-center gap-1.5"
+          style={{ color: "#8a5410" }}
+        >
+          <Sparkles className="w-3.5 h-3.5" strokeWidth={2.4} />
+          そろそろ羽化。触らず見守りましょう
+        </p>
+      )}
+      {digReady && (
+        <p
+          className="mt-2.5 text-xs font-bold flex items-center gap-1.5"
+          style={{ color: "var(--kuwa-bark)" }}
+        >
+          <Sparkles className="w-3.5 h-3.5" strokeWidth={2.4} />
+          羽化から{digDays}日。掘り出しの目安です
         </p>
       )}
     </button>
@@ -134,12 +184,38 @@ export function LarvaTab() {
   const filtered =
     stageFilter === "all" ? searched : searched.filter((l) => l.stage === stageFilter);
 
-  const sorted = [...filtered].sort((a, b) => {
+  const byCode = (a: Larva, b: Larva) => {
     const aliveDiff = Number(b.isAlive) - Number(a.isAlive);
     if (aliveDiff !== 0) return aliveDiff;
     return a.code.localeCompare(b.code, "ja");
-  });
+  };
 
+  // 幼虫 / 蛹 / 羽化 の3グループに分けて並べる (蛹は扱いが違うため)
+  const groups = [
+    {
+      key: "larva",
+      title: "幼虫",
+      icon: Worm,
+      color: "var(--kuwa-moss)",
+      items: filtered.filter((l) => l.stage === "egg" || isFeedingStage(l.stage)).sort(byCode),
+    },
+    {
+      key: "pupa",
+      title: "前蛹・蛹",
+      icon: Egg,
+      color: "var(--kuwa-amber)",
+      items: filtered.filter((l) => isPupaStage(l.stage)).sort(byCode),
+    },
+    {
+      key: "adult",
+      title: "羽化した子",
+      icon: Sparkles,
+      color: "var(--kuwa-bark)",
+      items: filtered.filter((l) => l.stage === "adult").sort(byCode),
+    },
+  ].filter((g) => g.items.length > 0);
+
+  const total = filtered.length;
   const selected = larvae.find((l) => l.id === selectedId);
 
   return (
@@ -174,18 +250,18 @@ export function LarvaTab() {
 
       {larvae.length > 0 && (
         <p className="text-xs px-1" style={{ color: "var(--kuwa-ink-soft)" }}>
-          {sorted.length} 頭を表示中
+          {total} 頭を表示中
         </p>
       )}
 
-      {sorted.length === 0 ? (
+      {total === 0 ? (
         <EmptyState
           icon={Worm}
           color="var(--kuwa-moss)"
           title={
             search || stageFilter !== "all"
-              ? "この条件に合う幼虫はいませんでした"
-              : "まだ幼虫が登録されていません"
+              ? "この条件に合う子はいませんでした"
+              : "まだ育成中の子がいません"
           }
           hint={
             search || stageFilter !== "all"
@@ -194,11 +270,29 @@ export function LarvaTab() {
           }
         />
       ) : (
-        <div className="space-y-3">
-          {sorted.map((l, i) => (
-            <div key={l.id} className="animate-slide-up" style={{ animationDelay: `${i * 30}ms` }}>
-              <LarvaCard larva={l} onClick={() => setSelectedId(l.id)} />
-            </div>
+        <div className="space-y-6">
+          {groups.map((g) => (
+            <section key={g.key}>
+              <div className="mb-3 px-0.5 flex items-center justify-between">
+                <SectionTitle icon={g.icon} color={g.color}>
+                  {g.title}
+                </SectionTitle>
+                <span className="text-xs font-bold" style={{ color: "var(--kuwa-ink-soft)" }}>
+                  {g.items.length}頭
+                </span>
+              </div>
+              <div className="space-y-3">
+                {g.items.map((l, i) => (
+                  <div
+                    key={l.id}
+                    className="animate-slide-up"
+                    style={{ animationDelay: `${i * 30}ms` }}
+                  >
+                    <LarvaCard larva={l} onClick={() => setSelectedId(l.id)} />
+                  </div>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       )}

@@ -45,6 +45,7 @@ export const STAGE_LABELS: Record<LarvaStage, string> = {
   L1: "初齢",
   L2: "2齢",
   L3: "3齢",
+  prepupa: "前蛹",
   pupa: "蛹",
   adult: "羽化",
 };
@@ -54,6 +55,7 @@ export const STAGE_COLORS: Record<LarvaStage, string> = {
   L1:    "bg-[#e6ecca] text-[#66783c]",
   L2:    "bg-[#dbe5b9] text-[#5b6c33]",
   L3:    "bg-[#d1dcaa] text-[#4f5f2a]",
+  prepupa: "bg-[#efdcae] text-[#8a6a1e]",
   pupa:  "bg-[#f0d49b] text-[#8a5410]",
   adult: "bg-[#e6cfa8] text-[#7a4f1e]",
 };
@@ -65,7 +67,41 @@ export function genderColor(gender: string): string {
   return "text-[#8b7a64]";
 }
 
-export const STAGE_ORDER: LarvaStage[] = ["egg", "L1", "L2", "L3", "pupa", "adult"];
+export const STAGE_ORDER: LarvaStage[] = ["egg", "L1", "L2", "L3", "prepupa", "pupa", "adult"];
+
+/** 幼虫として餌交換が必要なステージ */
+export const FEEDING_STAGES: LarvaStage[] = ["L1", "L2", "L3"];
+
+/** 蛹期 (触らずそっとしておく段階) */
+export const PUPA_STAGES: LarvaStage[] = ["prepupa", "pupa"];
+
+export function isFeedingStage(stage: LarvaStage) {
+  return FEEDING_STAGES.includes(stage);
+}
+export function isPupaStage(stage: LarvaStage) {
+  return PUPA_STAGES.includes(stage);
+}
+
+/** 蛹期間の目安 (日)。実際は種と温度で前後する */
+export const PUPA_DAYS_MIN = 21;
+export const PUPA_DAYS_MAX = 40;
+
+/** 羽化から掘り出しまでの目安 (日)。体が固まるまで待つ */
+export const DIG_OUT_DAYS = 25;
+
+/** 蛹化日から羽化見込み日を返す */
+export function expectedEmergeDate(pupaDate: string): string {
+  const d = new Date(pupaDate);
+  d.setDate(d.getDate() + PUPA_DAYS_MIN);
+  return d.toISOString().split("T")[0];
+}
+
+/** 羽化日から掘り出し目安日を返す */
+export function expectedDigOutDate(emergedDate: string): string {
+  const d = new Date(emergedDate);
+  d.setDate(d.getDate() + DIG_OUT_DAYS);
+  return d.toISOString().split("T")[0];
+}
 
 /** ビン交換の目安間隔 (日) */
 export const BOTTLE_CHANGE_INTERVAL_DAYS = 90;
@@ -178,7 +214,7 @@ export function calcCostSummary(
 
 export interface UpcomingTask {
   id: string;
-  kind: "bottle" | "split" | "set";
+  kind: "bottle" | "split" | "set" | "emerge" | "digout";
   title: string;
   detail: string;
   overdue: boolean;
@@ -217,19 +253,52 @@ export function deriveUpcomingTasks(lines: BreedingLine[], larvae: Larva[]): Upc
     }
   }
 
-  // 最終ビン交換から一定日数経過した幼虫 → ビン交換の目安
   for (const larva of larvae) {
     if (!larva.isAlive) continue;
-    if (larva.stage === "pupa" || larva.stage === "adult" || larva.stage === "egg") continue;
-    const days = daysSinceLastChange(larva);
-    if (days != null && days >= BOTTLE_CHANGE_INTERVAL_DAYS - 10) {
-      tasks.push({
-        id: `bottle-${larva.id}`,
-        kind: "bottle",
-        title: `${larva.code} ビン交換`,
-        detail: `前回交換から${days}日経過`,
-        overdue: days >= BOTTLE_CHANGE_INTERVAL_DAYS,
-      });
+
+    // 最終ビン交換から一定日数経過した幼虫 → ビン交換の目安 (蛹期・羽化後は対象外)
+    if (isFeedingStage(larva.stage)) {
+      const days = daysSinceLastChange(larva);
+      if (days != null && days >= BOTTLE_CHANGE_INTERVAL_DAYS - 10) {
+        tasks.push({
+          id: `bottle-${larva.id}`,
+          kind: "bottle",
+          title: `${larva.code} ビン交換`,
+          detail: `前回交換から${days}日経過`,
+          overdue: days >= BOTTLE_CHANGE_INTERVAL_DAYS,
+        });
+      }
+    }
+
+    // 蛹化から一定日数 → 羽化が近い (触らず見守る合図)
+    if (larva.stage === "pupa" && larva.pupaDate) {
+      const days = daysBetween(larva.pupaDate);
+      if (days >= PUPA_DAYS_MIN - 5) {
+        tasks.push({
+          id: `emerge-${larva.id}`,
+          kind: "emerge",
+          title: `${larva.code} そろそろ羽化`,
+          detail:
+            days > PUPA_DAYS_MAX
+              ? `蛹化から${days}日。羽化しているか確認を`
+              : `蛹化から${days}日。触らず見守りましょう`,
+          overdue: days > PUPA_DAYS_MAX,
+        });
+      }
+    }
+
+    // 羽化から一定日数 → 掘り出しの目安
+    if (larva.stage === "adult" && larva.emergedDate && !larva.dugOutDate) {
+      const days = daysBetween(larva.emergedDate);
+      if (days >= DIG_OUT_DAYS - 5) {
+        tasks.push({
+          id: `digout-${larva.id}`,
+          kind: "digout",
+          title: `${larva.code} 掘り出し`,
+          detail: `羽化から${days}日経過`,
+          overdue: days >= DIG_OUT_DAYS + 14,
+        });
+      }
     }
   }
 

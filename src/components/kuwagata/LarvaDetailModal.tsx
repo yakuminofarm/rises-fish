@@ -13,9 +13,20 @@ import {
 } from "recharts";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { BottleChange, Gender, Larva } from "@/types/kuwagata";
-import { STAGE_COLORS, STAGE_LABELS, formatYen, larvaCost } from "@/lib/kuwagataUtils";
+import {
+  STAGE_COLORS,
+  STAGE_LABELS,
+  daysBetween,
+  expectedDigOutDate,
+  expectedEmergeDate,
+  formatYen,
+  isFeedingStage,
+  isPupaStage,
+  larvaCost,
+} from "@/lib/kuwagataUtils";
 import { formatDate, formatDateShort, generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { PhotoPicker } from "@/components/kuwagata/KuwaUI";
 
 interface LarvaDetailModalProps {
   larva: Larva;
@@ -199,9 +210,19 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
     else if (larva.stage === "L2") updateLarva(larva.id, { stage: "L3" });
   };
 
+  const recordPrepupa = () => {
+    updateLarva(larva.id, { stage: "prepupa" });
+    showToast("前蛹を記録しました。ここからはそっと見守りましょう");
+  };
+
   const recordPupa = () => {
     updateLarva(larva.id, { stage: "pupa", pupaDate: today });
     showToast("蛹化を記録しました！");
+  };
+
+  const recordDigOut = () => {
+    updateLarva(larva.id, { dugOutDate: today });
+    showToast("掘り出しを記録しました！");
   };
 
   const recordEmerge = () => {
@@ -240,6 +261,12 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
         </div>
 
         <div className="overflow-y-auto flex-1 px-5 py-5 space-y-5">
+          <PhotoPicker
+            value={larva.photoUrl}
+            onChange={(url) => updateLarva(larva.id, { photoUrl: url })}
+            label="この子の写真"
+          />
+
           {/* 基本情報 */}
           <div className="bg-[#d7e0b8]/50 rounded-2xl px-4 py-3 space-y-1 text-sm">
             <div className="flex justify-between">
@@ -290,6 +317,54 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
               </div>
             )}
           </div>
+
+          {/* 蛹期: 触らず見守る案内 */}
+          {isPupaStage(larva.stage) && larva.isAlive && (
+            <div
+              className="rounded-2xl p-4"
+              style={{ background: "var(--kuwa-amber-soft)", border: "1px solid rgba(163,102,15,0.25)" }}
+            >
+              <p className="font-maru text-sm font-bold" style={{ color: "#8a5410" }}>
+                {larva.stage === "prepupa" ? "前蛹です。動かさないで" : "蛹です。そっとしておきましょう"}
+              </p>
+              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "#7a5a25" }}>
+                {larva.stage === "prepupa"
+                  ? "蛹室を作っている大事な時期です。ビンを振ったり掘ったりしないようにしましょう。"
+                  : larva.pupaDate
+                  ? `蛹化から${daysBetween(larva.pupaDate)}日。羽化の目安は ${formatDate(expectedEmergeDate(larva.pupaDate))} 頃です。`
+                  : "蛹化日を記録すると、羽化の目安をお知らせできます。"}
+              </p>
+            </div>
+          )}
+
+          {/* 羽化後: 掘り出しの案内 */}
+          {larva.stage === "adult" && larva.emergedDate && (
+            <div
+              className="rounded-2xl p-4"
+              style={{
+                background: larva.dugOutDate ? "var(--kuwa-moss-bg)" : "var(--kuwa-bark-bg)",
+                border: "1px solid var(--kuwa-line)",
+              }}
+            >
+              <p className="font-maru text-sm font-bold" style={{ color: "var(--kuwa-ink)" }}>
+                {larva.dugOutDate ? "掘り出しずみ" : "掘り出しのタイミング"}
+              </p>
+              <p className="text-xs mt-1.5 leading-relaxed" style={{ color: "var(--kuwa-ink-soft)" }}>
+                {larva.dugOutDate
+                  ? `${formatDate(larva.dugOutDate)} に掘り出しました。成虫として登録すると管理を続けられます。`
+                  : `体が固まるまで待ちます。目安は ${formatDate(expectedDigOutDate(larva.emergedDate))} 頃 (羽化から${daysBetween(larva.emergedDate)}日経過)。`}
+              </p>
+              {!larva.dugOutDate && (
+                <button
+                  onClick={recordDigOut}
+                  className="mt-3 w-full py-3 rounded-xl text-sm font-bold active:scale-[0.98] transition-all"
+                  style={{ background: "var(--kuwa-bark)", color: "#fdf6e7" }}
+                >
+                  掘り出した
+                </button>
+              )}
+            </div>
+          )}
 
           {/* 雌雄判別 */}
           {larva.stage !== "adult" && (
@@ -348,7 +423,7 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-[#31241a]">ビン交換履歴</h3>
-              {!showChangeForm && (
+              {!showChangeForm && isFeedingStage(larva.stage) && (
                 <button
                   onClick={() => {
                     setShowChangeForm(true);
@@ -470,15 +545,31 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
                   onClick={advanceStage}
                   className="w-full py-3 rounded-xl border border-[rgba(85,104,47,0.4)] text-[#55682f] text-sm font-bold active:scale-[0.98] transition-all"
                 >
-                  {larva.stage === "egg" ? "孵化 (初齢へ)" : larva.stage === "L1" ? "2齢に脱皮" : "3齢に脱皮"}
+                  {larva.stage === "egg" ? "孵化した (初齢へ)" : larva.stage === "L1" ? "2齢に脱皮した" : "3齢に脱皮した"}
                 </button>
               )}
               {larva.stage === "L3" && (
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    onClick={recordPrepupa}
+                    className="py-3 rounded-xl border border-[rgba(138,106,30,0.4)] text-[#8a6a1e] text-sm font-bold active:scale-[0.98] transition-all"
+                  >
+                    前蛹になった
+                  </button>
+                  <button
+                    onClick={recordPupa}
+                    className="py-3 rounded-xl border border-[rgba(163,102,15,0.4)] text-[#a3660f] text-sm font-bold active:scale-[0.98] transition-all"
+                  >
+                    蛹になった
+                  </button>
+                </div>
+              )}
+              {larva.stage === "prepupa" && (
                 <button
                   onClick={recordPupa}
                   className="w-full py-3 rounded-xl border border-[rgba(163,102,15,0.4)] text-[#a3660f] text-sm font-bold active:scale-[0.98] transition-all"
                 >
-                  蛹化を記録
+                  蛹になった
                 </button>
               )}
               {larva.stage === "pupa" && (

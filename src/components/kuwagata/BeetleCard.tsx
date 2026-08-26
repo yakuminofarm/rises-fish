@@ -4,6 +4,7 @@ import { Heart, Ruler } from "lucide-react";
 import { Beetle } from "@/types/kuwagata";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
+import { PhotoThumb } from "@/components/kuwagata/KuwaUI";
 import { genderColor } from "@/lib/kuwagataUtils";
 import { getGenderLabel } from "@/lib/utils";
 
@@ -24,7 +25,7 @@ export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
       style={inactive ? { opacity: 0.66 } : undefined}
     >
       <div className="flex items-start gap-3.5">
-        <SpeciesAvatar species={beetle.species} />
+        <PhotoThumb src={beetle.photoUrl} fallback={<SpeciesAvatar species={beetle.species} />} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm font-bold" style={{ color: "var(--kuwa-ink)" }}>

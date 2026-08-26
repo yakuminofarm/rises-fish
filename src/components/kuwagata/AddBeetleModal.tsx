@@ -7,6 +7,7 @@ import { Beetle, Gender } from "@/types/kuwagata";
 import { SPECIES_OPTIONS } from "@/lib/kuwagataUtils";
 import { generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { PhotoPicker } from "@/components/kuwagata/KuwaUI";
 
 interface AddBeetleModalProps {
   onClose: () => void;
@@ -35,6 +36,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
     matured: false,
     notes: "",
   });
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>();
 
   const canSubmit = form.code.trim() !== "" && form.acquiredDate !== "";
 
@@ -56,6 +58,7 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
       acquiredDate: form.acquiredDate,
       priceYen: form.priceYen ? parseInt(form.priceYen) : undefined,
       matured: form.matured,
+      photoUrl,
       isAlive: true,
       notes: form.notes,
     };
@@ -76,6 +79,8 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
         </div>
 
         <div className="overflow-y-auto flex-1 px-5 pt-5 space-y-4">
+          <PhotoPicker value={photoUrl} onChange={setPhotoUrl} label="この子の写真" />
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-[#40352a] mb-1">管理番号 *</label>

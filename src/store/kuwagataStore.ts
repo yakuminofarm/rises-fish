@@ -133,6 +133,22 @@ export const useKuwagataStore = create<KuwagataStore>()(
     }),
     {
       name: "kuwagata-storage",
+      // localStorage が一杯 (写真の入れすぎ等) の場合に気づけるようにする
+      storage: {
+        getItem: (name) => {
+          const v = localStorage.getItem(name);
+          return v ? JSON.parse(v) : null;
+        },
+        setItem: (name, value) => {
+          try {
+            localStorage.setItem(name, JSON.stringify(value));
+          } catch (e) {
+            window.dispatchEvent(new CustomEvent("kuwa-storage-full"));
+            throw e;
+          }
+        },
+        removeItem: (name) => localStorage.removeItem(name),
+      },
       merge: (persisted: unknown, current) => {
         const p = persisted as Partial<KuwagataStore>;
         return {

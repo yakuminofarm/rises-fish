@@ -7,6 +7,7 @@ import { Gender, Larva, LarvaStage } from "@/types/kuwagata";
 import { SPECIES_OPTIONS, STAGE_LABELS } from "@/lib/kuwagataUtils";
 import { generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { PhotoPicker } from "@/components/kuwagata/KuwaUI";
 
 interface AddLarvaModalProps {
   onClose: () => void;
@@ -31,6 +32,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
     priceYen: "",
     notes: "",
   });
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>();
 
   const canSubmit = form.code.trim() !== "";
 
@@ -58,6 +60,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
       hatchDate: form.hatchDate || undefined,
       priceYen: form.priceYen ? parseInt(form.priceYen) : undefined,
       bottleChanges: [],
+      photoUrl,
       isAlive: true,
       notes: form.notes,
     };
@@ -67,7 +70,7 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
     setTimeout(() => onClose(), 800);
   };
 
-  const stageOptions: LarvaStage[] = ["egg", "L1", "L2", "L3", "pupa"];
+  const stageOptions: LarvaStage[] = ["egg", "L1", "L2", "L3", "prepupa", "pupa"];
 
   return (
     <div className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(36,26,17,0.55)" }}>
@@ -80,6 +83,8 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
         </div>
 
         <div className="overflow-y-auto flex-1 px-5 pt-5 space-y-4">
+          <PhotoPicker value={photoUrl} onChange={setPhotoUrl} label="この子の写真" />
+
           <div>
             <label className="block text-sm font-medium text-[#40352a] mb-1">管理番号 *</label>
             <input
@@ -129,13 +134,13 @@ export function AddLarvaModal({ onClose }: AddLarvaModalProps) {
 
           <div>
             <label className="block text-sm font-medium text-[#40352a] mb-1">ステージ</label>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
               {stageOptions.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => setForm({ ...form, stage: s })}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
+                  className={`flex-1 min-w-[52px] py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                     form.stage === s
                       ? "bg-[#55682f] text-[#fdf6e7] border-[#55682f]"
                       : "border-[rgba(107,68,35,0.16)] text-[#77644b]"

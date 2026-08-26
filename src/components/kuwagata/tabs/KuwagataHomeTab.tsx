@@ -4,8 +4,10 @@ import {
   Bug,
   CalendarClock,
   ChevronRight,
+  Egg,
   GitBranch,
   JapaneseYen,
+  Sparkles,
   Worm,
 } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
@@ -17,6 +19,7 @@ import {
   LINE_STATUS_LABELS,
   calcCostSummary,
   deriveUpcomingTasks,
+  isPupaStage,
   formatYen,
   latestWeight,
   speciesGradient,
@@ -31,7 +34,8 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
   const { beetles, lines, larvae, expenses } = useKuwagataStore();
 
   const aliveBeetles = beetles.filter((b) => b.isAlive && !b.soldDate);
-  const aliveLarvae = larvae.filter((l) => l.isAlive && l.stage !== "adult");
+  const aliveLarvae = larvae.filter((l) => l.isAlive && !isPupaStage(l.stage) && l.stage !== "adult");
+  const alivePupae = larvae.filter((l) => l.isAlive && isPupaStage(l.stage));
   const activeLines = lines.filter((l) => l.status !== "finished");
   const tasks = deriveUpcomingTasks(lines, larvae);
   const summary = calcCostSummary(beetles, larvae, expenses);
@@ -50,6 +54,7 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
   const stats = [
     { label: "成虫", value: aliveBeetles.length, unit: "頭", icon: Bug, tab: "adults" as const },
     { label: "幼虫", value: aliveLarvae.length, unit: "頭", icon: Worm, tab: "larvae" as const },
+    { label: "蛹", value: alivePupae.length, unit: "頭", icon: Egg, tab: "larvae" as const },
     { label: "ライン", value: activeLines.length, unit: "本", icon: GitBranch, tab: "breeding" as const },
   ];
 
@@ -90,12 +95,12 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
               : "作業予定はありません。ゆっくり観察を楽しみましょう"}
           </p>
 
-          <div className="flex gap-3 mt-5">
+          <div className="grid grid-cols-4 gap-2 mt-5">
             {stats.map((s) => (
               <button
                 key={s.label}
                 onClick={() => onNavigate(s.tab)}
-                className="flex-1 rounded-2xl px-3 py-3 text-left active:scale-[0.96] transition-all"
+                className="rounded-2xl px-2.5 py-3 text-left active:scale-[0.96] transition-all"
                 style={{
                   background: "rgba(224, 166, 63, 0.14)",
                   border: "1px solid rgba(224, 166, 63, 0.28)",
@@ -108,7 +113,7 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
                   </span>
                 </div>
                 <p
-                  className="text-[24px] font-bold mt-1 leading-none"
+                  className="text-[21px] font-bold mt-1 leading-none"
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 >
                   {s.value}
@@ -154,7 +159,11 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
                 <span
                   className="absolute left-0 top-0 bottom-0 w-[5px]"
                   style={{
-                    background: t.overdue ? "var(--kuwa-clay)" : "var(--kuwa-amber)",
+                    background: t.overdue
+                      ? "var(--kuwa-clay)"
+                      : t.kind === "emerge" || t.kind === "digout"
+                      ? "var(--kuwa-bark)"
+                      : "var(--kuwa-amber)",
                   }}
                 />
                 <div
@@ -162,10 +171,16 @@ export function KuwagataHomeTab({ onNavigate }: KuwagataHomeTabProps) {
                   style={
                     t.overdue
                       ? { background: "var(--kuwa-clay-bg)", color: "var(--kuwa-clay)" }
+                      : t.kind === "emerge" || t.kind === "digout"
+                      ? { background: "var(--kuwa-bark-bg)", color: "var(--kuwa-bark)" }
                       : { background: "var(--kuwa-amber-soft)", color: "var(--kuwa-amber)" }
                   }
                 >
-                  <CalendarClock className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                  {t.kind === "emerge" || t.kind === "digout" ? (
+                    <Sparkles className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                  ) : (
+                    <CalendarClock className="w-[18px] h-[18px]" strokeWidth={2.2} />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold truncate" style={{ color: "var(--kuwa-ink)" }}>

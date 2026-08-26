@@ -5,9 +5,10 @@ import { CheckCircle2, HandCoins, Heart, Skull, Trash2, X } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { Beetle } from "@/types/kuwagata";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
-import { formatYen } from "@/lib/kuwagataUtils";
-import { formatDate, getGenderColor, getGenderLabel } from "@/lib/utils";
+import { formatYen, genderColor } from "@/lib/kuwagataUtils";
+import { formatDate, getGenderLabel } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { PhotoPicker, PhotoThumb } from "@/components/kuwagata/KuwaUI";
 
 const inputCls =
   "kuwa-input";
@@ -64,7 +65,7 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
       >
         <div className="kuwa-sheet-bar sticky top-0 px-5 py-4 flex items-center justify-between flex-shrink-0 rounded-t-[24px]">
           <div className="flex items-center gap-2.5 min-w-0">
-            <SpeciesAvatar species={beetle.species} />
+            <PhotoThumb src={beetle.photoUrl} fallback={<SpeciesAvatar species={beetle.species} />} />
             <h2 className="text-lg font-bold text-[#31241a] truncate">
               {beetle.code}
               {beetle.name && <span className="text-sm text-[#8b7a64] ml-1.5">「{beetle.name}」</span>}
@@ -88,13 +89,19 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
         </div>
 
         <div className="overflow-y-auto flex-1 px-5 py-5 space-y-5">
+          <PhotoPicker
+            value={beetle.photoUrl}
+            onChange={(url) => updateBeetle(beetle.id, { photoUrl: url })}
+            label="この子の写真"
+          />
+
           <div className="bg-[#e3ceaa]/55 rounded-2xl px-4 py-1">
             <InfoRow label="種類" value={beetle.species} />
             <InfoRow label="産地・血統" value={beetle.locality} />
             <InfoRow label="累代" value={beetle.generation} />
             <div className="flex justify-between items-center py-2.5 border-b border-[rgba(107,68,35,0.12)]">
               <span className="text-sm text-[#8b7a64]">性別</span>
-              <span className={`text-sm font-bold ${getGenderColor(beetle.gender)}`}>
+              <span className={`text-sm font-bold ${genderColor(beetle.gender)}`}>
                 {getGenderLabel(beetle.gender)}
               </span>
             </div>

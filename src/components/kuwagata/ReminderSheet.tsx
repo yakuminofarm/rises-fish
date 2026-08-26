@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Bell, BellOff, Smartphone } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { Sheet } from "@/components/kuwagata/KuwaUI";
@@ -8,22 +8,33 @@ import { useToast } from "@/components/ui/Toast";
 
 type Perm = "default" | "granted" | "denied" | "unsupported";
 
+/** 許可状態は購読できないので、こちらから変化を知らせるイベント */
+const PERM_EVENT = "kuwa-notification-permission";
+
+function subscribePermission(onChange: () => void) {
+  window.addEventListener(PERM_EVENT, onChange);
+  return () => window.removeEventListener(PERM_EVENT, onChange);
+}
+
 function readPermission(): Perm {
-  if (typeof window === "undefined" || !("Notification" in window)) return "unsupported";
+  if (typeof Notification === "undefined") return "unsupported";
   return Notification.permission as Perm;
 }
 
 export function ReminderSheet({ onClose }: { onClose: () => void }) {
   const { reminder, setReminder } = useKuwagataStore();
   const { showToast } = useToast();
-  const [perm, setPerm] = useState<Perm>("unsupported");
-
-  useEffect(() => setPerm(readPermission()), []);
+  // サーバー側では判定できないので unsupported を初期値にする
+  const perm = useSyncExternalStore<Perm>(
+    subscribePermission,
+    readPermission,
+    () => "unsupported"
+  );
 
   const requestPermission = async () => {
     if (!("Notification" in window)) return;
     const res = await Notification.requestPermission();
-    setPerm(res as Perm);
+    window.dispatchEvent(new Event(PERM_EVENT));
     if (res === "granted") {
       showToast("通知をオンにしました");
       new Notification("くわらぼ", { body: "この形でお知らせします" });

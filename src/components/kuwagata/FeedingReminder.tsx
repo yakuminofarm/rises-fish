@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { feedingSummary, todayStr } from "@/lib/kuwagataUtils";
 import { useToast } from "@/components/ui/Toast";
@@ -36,21 +36,20 @@ function writeNotifiedOn(day: string) {
  * (閉じている間の通知には Push サーバーが必要)。
  */
 export function FeedingReminder() {
-  const beetles = useKuwagataStore((s) => s.beetles);
-  const reminder = useKuwagataStore((s) => s.reminder);
+  const enabled = useKuwagataStore((s) => s.reminder.enabled);
+  const time = useKuwagataStore((s) => s.reminder.time);
   const { showToast } = useToast();
-  const beetlesRef = useRef(beetles);
-  beetlesRef.current = beetles;
 
   useEffect(() => {
-    if (!reminder.enabled) return;
+    if (!enabled) return;
 
     const check = () => {
       const today = todayStr();
       if (readNotifiedOn() === today) return;
-      if (!isPastTime(reminder.time)) return;
+      if (!isPastTime(time)) return;
 
-      const { pending } = feedingSummary(beetlesRef.current, today);
+      // 最新の一覧はストアから直接読む (レンダー中に ref を触らないため)
+      const { pending } = feedingSummary(useKuwagataStore.getState().beetles, today);
       if (pending.length === 0) return;
 
       writeNotifiedOn(today);
@@ -75,7 +74,7 @@ export function FeedingReminder() {
       window.clearInterval(id);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [reminder.enabled, reminder.time, showToast]);
+  }, [enabled, time, showToast]);
 
   return null;
 }

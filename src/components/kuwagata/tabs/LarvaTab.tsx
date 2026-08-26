@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Egg, Search, Sparkles, Worm } from "lucide-react";
+import { AlertTriangle, Search, Sparkles, Worm } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { Larva, LarvaStage } from "@/types/kuwagata";
 import {
@@ -23,7 +23,8 @@ import {
 import { getGenderLabel } from "@/lib/utils";
 import { AddLarvaModal } from "@/components/kuwagata/AddLarvaModal";
 import { LarvaDetailModal } from "@/components/kuwagata/LarvaDetailModal";
-import { EmptyState, Fab, PhotoThumb, SectionTitle } from "@/components/kuwagata/KuwaUI";
+import { EmptyState, Fab, PhotoThumb } from "@/components/kuwagata/KuwaUI";
+import { STAGE_IMAGE } from "@/lib/kuwagataAssets";
 
 type StageFilter = "all" | LarvaStage;
 
@@ -195,21 +196,21 @@ export function LarvaTab() {
     {
       key: "larva",
       title: "幼虫",
-      icon: Worm,
+      img: STAGE_IMAGE.L3,
       color: "var(--kuwa-moss)",
       items: filtered.filter((l) => l.stage === "egg" || isFeedingStage(l.stage)).sort(byCode),
     },
     {
       key: "pupa",
       title: "前蛹・蛹",
-      icon: Egg,
+      img: STAGE_IMAGE.pupa,
       color: "var(--kuwa-amber)",
       items: filtered.filter((l) => isPupaStage(l.stage)).sort(byCode),
     },
     {
       key: "adult",
       title: "羽化した子",
-      icon: Sparkles,
+      img: STAGE_IMAGE.adult,
       color: "var(--kuwa-bark)",
       items: filtered.filter((l) => l.stage === "adult").sort(byCode),
     },
@@ -274,9 +275,21 @@ export function LarvaTab() {
           {groups.map((g) => (
             <section key={g.key}>
               <div className="mb-3 px-0.5 flex items-center justify-between">
-                <SectionTitle icon={g.icon} color={g.color}>
-                  {g.title}
-                </SectionTitle>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={g.img} alt="" width={24} height={24} />
+                  </span>
+                  <h2
+                    className="font-maru text-[15px] font-bold"
+                    style={{ color: "var(--kuwa-ink)" }}
+                  >
+                    {g.title}
+                  </h2>
+                </div>
                 <span className="text-xs font-bold" style={{ color: "var(--kuwa-ink-soft)" }}>
                   {g.items.length}頭
                 </span>

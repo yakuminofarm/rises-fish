@@ -27,6 +27,7 @@ import {
 import { formatDate, formatDateShort, generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 import { PhotoPicker } from "@/components/kuwagata/KuwaUI";
+import { STAGE_IMAGE } from "@/lib/kuwagataAssets";
 
 interface LarvaDetailModalProps {
   larva: Larva;
@@ -266,6 +267,37 @@ export function LarvaDetailModal({ larva: initial, onClose }: LarvaDetailModalPr
             onChange={(url) => updateLarva(larva.id, { photoUrl: url })}
             label="この子の写真"
           />
+
+          {/* いまの姿 */}
+          <div
+            className="rounded-2xl px-5 py-4 flex items-center gap-4"
+            style={{ background: "var(--kuwa-card)", border: "1px solid var(--kuwa-line)" }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={STAGE_IMAGE[larva.stage]}
+              alt=""
+              width={72}
+              height={72}
+              className="flex-shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="font-maru text-lg font-bold" style={{ color: "var(--kuwa-ink)" }}>
+                いまは{STAGE_LABELS[larva.stage]}
+              </p>
+              <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--kuwa-ink-soft)" }}>
+                {larva.stage === "egg"
+                  ? "孵化を待っています"
+                  : isFeedingStage(larva.stage)
+                  ? "エサを食べて大きくなる時期です"
+                  : larva.stage === "prepupa"
+                  ? "蛹室を作っています"
+                  : larva.stage === "pupa"
+                  ? "蛹の中で体を作りかえています"
+                  : "無事に羽化しました"}
+              </p>
+            </div>
+          </div>
 
           {/* 基本情報 */}
           <div className="bg-[#d7e0b8]/50 rounded-2xl px-4 py-3 space-y-1 text-sm">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { GitBranch } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { BreedingLine, LineStatus } from "@/types/kuwagata";
 import {
@@ -14,6 +14,8 @@ import {
 import { formatDateShort } from "@/lib/utils";
 import { AddLineModal } from "@/components/kuwagata/AddLineModal";
 import { LineDetailModal } from "@/components/kuwagata/LineDetailModal";
+import { EmptyState, Fab } from "@/components/kuwagata/KuwaUI";
+import { EMPTY_IMAGE } from "@/lib/kuwagataAssets";
 
 type StatusFilter = "all" | LineStatus;
 
@@ -33,41 +35,45 @@ function LineCard({ line, onClick }: { line: BreedingLine; onClick: () => void }
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left bg-white rounded-2xl p-4 border shadow-sm transition-all active:scale-[0.98] relative overflow-hidden ${
-        line.status === "finished" ? "border-gray-100 opacity-60" : "border-amber-100/60"
-      }`}
+      className="kuwa-card w-full text-left pl-6 pr-4 py-4 transition-all active:scale-[0.98] relative overflow-hidden"
+      style={line.status === "finished" ? { opacity: 0.62 } : undefined}
     >
-      <div
-        className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${speciesGradient(line.species)}`}
+      <span
+        className={`absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b ${speciesGradient(line.species)}`}
       />
-      <div className="flex items-center justify-between gap-2 mb-2 pl-1.5">
-        <p className="text-sm font-bold text-gray-900">
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <p className="text-sm font-bold" style={{ color: "var(--kuwa-ink)" }}>
           {line.name}
-          <span className="text-xs font-medium text-gray-400 ml-1.5">{line.species}</span>
+          <span className="text-xs font-medium ml-2" style={{ color: "var(--kuwa-ink-soft)" }}>
+            {line.species}
+          </span>
         </p>
-        <span
-          className={`text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 ${LINE_STATUS_COLORS[line.status]}`}
-        >
+        <span className={`kuwa-badge font-maru flex-shrink-0 ${LINE_STATUS_COLORS[line.status]}`}>
           {LINE_STATUS_LABELS[line.status]}
         </span>
       </div>
 
-      <div className="flex items-center gap-1.5 text-xs pl-1.5">
-        <span className="text-blue-600 font-semibold truncate">
-          ♂ {male ? male.code : "未設定"}
-        </span>
-        <span className="text-gray-300">×</span>
-        <span className="text-pink-600 font-semibold truncate">
-          ♀ {female ? female.code : "未設定"}
-        </span>
+      <div className="flex items-center gap-2 text-xs">
+        <span className="font-bold truncate text-[#3f5a72]">♂ {male ? male.code : "未設定"}</span>
+        <span style={{ color: "var(--kuwa-ink-soft)", opacity: 0.5 }}>×</span>
+        <span className="font-bold truncate text-[#a3502f]">♀ {female ? female.code : "未設定"}</span>
       </div>
 
-      <div className="flex items-center gap-2.5 mt-2 flex-wrap text-xs text-gray-400 pl-1.5">
-        {elapsed && <span className="text-amber-600 font-semibold">{elapsed}</span>}
-        {line.splitDate && <span>割出 {formatDateShort(line.splitDate)}</span>}
+      <div
+        className="flex items-center gap-3 mt-2 flex-wrap text-xs"
+        style={{ color: "var(--kuwa-ink-soft)" }}
+      >
+        {elapsed && (
+          <span className="font-bold" style={{ color: "var(--kuwa-amber)" }}>
+            {elapsed}
+          </span>
+        )}
+        {line.splitDate && <span>割り出し {formatDateShort(line.splitDate)}</span>}
         {line.larvaCount != null && <span>回収 {line.larvaCount}頭</span>}
         {larvaeCount > 0 && (
-          <span className="text-emerald-600 font-semibold">飼育中幼虫 {larvaeCount}頭</span>
+          <span className="font-bold" style={{ color: "var(--kuwa-moss)" }}>
+            育成中 {larvaeCount}頭
+          </span>
         )}
       </div>
     </button>
@@ -92,17 +98,14 @@ export function BreedingTab() {
   const selected = lines.find((l) => l.id === selectedId);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
         {(["all", ...LINE_STATUS_ORDER] as StatusFilter[]).map((s) => (
           <button
             key={s}
             onClick={() => setStatusFilter(s)}
-            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all border ${
-              statusFilter === s
-                ? "bg-amber-600 text-white border-amber-600 shadow-sm shadow-amber-200"
-                : "bg-white text-gray-500 border-gray-100"
-            }`}
+            data-on={statusFilter === s}
+            className="kuwa-chip font-maru"
           >
             {s === "all" ? "すべて" : LINE_STATUS_LABELS[s]}
           </button>
@@ -110,19 +113,23 @@ export function BreedingTab() {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-4xl mb-3">🐣</p>
-          <p className="text-gray-400 text-sm font-medium">
-            {statusFilter !== "all"
-              ? "該当するラインがありません"
-              : "まだブリードラインがありません"}
-          </p>
-          {statusFilter === "all" && (
-            <p className="text-gray-300 text-xs mt-1">右下の＋ボタンからペアを組みましょう</p>
-          )}
-        </div>
+        <EmptyState
+          image={EMPTY_IMAGE.line}
+          icon={GitBranch}
+          color="var(--kuwa-bark)"
+          title={
+            statusFilter !== "all"
+              ? "この状態のラインはまだありません"
+              : "まだブリードラインがありません"
+          }
+          hint={
+            statusFilter !== "all"
+              ? "「すべて」に戻すと全部のラインが見られます"
+              : "右下の＋から、ペアを組んで最初のラインを作りましょう"
+          }
+        />
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-3">
           {sorted.map((l, i) => (
             <div key={l.id} className="animate-slide-up" style={{ animationDelay: `${i * 30}ms` }}>
               <LineCard line={l} onClick={() => setSelectedId(l.id)} />
@@ -131,21 +138,10 @@ export function BreedingTab() {
         </div>
       )}
 
-      <button
-        onClick={() => setShowAdd(true)}
-        className="fixed right-5 w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-full flex items-center justify-center transition-all active:scale-90 z-40"
-        style={{
-          bottom: "calc(max(8px, env(safe-area-inset-bottom)) + 72px)",
-          boxShadow: "0 4px 20px rgba(217,119,6,0.4)",
-        }}
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      <Fab onClick={() => setShowAdd(true)} label="ラインを作成" />
 
       {showAdd && <AddLineModal onClose={() => setShowAdd(false)} />}
-      {selected && (
-        <LineDetailModal line={selected} onClose={() => setSelectedId(null)} />
-      )}
+      {selected && <LineDetailModal line={selected} onClose={() => setSelectedId(null)} />}
     </div>
   );
 }

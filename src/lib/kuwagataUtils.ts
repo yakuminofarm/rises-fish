@@ -1,5 +1,27 @@
 import { Beetle, BreedingLine, Expense, ExpenseCategory, Larva, LarvaStage, LineStatus } from "@/types/kuwagata";
 
+/** 端末のローカル日付を YYYY-MM-DD で返す (日付が変われば別の値になる) */
+export function todayStr(d: Date = new Date()): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** 今日エサをあげる必要があるか。後食前・販売済み・飼育終了は対象外 */
+export function needsFeedingToday(b: Beetle, today = todayStr()): boolean {
+  if (!b.isAlive || b.soldPriceYen != null) return false;
+  if (!b.matured) return false;
+  return b.lastFedDate !== today;
+}
+
+/** 今日の給餌対象と、そのうち未完了の数 */
+export function feedingSummary(beetles: Beetle[], today = todayStr()) {
+  const targets = beetles.filter(
+    (b) => b.isAlive && b.soldPriceYen == null && b.matured
+  );
+  const pending = targets.filter((b) => b.lastFedDate !== today);
+  return { targets, pending, done: targets.length - pending.length };
+}
+
 export const SPECIES_OPTIONS = [
   "オオクワガタ",
   "ヒラタクワガタ",
@@ -25,11 +47,11 @@ export const LINE_STATUS_LABELS: Record<LineStatus, string> = {
 };
 
 export const LINE_STATUS_COLORS: Record<LineStatus, string> = {
-  pairing: "bg-pink-100 text-pink-700",
-  laying: "bg-amber-100 text-amber-700",
-  waiting_split: "bg-orange-100 text-orange-700",
-  split_done: "bg-emerald-100 text-emerald-700",
-  finished: "bg-gray-100 text-gray-500",
+  pairing:       "bg-[#eccfc2] text-[#94472a]",
+  laying:        "bg-[#f0d49b] text-[#a3660f]",
+  waiting_split: "bg-[#eec98f] text-[#8a5410]",
+  split_done:    "bg-[#d7e0b8] text-[#55682f]",
+  finished:      "bg-[#ded5c6] text-[#7a7062]",
 };
 
 export const LINE_STATUS_ORDER: LineStatus[] = [
@@ -45,20 +67,63 @@ export const STAGE_LABELS: Record<LarvaStage, string> = {
   L1: "初齢",
   L2: "2齢",
   L3: "3齢",
+  prepupa: "前蛹",
   pupa: "蛹",
   adult: "羽化",
 };
 
 export const STAGE_COLORS: Record<LarvaStage, string> = {
-  egg: "bg-gray-100 text-gray-600",
-  L1: "bg-lime-100 text-lime-700",
-  L2: "bg-green-100 text-green-700",
-  L3: "bg-emerald-100 text-emerald-700",
-  pupa: "bg-amber-100 text-amber-700",
-  adult: "bg-violet-100 text-violet-700",
+  egg:   "bg-[#e4dbc9] text-[#6f6250]",
+  L1:    "bg-[#e6ecca] text-[#66783c]",
+  L2:    "bg-[#dbe5b9] text-[#5b6c33]",
+  L3:    "bg-[#d1dcaa] text-[#4f5f2a]",
+  prepupa: "bg-[#efdcae] text-[#8a6a1e]",
+  pupa:  "bg-[#f0d49b] text-[#8a5410]",
+  adult: "bg-[#e6cfa8] text-[#7a4f1e]",
 };
 
-export const STAGE_ORDER: LarvaStage[] = ["egg", "L1", "L2", "L3", "pupa", "adult"];
+/** 雌雄の表示色 (自然色パレット版: 藍とテラコッタ) */
+export function genderColor(gender: string): string {
+  if (gender === "male") return "text-[#3f5a72]";
+  if (gender === "female") return "text-[#a3502f]";
+  return "text-[#8b7a64]";
+}
+
+export const STAGE_ORDER: LarvaStage[] = ["egg", "L1", "L2", "L3", "prepupa", "pupa", "adult"];
+
+/** 幼虫として餌交換が必要なステージ */
+export const FEEDING_STAGES: LarvaStage[] = ["L1", "L2", "L3"];
+
+/** 蛹期 (触らずそっとしておく段階) */
+export const PUPA_STAGES: LarvaStage[] = ["prepupa", "pupa"];
+
+export function isFeedingStage(stage: LarvaStage) {
+  return FEEDING_STAGES.includes(stage);
+}
+export function isPupaStage(stage: LarvaStage) {
+  return PUPA_STAGES.includes(stage);
+}
+
+/** 蛹期間の目安 (日)。実際は種と温度で前後する */
+export const PUPA_DAYS_MIN = 21;
+export const PUPA_DAYS_MAX = 40;
+
+/** 羽化から掘り出しまでの目安 (日)。体が固まるまで待つ */
+export const DIG_OUT_DAYS = 25;
+
+/** 蛹化日から羽化見込み日を返す */
+export function expectedEmergeDate(pupaDate: string): string {
+  const d = new Date(pupaDate);
+  d.setDate(d.getDate() + PUPA_DAYS_MIN);
+  return d.toISOString().split("T")[0];
+}
+
+/** 羽化日から掘り出し目安日を返す */
+export function expectedDigOutDate(emergedDate: string): string {
+  const d = new Date(emergedDate);
+  d.setDate(d.getDate() + DIG_OUT_DAYS);
+  return d.toISOString().split("T")[0];
+}
 
 /** ビン交換の目安間隔 (日) */
 export const BOTTLE_CHANGE_INTERVAL_DAYS = 90;
@@ -177,7 +242,7 @@ export function calcCostSummary(
 
 export interface UpcomingTask {
   id: string;
-  kind: "bottle" | "split" | "set";
+  kind: "bottle" | "split" | "set" | "emerge" | "digout";
   title: string;
   detail: string;
   overdue: boolean;
@@ -216,19 +281,52 @@ export function deriveUpcomingTasks(lines: BreedingLine[], larvae: Larva[]): Upc
     }
   }
 
-  // 最終ビン交換から一定日数経過した幼虫 → ビン交換の目安
   for (const larva of larvae) {
     if (!larva.isAlive) continue;
-    if (larva.stage === "pupa" || larva.stage === "adult" || larva.stage === "egg") continue;
-    const days = daysSinceLastChange(larva);
-    if (days != null && days >= BOTTLE_CHANGE_INTERVAL_DAYS - 10) {
-      tasks.push({
-        id: `bottle-${larva.id}`,
-        kind: "bottle",
-        title: `${larva.code} ビン交換`,
-        detail: `前回交換から${days}日経過`,
-        overdue: days >= BOTTLE_CHANGE_INTERVAL_DAYS,
-      });
+
+    // 最終ビン交換から一定日数経過した幼虫 → ビン交換の目安 (蛹期・羽化後は対象外)
+    if (isFeedingStage(larva.stage)) {
+      const days = daysSinceLastChange(larva);
+      if (days != null && days >= BOTTLE_CHANGE_INTERVAL_DAYS - 10) {
+        tasks.push({
+          id: `bottle-${larva.id}`,
+          kind: "bottle",
+          title: `${larva.code} ビン交換`,
+          detail: `前回交換から${days}日経過`,
+          overdue: days >= BOTTLE_CHANGE_INTERVAL_DAYS,
+        });
+      }
+    }
+
+    // 蛹化から一定日数 → 羽化が近い (触らず見守る合図)
+    if (larva.stage === "pupa" && larva.pupaDate) {
+      const days = daysBetween(larva.pupaDate);
+      if (days >= PUPA_DAYS_MIN - 5) {
+        tasks.push({
+          id: `emerge-${larva.id}`,
+          kind: "emerge",
+          title: `${larva.code} そろそろ羽化`,
+          detail:
+            days > PUPA_DAYS_MAX
+              ? `蛹化から${days}日。羽化しているか確認を`
+              : `蛹化から${days}日。触らず見守りましょう`,
+          overdue: days > PUPA_DAYS_MAX,
+        });
+      }
+    }
+
+    // 羽化から一定日数 → 掘り出しの目安
+    if (larva.stage === "adult" && larva.emergedDate && !larva.dugOutDate) {
+      const days = daysBetween(larva.emergedDate);
+      if (days >= DIG_OUT_DAYS - 5) {
+        tasks.push({
+          id: `digout-${larva.id}`,
+          kind: "digout",
+          title: `${larva.code} 掘り出し`,
+          detail: `羽化から${days}日経過`,
+          overdue: days >= DIG_OUT_DAYS + 14,
+        });
+      }
     }
   }
 

@@ -1,58 +1,72 @@
 "use client";
 
-import { Bug, GitBranch, Home, JapaneseYen, Worm } from "lucide-react";
+import { NAV_MASK } from "@/lib/kuwagataAssets";
 
-export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost";
+export type KuwagataTabId = "home" | "adults" | "breeding" | "larvae" | "cost" | "articles";
 
 interface KuwagataBottomNavProps {
   activeTab: KuwagataTabId;
   onChange: (tab: KuwagataTabId) => void;
 }
 
-const tabs: { id: KuwagataTabId; label: string }[] = [
-  { id: "home",     label: "ホーム" },
-  { id: "adults",   label: "成虫" },
-  { id: "breeding", label: "ブリード" },
-  { id: "larvae",   label: "幼虫" },
-  { id: "cost",     label: "収支" },
+const tabs: { id: KuwagataTabId; label: string; mask: string }[] = [
+  { id: "home",     label: "ホーム",   mask: NAV_MASK.home },
+  { id: "adults",   label: "成虫",     mask: NAV_MASK.adult },
+  { id: "breeding", label: "ブリード", mask: NAV_MASK.breeding },
+  { id: "larvae",   label: "育成",     mask: NAV_MASK.rearing },
+  { id: "cost",     label: "収支",     mask: NAV_MASK.cost },
+  { id: "articles", label: "記事",     mask: NAV_MASK.article },
 ];
 
-function TabIcon({ id, isActive }: { id: KuwagataTabId; isActive: boolean }) {
-  const cls = `w-5 h-5 transition-all ${isActive ? "scale-110" : "scale-100"}`;
-  if (id === "home")     return <Home        className={cls} />;
-  if (id === "adults")   return <Bug         className={cls} />;
-  if (id === "breeding") return <GitBranch   className={cls} />;
-  if (id === "larvae")   return <Worm        className={cls} />;
-  return                        <JapaneseYen className={cls} />;
+/**
+ * アイコンは黒1色のPNGをCSSマスクとして使い、背景色で塗り分ける。
+ * 画像を色ごとに用意しなくて済み、選択状態の切り替えも色の変更だけで済む。
+ */
+function TabIcon({ mask, color }: { mask: string; color: string }) {
+  return (
+    <span
+      aria-hidden
+      className="block w-[19px] h-[19px] transition-colors"
+      style={{
+        background: color,
+        WebkitMask: `url(${mask}) center/contain no-repeat`,
+        mask: `url(${mask}) center/contain no-repeat`,
+      }}
+    />
+  );
 }
 
 export function KuwagataBottomNav({ activeTab, onChange }: KuwagataBottomNavProps) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 max-w-md mx-auto">
-      <div className="glass border-t border-white/60 px-2 pb-safe">
+      <div
+        className="px-2 pb-safe"
+        style={{
+          background: "rgba(234, 217, 189, 0.92)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          borderTop: "1px solid var(--kuwa-line)",
+        }}
+      >
         <div className="flex">
-          {tabs.map(({ id, label }) => {
+          {tabs.map(({ id, label, mask }) => {
             const isActive = activeTab === id;
+            const color = isActive ? "var(--kuwa-bark)" : "rgba(119, 100, 75, 0.6)";
             return (
               <button
                 key={id}
                 onClick={() => onChange(id)}
-                className="flex-1 flex flex-col items-center py-3 gap-0.5 relative transition-all duration-200 min-h-[56px]"
+                className="flex-1 flex flex-col items-center py-3 gap-1 transition-all duration-200 min-h-[58px]"
               >
-                {isActive && (
-                  <span className="absolute top-1.5 w-8 h-1 bg-amber-600 rounded-full" />
-                )}
-                <div
-                  className={`p-1.5 rounded-xl transition-all duration-200 ${
-                    isActive ? "bg-amber-50 text-amber-700" : "text-gray-400"
-                  }`}
-                >
-                  <TabIcon id={id} isActive={isActive} />
-                </div>
                 <span
-                  className={`text-[10px] font-semibold transition-colors ${
-                    isActive ? "text-amber-700" : "text-gray-400"
-                  }`}
+                  className="px-2.5 py-1.5 rounded-xl transition-all duration-200"
+                  style={isActive ? { background: "var(--kuwa-amber-soft)" } : undefined}
+                >
+                  <TabIcon mask={mask} color={color} />
+                </span>
+                <span
+                  className="font-maru text-[10px] font-bold transition-colors"
+                  style={{ color }}
                 >
                   {label}
                 </span>

@@ -29,8 +29,10 @@ export interface Beetle {
   acquiredDate: string;    // 入手日
   priceYen?: number;       // 入手金額 (円)
   matured?: boolean;       // 後食済み (ブリード可能な成熟状態)
+  lastFedDate?: string;    // 最終給餌日 (YYYY-MM-DD)。日付が変わると未給餌に戻る
   sourceLineId?: string;   // 出身ブリードライン
   pairId?: string;         // ペア相手の個体ID (ペアで入手・販売した場合の紐付け)
+  photoUrl?: string;       // 個体写真 (リサイズ済み data URI)
   isAlive: boolean;
   isFavorite?: boolean;
   soldDate?: string;       // 販売日
@@ -64,8 +66,8 @@ export interface BreedingLine {
   notes: string;
 }
 
-/** 幼虫の成長ステージ */
-export type LarvaStage = "egg" | "L1" | "L2" | "L3" | "pupa" | "adult";
+/** 成長ステージ (卵→初齢→2齢→3齢→前蛹→蛹→羽化) */
+export type LarvaStage = "egg" | "L1" | "L2" | "L3" | "prepupa" | "pupa" | "adult";
 
 /** ビン交換 (菌糸ビン・マット交換) の記録 */
 export interface BottleChange {
@@ -92,6 +94,8 @@ export interface Larva {
   pupaDate?: string;       // 蛹化日
   emergedDate?: string;    // 羽化日
   emergedSizeMm?: number;  // 羽化サイズ (mm)
+  dugOutDate?: string;     // 掘り出し日 (羽化後に取り出した日)
+  photoUrl?: string;       // 個体写真 (リサイズ済み data URI)
   isAlive: boolean;
   notes: string;
 }
@@ -112,4 +116,10 @@ export interface Expense {
   category: ExpenseCategory;
   amountYen: number;
   memo?: string;
+}
+
+/** 給餌リマインダーの設定 */
+export interface ReminderSettings {
+  enabled: boolean;
+  time: string;            // "HH:MM" (24時間表記)
 }

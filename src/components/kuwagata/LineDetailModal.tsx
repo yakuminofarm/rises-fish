@@ -10,6 +10,7 @@ import {
 } from "@/lib/kuwagataUtils";
 import { formatDate, generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
+import { TOOL_IMAGE } from "@/lib/kuwagataAssets";
 
 interface LineDetailModalProps {
   line: BreedingLine;
@@ -17,7 +18,7 @@ interface LineDetailModalProps {
 }
 
 const inputCls =
-  "w-full border border-gray-200 rounded-xl px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-amber-400";
+  "kuwa-input";
 
 export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps) {
   const { lines, beetles, updateLine, deleteLine, addLarva, getLarvaeByLine } =
@@ -45,7 +46,7 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
       setDate: setForm.date,
       setType: setForm.type,
     });
-    showToast("産卵セット投入を記録しました");
+    showToast("セット投入を記録しました！");
   };
 
   const recordSplit = () => {
@@ -76,13 +77,13 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
       }
       showToast(`割り出しを記録し、幼虫${larvaCount}頭を作成しました`);
     } else {
-      showToast("割り出しを記録しました");
+      showToast("割り出しを記録しました！");
     }
   };
 
   const handleDelete = () => {
     deleteLine(line.id);
-    showToast(`ライン ${line.name} を削除しました`);
+    showToast(`ライン ${line.name} を消しました`);
     onClose();
   };
 
@@ -100,78 +101,78 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end" style={{ background: "rgba(36,26,17,0.55)" }} onClick={onClose}>
       <div
-        className="bg-white w-full rounded-t-3xl max-h-[88vh] flex flex-col"
+        className="kuwa-sheet w-full max-w-md mx-auto max-h-[88vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-4 py-4 flex items-center justify-between flex-shrink-0">
+        <div className="kuwa-sheet-bar sticky top-0 px-5 py-4 flex items-center justify-between flex-shrink-0 rounded-t-[24px]">
           <div className="flex items-center gap-2 min-w-0">
-            <h2 className="text-lg font-bold text-gray-900 truncate">{line.name}</h2>
+            <h2 className="text-lg font-bold text-[#31241a] truncate">{line.name}</h2>
             <span
               className={`text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 ${LINE_STATUS_COLORS[line.status]}`}
             >
               {LINE_STATUS_LABELS[line.status]}
             </span>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-[#e6dbc6]">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 px-4 py-4 space-y-5">
+        <div className="overflow-y-auto flex-1 px-5 py-5 space-y-5">
           {/* ペア情報 */}
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-blue-50/60 rounded-2xl px-3.5 py-3">
-              <p className="text-[10px] font-bold text-blue-500 mb-0.5">♂ 種親オス</p>
+            <div className="bg-[#cfdbdd]/60 rounded-2xl px-4 py-3.5">
+              <p className="text-[10px] font-bold text-[#3f5a72] mb-0.5">♂ 種親オス</p>
               {male ? (
                 <>
-                  <p className="text-sm font-bold text-gray-800 truncate">{male.code}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-bold text-[#31241a] truncate">{male.code}</p>
+                  <p className="text-xs text-[#8b7a64]">
                     {male.sizeMm != null ? `${male.sizeMm}mm` : ""} {male.generation ?? ""}
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-gray-400">未設定</p>
+                <p className="text-sm text-[#8b7a64]">未設定</p>
               )}
             </div>
-            <div className="bg-pink-50/60 rounded-2xl px-3.5 py-3">
-              <p className="text-[10px] font-bold text-pink-500 mb-0.5">♀ 種親メス</p>
+            <div className="bg-[#eccfc2]/60 rounded-2xl px-4 py-3.5">
+              <p className="text-[10px] font-bold text-[#a3502f] mb-0.5">♀ 種親メス</p>
               {female ? (
                 <>
-                  <p className="text-sm font-bold text-gray-800 truncate">{female.code}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-bold text-[#31241a] truncate">{female.code}</p>
+                  <p className="text-xs text-[#8b7a64]">
                     {female.sizeMm != null ? `${female.sizeMm}mm` : ""} {female.generation ?? ""}
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-gray-400">未設定</p>
+                <p className="text-sm text-[#8b7a64]">未設定</p>
               )}
             </div>
           </div>
 
           {/* タイムライン */}
           <div>
-            <h3 className="text-sm font-bold text-gray-800 mb-2">進行状況</h3>
+            <h3 className="text-sm font-bold text-[#31241a] mb-2">進行状況</h3>
             <div className="space-y-0">
               {timeline.map((t, i) => (
                 <div key={t.label} className="flex gap-3">
                   <div className="flex flex-col items-center">
                     <div
                       className={`w-3 h-3 rounded-full mt-1 ${
-                        t.date ? "bg-amber-500" : "bg-gray-200"
+                        t.date ? "bg-[#a3660f]" : "bg-[#d8c9ae]"
                       }`}
                     />
                     {i < timeline.length - 1 && (
-                      <div className={`w-0.5 flex-1 ${t.date ? "bg-amber-200" : "bg-gray-100"}`} />
+                      <div className={`w-0.5 flex-1 ${t.date ? "bg-[#e8cfa0]" : "bg-[#e6dbc6]"}`} />
                     )}
                   </div>
                   <div className="pb-4 min-w-0">
-                    <p className={`text-sm font-semibold ${t.date ? "text-gray-800" : "text-gray-300"}`}>
+                    <p className={`text-sm font-semibold ${t.date ? "text-[#31241a]" : "text-[#b3a189]"}`}>
                       {t.label}
                     </p>
-                    {t.date && <p className="text-xs text-gray-400">{formatDate(t.date)}</p>}
-                    {t.extra && <p className="text-xs text-amber-600 mt-0.5">{t.extra}</p>}
+                    {t.date && <p className="text-xs text-[#8b7a64]">{formatDate(t.date)}</p>}
+                    {t.extra && <p className="text-xs text-[#a3660f] mt-0.5">{t.extra}</p>}
                   </div>
                 </div>
               ))}
@@ -180,8 +181,12 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
 
           {/* ステータス操作 */}
           {line.status === "pairing" && (
-            <div className="bg-amber-50/60 rounded-2xl p-4 space-y-3">
-              <h3 className="text-sm font-bold text-gray-800">産卵セット投入を記録</h3>
+            <div className="bg-[#e3ceaa]/55 rounded-2xl p-4 space-y-3">
+              <h3 className="text-sm font-bold text-[#31241a] flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={TOOL_IMAGE.log} alt="" width={20} height={20} />
+                産卵セット投入を記録
+              </h3>
               <div className="grid grid-cols-2 gap-2.5">
                 <input
                   type="date"
@@ -198,7 +203,7 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
               </div>
               <button
                 onClick={recordSet}
-                className="w-full py-3 rounded-xl bg-amber-600 text-white text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
+                className="w-full py-3 rounded-xl bg-[#6b4423] text-[#fdf6e7] text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 セット投入を記録
@@ -207,9 +212,9 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
           )}
 
           {(line.status === "laying" || line.status === "waiting_split") && (
-            <div className="bg-orange-50/60 rounded-2xl p-4 space-y-3">
-              <h3 className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                <Shovel className="w-4 h-4 text-orange-500" />
+            <div className="bg-[#f0d49b]/55 rounded-2xl p-4 space-y-3">
+              <h3 className="text-sm font-bold text-[#31241a] flex items-center gap-1.5">
+                <Shovel className="w-4 h-4 text-[#a3660f]" />
                 割り出しを記録
               </h3>
               <input
@@ -220,7 +225,7 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
               />
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">幼虫数</label>
+                  <label className="block text-xs font-medium text-[#77644b] mb-1">幼虫数</label>
                   <input
                     type="number"
                     min="0"
@@ -231,7 +236,7 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">卵の数 (任意)</label>
+                  <label className="block text-xs font-medium text-[#77644b] mb-1">卵の数 (任意)</label>
                   <input
                     type="number"
                     min="0"
@@ -245,12 +250,12 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
               <button
                 type="button"
                 onClick={() => setSplitForm({ ...splitForm, autoCreate: !splitForm.autoCreate })}
-                className="flex items-center gap-2 text-sm text-gray-600"
+                className="flex items-center gap-2 text-sm text-[#77644b]"
               >
                 <span
                   className={`w-5 h-5 rounded-md border flex items-center justify-center ${
                     splitForm.autoCreate
-                      ? "bg-amber-600 border-amber-600 text-white"
+                      ? "bg-[#6b4423] border-amber-600 text-[#fdf6e7]"
                       : "border-gray-300 bg-white"
                   }`}
                 >
@@ -260,7 +265,7 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
               </button>
               <button
                 onClick={recordSplit}
-                className="w-full py-3 rounded-xl bg-orange-500 text-white text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
+                className="w-full py-3 rounded-xl bg-[#a3660f] text-[#fdf6e7] text-sm font-bold flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 割り出しを記録
@@ -274,7 +279,7 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
                 updateLine(line.id, { status: "finished" });
                 showToast("ラインを終了にしました");
               }}
-              className="w-full py-3 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold active:scale-[0.98] transition-all"
+              className="w-full py-3 rounded-xl border border-[rgba(107,68,35,0.16)] text-[#77644b] text-sm font-semibold active:scale-[0.98] transition-all"
             >
               このラインを終了にする
             </button>
@@ -283,8 +288,8 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
           {/* このラインの幼虫 */}
           {lineLarvae.length > 0 && (
             <div>
-              <h3 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
-                <Worm className="w-4 h-4 text-emerald-600" />
+              <h3 className="text-sm font-bold text-[#31241a] mb-2 flex items-center gap-1.5">
+                <Worm className="w-4 h-4 text-[#55682f]" />
                 このラインの幼虫 ({lineLarvae.length}頭)
               </h3>
               <div className="flex flex-wrap gap-1.5">
@@ -292,7 +297,7 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
                   <span
                     key={l.id}
                     className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                      l.isAlive ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-400"
+                      l.isAlive ? "bg-[#d7e0b8] text-[#4f5f2a]" : "bg-[#e6dbc6] text-[#8b7a64]"
                     }`}
                   >
                     {l.code}
@@ -304,8 +309,8 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
 
           {line.notes && (
             <div>
-              <h3 className="text-sm font-bold text-gray-800 mb-1.5">メモ</h3>
-              <p className="text-sm text-gray-600 bg-gray-50 rounded-xl px-3.5 py-3 whitespace-pre-wrap">
+              <h3 className="text-sm font-bold text-[#31241a] mb-1.5">メモ</h3>
+              <p className="text-sm text-[#77644b] bg-[#f1e7d5] rounded-xl px-3.5 py-3 whitespace-pre-wrap">
                 {line.notes}
               </p>
             </div>
@@ -315,12 +320,12 @@ export function LineDetailModal({ line: initial, onClose }: LineDetailModalProps
             onClick={() => (confirmDelete ? handleDelete() : setConfirmDelete(true))}
             className={`w-full py-3 rounded-xl text-sm font-semibold border flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all mb-2 ${
               confirmDelete
-                ? "bg-red-500 text-white border-red-500"
-                : "border-red-200 text-red-500"
+                ? "bg-[#a3502f] text-[#fdf6e7] border-[#a3502f]"
+                : "border-[rgba(163,80,47,0.4)] text-[#a3502f]"
             }`}
           >
             <Trash2 className="w-4 h-4" />
-            {confirmDelete ? "本当に削除する (幼虫データは残ります)" : "ラインを削除"}
+            {confirmDelete ? "ほんとうに消す (幼虫の記録は残ります)" : "ラインを削除"}
           </button>
         </div>
       </div>

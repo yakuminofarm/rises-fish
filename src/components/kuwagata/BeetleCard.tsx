@@ -1,10 +1,13 @@
 "use client";
 
-import { Heart, Link2, Ruler } from "lucide-react";
+import { Check, Heart, Link2, Ruler } from "lucide-react";
 import { Beetle } from "@/types/kuwagata";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
-import { getGenderColor, getGenderLabel } from "@/lib/utils";
+import { PhotoThumb } from "@/components/kuwagata/KuwaUI";
+import { genderColor, needsFeedingToday, todayStr } from "@/lib/kuwagataUtils";
+import { getGenderLabel } from "@/lib/utils";
+import { TOOL_IMAGE } from "@/lib/kuwagataAssets";
 
 interface BeetleCardProps {
   beetle: Beetle;
@@ -13,88 +16,133 @@ interface BeetleCardProps {
 
 export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
   const toggleFavorite = useKuwagataStore((s) => s.toggleFavorite);
+  const toggleFedToday = useKuwagataStore((s) => s.toggleFedToday);
   const isSold = beetle.soldPriceYen != null;
+  const inactive = isSold || !beetle.isAlive;
+  const fedToday = beetle.lastFedDate === todayStr();
+  const showFeed = beetle.matured && !inactive;
+  const pendingFeed = needsFeedingToday(beetle);
 
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left bg-white rounded-2xl p-4 border shadow-sm transition-all active:scale-[0.98] ${
-        beetle.isAlive && !isSold ? "border-amber-100/60" : "border-gray-100 opacity-70"
-      }`}
+      className="kuwa-card w-full text-left p-4 transition-all active:scale-[0.98]"
+      style={inactive ? { opacity: 0.66 } : undefined}
     >
-      <div className="flex items-start gap-3">
-        <SpeciesAvatar species={beetle.species} />
+      <div className="flex items-start gap-3.5">
+        <PhotoThumb src={beetle.photoUrl} fallback={<SpeciesAvatar species={beetle.species} />} />
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm font-bold text-gray-900 truncate">{beetle.code}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm font-bold" style={{ color: "var(--kuwa-ink)" }}>
+              {beetle.code}
+            </p>
             {beetle.name && (
-              <p className="text-xs text-gray-400 truncate">「{beetle.name}」</p>
+              <p className="text-xs truncate" style={{ color: "var(--kuwa-ink-soft)" }}>
+                「{beetle.name}」
+              </p>
             )}
             {isSold ? (
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                販売済み
-              </span>
+              <span className="kuwa-badge font-maru bg-[#d7e0b8] text-[#55682f]">お迎えされました</span>
             ) : (
               !beetle.isAlive && (
-                <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">
-                  ★飼育終了
-                </span>
+                <span className="kuwa-badge font-maru bg-[#ded5c6] text-[#7a7062]">飼育終了</span>
               )
             )}
           </div>
-          <p className="text-xs text-gray-500 truncate mt-0.5">
+          <p className="text-xs truncate mt-1" style={{ color: "var(--kuwa-ink-soft)" }}>
             {beetle.species}
-            {beetle.locality && <span className="text-gray-400"> / {beetle.locality}</span>}
+            {beetle.locality && ` / ${beetle.locality}`}
           </p>
-          <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
-            <span className={`text-xs font-bold ${getGenderColor(beetle.gender)}`}>
+          <div className="flex items-center gap-2.5 mt-2 flex-wrap">
+            <span className={`text-xs font-bold ${genderColor(beetle.gender)}`}>
               {getGenderLabel(beetle.gender)}
             </span>
             {beetle.generation && (
-              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full">
-                {beetle.generation}
-              </span>
+              <span className="kuwa-badge bg-[#e3ceaa] text-[#6b4423]">{beetle.generation}</span>
             )}
             {beetle.sizeMm != null && (
-              <span className="text-xs text-gray-500 flex items-center gap-0.5">
-                <Ruler className="w-3 h-3" />
+              <span
+                className="text-xs font-semibold flex items-center gap-1"
+                style={{ color: "var(--kuwa-ink-soft)", fontVariantNumeric: "tabular-nums" }}
+              >
+                <Ruler className="w-3.5 h-3.5" strokeWidth={2.2} />
                 {beetle.sizeMm}mm
               </span>
             )}
-            {beetle.matured && beetle.isAlive && !isSold && (
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
-                後食済み
-              </span>
+            {beetle.matured && !inactive && (
+              <span className="kuwa-badge bg-[#d7e0b8] text-[#55682f]">後食済み</span>
+            )}
+            {pendingFeed && (
+              <span className="kuwa-badge font-maru bg-[#f0d49b] text-[#a3660f]">エサまだ</span>
             )}
             {beetle.pairId && (
-              <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                <Link2 className="w-2.5 h-2.5" />
+              <span className="kuwa-badge font-maru bg-[#c9dced] text-[#3f5a72] flex items-center gap-0.5">
+                <Link2 className="w-2.5 h-2.5" strokeWidth={2.5} />
                 ペア
               </span>
             )}
           </div>
         </div>
-        <span
-          role="button"
-          tabIndex={0}
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleFavorite(beetle.id);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
+        <div className="flex flex-col items-center gap-2 flex-shrink-0">
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label="お気に入り"
+            onClick={(e) => {
               e.stopPropagation();
               toggleFavorite(beetle.id);
-            }
-          }}
-          className="p-1.5 flex-shrink-0"
-        >
-          <Heart
-            className={`w-4 h-4 transition-colors ${
-              beetle.isFavorite ? "text-rose-500 fill-rose-500" : "text-gray-300"
-            }`}
-          />
-        </span>
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                toggleFavorite(beetle.id);
+              }
+            }}
+            className="p-1.5"
+          >
+            <Heart
+              className="w-[18px] h-[18px] transition-colors"
+              strokeWidth={2.2}
+              style={{
+                color: beetle.isFavorite ? "#b0492f" : "#c0ac8f",
+                fill: beetle.isFavorite ? "#b0492f" : "none",
+              }}
+            />
+          </span>
+
+          {showFeed && (
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label={fedToday ? "エサやり済み" : "エサをあげた"}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFedToday(beetle.id);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  toggleFedToday(beetle.id);
+                }
+              }}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all active:scale-90 ${
+                fedToday ? "" : "animate-kuwa-pop"
+              }`}
+              style={
+                fedToday
+                  ? { background: "var(--kuwa-moss)", color: "#fdf6e7" }
+                  : { background: "var(--kuwa-amber-soft)", color: "var(--kuwa-amber)" }
+              }
+            >
+              {fedToday ? (
+                <Check className="w-[18px] h-[18px]" strokeWidth={3} />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={TOOL_IMAGE.jelly} alt="" width={20} height={20} />
+              )}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   );

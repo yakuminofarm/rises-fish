@@ -5,7 +5,7 @@ import { CheckCircle2, HandCoins, Heart, Skull, Trash2, X } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { Beetle } from "@/types/kuwagata";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
-import { formatYen } from "@/lib/kuwagataUtils";
+import { formatYen, splitPairAmount } from "@/lib/kuwagataUtils";
 import { formatDate, getGenderColor, getGenderLabel } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 
@@ -32,6 +32,7 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
   const { showToast } = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showSellForm, setShowSellForm] = useState(false);
+  const [sellAsPair, setSellAsPair] = useState(false);
   const [sellForm, setSellForm] = useState({
     date: new Date().toISOString().split("T")[0],
     price: "",
@@ -40,6 +41,9 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
 
   // ストアの最新状態を参照 (お気に入り等の即時反映のため)
   const beetle = beetles.find((b) => b.id === initial.id) ?? initial;
+
+  const mate = beetle.pairId ? beetles.find((b) => b.id === beetle.pairId) : undefined;
+  const canSellAsPair = mate != null && mate.soldPriceYen == null;
 
   const relatedLines = lines.filter(
     (l) => l.maleId === beetle.id || l.femaleId === beetle.id
@@ -102,6 +106,10 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
             <InfoRow label="羽化日" value={beetle.emergedDate ? formatDate(beetle.emergedDate) : undefined} />
             <InfoRow label="入手日" value={formatDate(beetle.acquiredDate)} />
             <InfoRow label="入手金額" value={beetle.priceYen != null ? formatYen(beetle.priceYen) : undefined} />
+            <InfoRow
+              label="ペア相手"
+              value={mate ? `${mate.code}${mate.name ? `「${mate.name}」` : ""}` : undefined}
+            />
             <InfoRow
               label="状態"
               value={
@@ -168,6 +176,25 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
                 placeholder="販売先 (店舗・知人など、任意)"
                 className={inputCls}
               />
+              {canSellAsPair && (
+                <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 px-0.5">
+                  <input
+                    type="checkbox"
+                    checked={sellAsPair}
+                    onChange={(e) => setSellAsPair(e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  ペア（{mate!.code}）と合計金額で入力する
+                </label>
+              )}
+              {sellAsPair && sellForm.price && (
+                <p className="text-xs text-gray-400 px-0.5">
+                  {(() => {
+                    const [a, b] = splitPairAmount(parseInt(sellForm.price));
+                    return `${beetle.code} ${a.toLocaleString("ja-JP")}円 / ${mate!.code} ${b.toLocaleString("ja-JP")}円 に按分されます`;
+                  })()}
+                </p>
+              )}
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowSellForm(false)}
@@ -178,13 +205,29 @@ export function BeetleDetailModal({ beetle: initial, onClose }: BeetleDetailModa
                 <button
                   onClick={() => {
                     if (!sellForm.price) return;
-                    updateBeetle(beetle.id, {
-                      soldDate: sellForm.date,
-                      soldPriceYen: parseInt(sellForm.price),
-                      soldTo: sellForm.to || undefined,
-                    });
+                    const total = parseInt(sellForm.price);
+                    if (sellAsPair && mate) {
+                      const [priceSelf, priceMate] = splitPairAmount(total);
+                      updateBeetle(beetle.id, {
+                        soldDate: sellForm.date,
+                        soldPriceYen: priceSelf,
+                        soldTo: sellForm.to || undefined,
+                      });
+                      updateBeetle(mate.id, {
+                        soldDate: sellForm.date,
+                        soldPriceYen: priceMate,
+                        soldTo: sellForm.to || undefined,
+                      });
+                    } else {
+                      updateBeetle(beetle.id, {
+                        soldDate: sellForm.date,
+                        soldPriceYen: total,
+                        soldTo: sellForm.to || undefined,
+                      });
+                    }
                     setShowSellForm(false);
-                    showToast("販売を記録しました");
+                    setSellAsPair(false);
+                    showToast(sellAsPair ? "ペアの販売を記録しました" : "販売を記録しました");
                   }}
                   disabled={!sellForm.price}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1 active:scale-[0.98] transition-all ${

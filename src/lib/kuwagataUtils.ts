@@ -121,6 +121,12 @@ export function formatYen(n: number): string {
   return `¥${Math.round(n).toLocaleString("ja-JP")}`;
 }
 
+/** ペアの合計金額を2個体に按分する (端数は1匹目に寄せる) */
+export function splitPairAmount(total: number): [number, number] {
+  const a = Math.ceil(total / 2);
+  return [a, total - a];
+}
+
 /** 幼虫1頭あたりのコスト = 入手金額 + ビン・マット代の累計 */
 export function larvaCost(larva: Larva): number {
   const bottles = larva.bottleChanges.reduce((sum, c) => sum + (c.costYen ?? 0), 0);

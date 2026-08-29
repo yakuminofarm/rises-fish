@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Ruler } from "lucide-react";
+import { Heart, Link2, Ruler } from "lucide-react";
 import { Beetle } from "@/types/kuwagata";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { SpeciesAvatar } from "@/components/kuwagata/KuwagataSVG";
@@ -64,6 +64,12 @@ export function BeetleCard({ beetle, onClick }: BeetleCardProps) {
             {beetle.matured && beetle.isAlive && !isSold && (
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
                 後食済み
+              </span>
+            )}
+            {beetle.pairId && (
+              <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                <Link2 className="w-2.5 h-2.5" />
+                ペア
               </span>
             )}
           </div>

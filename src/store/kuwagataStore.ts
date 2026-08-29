@@ -10,6 +10,7 @@ interface KuwagataStore {
   expenses: Expense[];
 
   addBeetle: (beetle: Beetle) => void;
+  addBeetlePair: (male: Beetle, female: Beetle) => void;
   updateBeetle: (id: string, updates: Partial<Beetle>) => void;
   deleteBeetle: (id: string) => void;
   toggleFavorite: (id: string) => void;
@@ -45,13 +46,20 @@ export const useKuwagataStore = create<KuwagataStore>()(
 
       addBeetle: (beetle) => set((s) => ({ beetles: [...s.beetles, beetle] })),
 
+      addBeetlePair: (male, female) =>
+        set((s) => ({ beetles: [...s.beetles, male, female] })),
+
       updateBeetle: (id, updates) =>
         set((s) => ({
           beetles: s.beetles.map((b) => (b.id === id ? { ...b, ...updates } : b)),
         })),
 
       deleteBeetle: (id) =>
-        set((s) => ({ beetles: s.beetles.filter((b) => b.id !== id) })),
+        set((s) => ({
+          beetles: s.beetles
+            .filter((b) => b.id !== id)
+            .map((b) => (b.pairId === id ? { ...b, pairId: undefined } : b)),
+        })),
 
       toggleFavorite: (id) =>
         set((s) => ({

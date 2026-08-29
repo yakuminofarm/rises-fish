@@ -30,6 +30,7 @@ export interface Beetle {
   priceYen?: number;       // 入手金額 (円)
   matured?: boolean;       // 後食済み (ブリード可能な成熟状態)
   sourceLineId?: string;   // 出身ブリードライン
+  pairId?: string;         // ペア相手の個体ID (ペアで入手・販売した場合の紐付け)
   isAlive: boolean;
   isFavorite?: boolean;
   soldDate?: string;       // 販売日

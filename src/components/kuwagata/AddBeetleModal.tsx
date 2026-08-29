@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
 import { useKuwagataStore } from "@/store/kuwagataStore";
 import { Beetle, Gender } from "@/types/kuwagata";
-import { SPECIES_OPTIONS } from "@/lib/kuwagataUtils";
+import { SPECIES_OPTIONS, splitPairAmount } from "@/lib/kuwagataUtils";
 import { generateId } from "@/lib/utils";
 import { useToast } from "@/components/ui/Toast";
 
@@ -17,9 +17,11 @@ const inputCls =
 
 export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
   const addBeetle = useKuwagataStore((s) => s.addBeetle);
+  const addBeetlePair = useKuwagataStore((s) => s.addBeetlePair);
   const { showToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [mode, setMode] = useState<"single" | "pair">("single");
   const [form, setForm] = useState({
     code: "",
     name: "",
@@ -35,33 +37,85 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
     matured: false,
     notes: "",
   });
+  const [pair, setPair] = useState({
+    male: { code: "", name: "", sizeMm: "", emergedDate: "" },
+    female: { code: "", name: "", sizeMm: "", emergedDate: "" },
+  });
 
-  const canSubmit = form.code.trim() !== "" && form.acquiredDate !== "";
+  const canSubmit =
+    mode === "single"
+      ? form.code.trim() !== "" && form.acquiredDate !== ""
+      : pair.male.code.trim() !== "" &&
+        pair.female.code.trim() !== "" &&
+        form.acquiredDate !== "";
+
+  const priceYenValue = form.priceYen ? parseInt(form.priceYen) : undefined;
+  const [pairPriceMale, pairPriceFemale] =
+    priceYenValue != null ? splitPairAmount(priceYenValue) : [undefined, undefined];
 
   const handleSubmit = () => {
     if (!canSubmit || submitting || done) return;
     setSubmitting(true);
     const species =
       form.species === "その他" ? form.customSpecies || "その他" : form.species;
-    const beetle: Beetle = {
-      id: generateId(),
-      code: form.code.trim(),
-      name: form.name.trim() || undefined,
-      species,
-      locality: form.locality.trim() || undefined,
-      generation: form.generation.trim() || undefined,
-      gender: form.gender,
-      sizeMm: form.sizeMm ? parseFloat(form.sizeMm) : undefined,
-      emergedDate: form.emergedDate || undefined,
-      acquiredDate: form.acquiredDate,
-      priceYen: form.priceYen ? parseInt(form.priceYen) : undefined,
-      matured: form.matured,
-      isAlive: true,
-      notes: form.notes,
-    };
-    addBeetle(beetle);
+
+    if (mode === "single") {
+      const beetle: Beetle = {
+        id: generateId(),
+        code: form.code.trim(),
+        name: form.name.trim() || undefined,
+        species,
+        locality: form.locality.trim() || undefined,
+        generation: form.generation.trim() || undefined,
+        gender: form.gender,
+        sizeMm: form.sizeMm ? parseFloat(form.sizeMm) : undefined,
+        emergedDate: form.emergedDate || undefined,
+        acquiredDate: form.acquiredDate,
+        priceYen: priceYenValue,
+        matured: form.matured,
+        isAlive: true,
+        notes: form.notes,
+      };
+      addBeetle(beetle);
+      showToast(`${beetle.code} を登録しました`);
+    } else {
+      const maleId = generateId();
+      const femaleId = generateId();
+      const shared = {
+        species,
+        locality: form.locality.trim() || undefined,
+        generation: form.generation.trim() || undefined,
+        acquiredDate: form.acquiredDate,
+        matured: form.matured,
+        isAlive: true as const,
+        notes: form.notes,
+      };
+      const male: Beetle = {
+        id: maleId,
+        code: pair.male.code.trim(),
+        name: pair.male.name.trim() || undefined,
+        gender: "male",
+        sizeMm: pair.male.sizeMm ? parseFloat(pair.male.sizeMm) : undefined,
+        emergedDate: pair.male.emergedDate || undefined,
+        priceYen: pairPriceMale,
+        pairId: femaleId,
+        ...shared,
+      };
+      const female: Beetle = {
+        id: femaleId,
+        code: pair.female.code.trim(),
+        name: pair.female.name.trim() || undefined,
+        gender: "female",
+        sizeMm: pair.female.sizeMm ? parseFloat(pair.female.sizeMm) : undefined,
+        emergedDate: pair.female.emergedDate || undefined,
+        priceYen: pairPriceFemale,
+        pairId: maleId,
+        ...shared,
+      };
+      addBeetlePair(male, female);
+      showToast(`${male.code} / ${female.code} をペアで登録しました`);
+    }
     setDone(true);
-    showToast(`${beetle.code} を登録しました`);
     setTimeout(() => onClose(), 800);
   };
 
@@ -76,26 +130,89 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
         </div>
 
         <div className="overflow-y-auto flex-1 px-4 pt-4 space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">管理番号 *</label>
-              <input
-                value={form.code}
-                onChange={(e) => setForm({ ...form, code: e.target.value })}
-                placeholder="例: 26OK-A1"
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">愛称</label>
-              <input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="任意"
-                className={inputCls}
-              />
-            </div>
+          <div className="flex gap-2">
+            {[
+              { value: "single", label: "単体登録" },
+              { value: "pair", label: "ペア登録 (♂♀)" },
+            ].map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setMode(m.value as "single" | "pair")}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors min-h-[44px] ${
+                  mode === m.value
+                    ? "bg-amber-600 text-white border-amber-600"
+                    : "border-gray-200 text-gray-600"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
           </div>
+
+          {mode === "single" ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">管理番号 *</label>
+                <input
+                  value={form.code}
+                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  placeholder="例: 26OK-A1"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">愛称</label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="任意"
+                  className={inputCls}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {(["male", "female"] as const).map((g) => (
+                <div key={g} className="bg-amber-50/50 rounded-xl p-3 space-y-2">
+                  <p className={`text-sm font-bold ${g === "male" ? "text-sky-700" : "text-rose-600"}`}>
+                    {g === "male" ? "♂ オス" : "♀ メス"}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      value={pair[g].code}
+                      onChange={(e) => setPair({ ...pair, [g]: { ...pair[g], code: e.target.value } })}
+                      placeholder={`管理番号 * ${g === "male" ? "例: 26OK-A1" : "例: 26OK-A2"}`}
+                      className={inputCls}
+                    />
+                    <input
+                      value={pair[g].name}
+                      onChange={(e) => setPair({ ...pair, [g]: { ...pair[g], name: e.target.value } })}
+                      placeholder="愛称 (任意)"
+                      className={inputCls}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={pair[g].sizeMm}
+                      onChange={(e) => setPair({ ...pair, [g]: { ...pair[g], sizeMm: e.target.value } })}
+                      placeholder="体長 (mm)"
+                      className={inputCls}
+                    />
+                    <input
+                      type="date"
+                      value={pair[g].emergedDate}
+                      onChange={(e) => setPair({ ...pair, [g]: { ...pair[g], emergedDate: e.target.value } })}
+                      className={inputCls}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">種類</label>
@@ -139,53 +256,57 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">性別</label>
-            <div className="flex gap-2">
-              {[
-                { value: "male", label: "♂ オス" },
-                { value: "female", label: "♀ メス" },
-                { value: "unknown", label: "不明" },
-              ].map((g) => (
-                <button
-                  key={g.value}
-                  type="button"
-                  onClick={() => setForm({ ...form, gender: g.value as Gender })}
-                  className={`flex-1 py-3 rounded-xl text-sm font-semibold border transition-colors min-h-[44px] ${
-                    form.gender === g.value
-                      ? "bg-amber-600 text-white border-amber-600"
-                      : "border-gray-200 text-gray-600"
-                  }`}
-                >
-                  {g.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          {mode === "single" && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">性別</label>
+                <div className="flex gap-2">
+                  {[
+                    { value: "male", label: "♂ オス" },
+                    { value: "female", label: "♀ メス" },
+                    { value: "unknown", label: "不明" },
+                  ].map((g) => (
+                    <button
+                      key={g.value}
+                      type="button"
+                      onClick={() => setForm({ ...form, gender: g.value as Gender })}
+                      className={`flex-1 py-3 rounded-xl text-sm font-semibold border transition-colors min-h-[44px] ${
+                        form.gender === g.value
+                          ? "bg-amber-600 text-white border-amber-600"
+                          : "border-gray-200 text-gray-600"
+                      }`}
+                    >
+                      {g.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">体長 (mm)</label>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                value={form.sizeMm}
-                onChange={(e) => setForm({ ...form, sizeMm: e.target.value })}
-                placeholder="例: 85.5"
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">羽化日</label>
-              <input
-                type="date"
-                value={form.emergedDate}
-                onChange={(e) => setForm({ ...form, emergedDate: e.target.value })}
-                className={inputCls}
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">体長 (mm)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={form.sizeMm}
+                    onChange={(e) => setForm({ ...form, sizeMm: e.target.value })}
+                    placeholder="例: 85.5"
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">羽化日</label>
+                  <input
+                    type="date"
+                    value={form.emergedDate}
+                    onChange={(e) => setForm({ ...form, emergedDate: e.target.value })}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="grid grid-cols-2 gap-3 items-end">
             <div>
@@ -211,15 +332,22 @@ export function AddBeetleModal({ onClose }: AddBeetleModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">入手金額 (円)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              入手金額 (円){mode === "pair" && " ※ペア合計"}
+            </label>
             <input
               type="number"
               min="0"
               value={form.priceYen}
               onChange={(e) => setForm({ ...form, priceYen: e.target.value })}
-              placeholder="例: 15000 (収支管理に反映されます)"
+              placeholder={mode === "pair" ? "例: 15000 (♂♀で自動的に按分)" : "例: 15000 (収支管理に反映されます)"}
               className={inputCls}
             />
+            {mode === "pair" && priceYenValue != null && (
+              <p className="text-xs text-gray-400 mt-1">
+                ♂ {pairPriceMale?.toLocaleString("ja-JP")}円 / ♀ {pairPriceFemale?.toLocaleString("ja-JP")}円 に按分して登録されます
+              </p>
+            )}
           </div>
 
           <div className="pb-4">

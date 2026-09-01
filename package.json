@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "work:setup": "node scripts/work-setup.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.122.0",
     "@radix-ui/react-dialog": "^1.1.16",
     "@radix-ui/react-select": "^2.3.0",
     "@radix-ui/react-tabs": "^1.1.14",
@@ -18,7 +21,9 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
+    "server-only": "^0.0.1",
     "tailwind-merge": "^3.6.0",
+    "zod": "^4.5.4",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

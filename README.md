@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# rises-fish
 
-## Getting Started
+メダカの飼育・品種改良を支える Next.js アプリ。2つの画面があります。
 
-First, run the development server:
+| パス | 名前 | 用途 |
+| --- | --- | --- |
+| `/` | めだか手帳 | 飼育記録・血統管理・品種改良サポート（スマホ向け） |
+| `/work` | 業務秘書 | 日々のタスク管理と AI による段取り（PCブラウザ向け） |
+
+## セットアップ
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 を開きます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 業務秘書（/work）を使う
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. 認証情報を作る
 
-## Learn More
+```bash
+npm run work:setup
+```
 
-To learn more about Next.js, take a look at the following resources:
+ユーザー名とパスワードを聞かれます。出力された3行を `.env.local` に貼り付けてください。
+パスワードそのものはどこにも保存されず、scrypt ハッシュだけが残ります。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+WORK_USER=admin
+WORK_PASSWORD_HASH=scrypt$32768$8$1$...
+SESSION_SECRET=...
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> 設定しないまま `npm run dev` した場合、開発環境に限り仮パスワード `medaka-dev` で
+> ログインできます（画面にも警告が出ます）。本番ではログインできません。
 
-## Deploy on Vercel
+### 2. AI秘書を有効にする（任意）
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+ANTHROPIC_API_KEY=sk-ant-...
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+APIキーはサーバー側でのみ使われ、ブラウザには渡りません。
+**未設定でも動きます** — その場合は簡易解析モードになり、走り書きからの
+タスク登録だけは引き続き利用できます。
+
+設定項目の一覧は `.env.example` を参照してください。
+
+### 3. 使い方
+
+http://localhost:3000/work を開いてログインします。
+
+AI秘書の入力欄に、頭の中にあることをそのまま書きます。整理する必要はありません。
+
+```
+明日ヤマトで発送3件
+水曜までに餌の発注
+今週中に選別 2時間
+至急 楊貴妃の水換え
+毎日 針子の給餌 10分
+月末までに帳簿つける
+```
+
+これがタスクとして登録され、期限・分類・見積り時間が推測されます。
+以降は画面を開くだけで、「今日の作戦」と「気になっていること」が上から順に提示されます。
+
+## データの保存先
+
+業務秘書のデータはサーバー側の `.data/` に保存されます（`.gitignore` 済み）。
+保存先は `WORK_DATA_DIR` で変更できます。
+
+## その他のコマンド
+
+```bash
+npm run build      # 本番ビルド
+npm run lint       # ESLint
+npm run typecheck  # 型チェック
+```
+
+## ドキュメント
+
+- [業務秘書の設計メモ](docs/work-tool.md) — 優先順位の決め方、セキュリティ設計、未対応事項
+
+## 開発時の注意
+
+このプロジェクトは Next.js 16 を使っています。App Router の API はバージョン間で
+変わっているため、コードを書く前に `node_modules/next/dist/docs/` の該当ガイドを
+参照してください（`AGENTS.md` 参照）。

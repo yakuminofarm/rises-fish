@@ -1,0 +1,13 @@
+[
+  {
+    "id": "m6a-142-lugia",
+    "name": "ルギア (30th再録 / クリスタルタイプ)",
+    "set": "拡張パック「30th CELEBRATION」",
+    "number": "M6a 142/103",
+    "release_date": "2026-09-16",
+    "sources": {
+      "snkrdunk": { "apparel_id": 886017 },
+      "cardrush": { "keyword": "ルギア 30th", "match": "{142/103}" }
+    }
+  }
+]

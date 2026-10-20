@@ -109,12 +109,13 @@ def latest(pts: dict) -> tuple[str, int] | None:
 
 
 def change(pts: dict, days: int) -> str:
-    """最新値と days 日以上前の直近値との差分 (%)。"""
+    """最新値と days 日前 (前後 3 日以内に記録がある場合のみ) との差分 (%)。"""
     if not pts:
         return "-"
     last_d, last_p = max(pts.items())
-    cutoff = date.fromordinal(date.fromisoformat(last_d).toordinal() - days).isoformat()
-    past = [p for d, p in sorted(pts.items()) if d <= cutoff]
+    base = date.fromisoformat(last_d).toordinal() - days
+    cutoff, floor = (date.fromordinal(base - n).isoformat() for n in (0, 3))
+    past = [p for d, p in sorted(pts.items()) if floor <= d <= cutoff]
     if not past:
         return "-"
     pct = (last_p - past[-1]) / past[-1] * 100

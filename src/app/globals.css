@@ -107,3 +107,25 @@ input, select {
   font-size: 16px; /* iOS で自動ズームしない最低サイズ */
 }
 textarea { font-size: 16px; }
+
+/* ── 案件ボード（/anken）の色トークン。値は src/app/anken/anken.css ── */
+@theme inline {
+  --color-ak-paper: var(--ak-paper);
+  --color-ak-sheet: var(--ak-sheet);
+  --color-ak-ink: var(--ak-ink);
+  --color-ak-ink2: var(--ak-ink2);
+  --color-ak-ink3: var(--ak-ink3);
+  --color-ak-line: var(--ak-line);
+  --color-ak-wire: var(--ak-wire);
+  --color-ak-wire2: var(--ak-wire2);
+  --color-ak-accent: var(--ak-accent);
+  --color-ak-accent-soft: var(--ak-accent-soft);
+  --color-ak-ball: var(--ak-ball);
+  --color-ak-ball-soft: var(--ak-ball-soft);
+  --color-ak-late: var(--ak-late);
+  --color-ak-late-soft: var(--ak-late-soft);
+  --color-ak-ok: var(--ak-ok);
+  --color-ak-promo: var(--ak-promo);
+  --color-ak-service: var(--ak-service);
+  --color-ak-web: var(--ak-web);
+}

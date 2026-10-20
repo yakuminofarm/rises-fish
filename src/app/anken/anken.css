@@ -1,0 +1,78 @@
+/* 案件ボードの配色。モノトーンの土台に、ボール（次に動く人）だけ琥珀色で目立たせる */
+:root {
+  --ak-paper: #f4f6f8;
+  --ak-sheet: #ffffff;
+  --ak-ink: #1c2330;
+  --ak-ink2: #4a5466;
+  --ak-ink3: #7c8698;
+  --ak-line: #d5dae2;
+  --ak-wire: #eef1f5;
+  --ak-wire2: #e1e6ed;
+  --ak-accent: #2552c9;
+  --ak-accent-soft: #e3eafb;
+  --ak-ball: #b97f00;
+  --ak-ball-soft: #fbf0d6;
+  --ak-late: #c23b3b;
+  --ak-late-soft: #f8e1e1;
+  --ak-ok: #2e8559;
+  --ak-promo: #b3548c;
+  --ak-service: #3e7f8c;
+  --ak-web: #6a5bc2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ak-paper: #12161c;
+    --ak-sheet: #1a1f27;
+    --ak-ink: #e5e9f0;
+    --ak-ink2: #b4bcca;
+    --ak-ink3: #848d9d;
+    --ak-line: #353d4a;
+    --ak-wire: #212833;
+    --ak-wire2: #2a3240;
+    --ak-accent: #8eaaff;
+    --ak-accent-soft: #1f2a45;
+    --ak-ball: #e8b23a;
+    --ak-ball-soft: #3a2f14;
+    --ak-late: #f07a7a;
+    --ak-late-soft: #3d2020;
+    --ak-ok: #5cc28c;
+    --ak-promo: #e08bbb;
+    --ak-service: #6fb9c6;
+    --ak-web: #a89bf0;
+  }
+}
+
+.anken {
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  background: var(--ak-paper);
+  color: var(--ak-ink);
+  font-feature-settings: "palt";
+}
+
+.anken .tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.anken :focus-visible {
+  outline: 2px solid var(--ak-accent);
+  outline-offset: 2px;
+}
+
+/* 外注・クライアント待ちの期間を示す斜線 */
+.ak-hatch {
+  background: repeating-linear-gradient(45deg, var(--ak-ball) 0 4px, var(--ak-ball-soft) 4px 8px);
+}
+
+/* globals.css の「入力欄は16px・高さ44px」はスマホ向け。PCでは各画面の指定に戻す */
+.anken input[type="checkbox"] {
+  min-height: revert-layer;
+}
+@media (min-width: 768px) {
+  .anken input,
+  .anken select,
+  .anken textarea {
+    min-height: revert-layer;
+    font-size: revert-layer;
+  }
+}

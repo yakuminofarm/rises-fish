@@ -21,18 +21,18 @@
 <line class="grid" x1="64" x2="740" y1="72.0" y2="72.0"/>
 <text class="t2" x="58" y="76.0" font-size="11" text-anchor="end">¥50,000</text>
 <text class="t2" x="64.0" y="358" font-size="11" text-anchor="middle">09/14</text>
-<text class="t2" x="170.7" y="358" font-size="11" text-anchor="middle">09/20</text>
-<text class="t2" x="277.5" y="358" font-size="11" text-anchor="middle">09/26</text>
-<text class="t2" x="384.2" y="358" font-size="11" text-anchor="middle">10/02</text>
-<text class="t2" x="490.9" y="358" font-size="11" text-anchor="middle">10/08</text>
-<text class="t2" x="597.7" y="358" font-size="11" text-anchor="middle">10/14</text>
-<text class="t2" x="704.4" y="358" font-size="11" text-anchor="middle">10/20</text>
-<path class="s0" fill="none" d="M64.0,132.3 L81.8,189.3 L99.6,322.4 L117.4,262.5 L135.2,237.1 L152.9,240.1 L170.7,237.4 L188.5,243.2 L206.3,249.5 L224.1,253.1 L241.9,261.9 L259.7,272.8 L277.5,272.0 L295.3,271.7 L313.1,273.9 L330.8,264.7 L348.6,271.7 L366.4,275.8 L384.2,265.4 L402.0,267.9 L419.8,264.0 L437.6,268.4 L455.4,265.8 L473.2,268.5 L490.9,244.4 L508.7,241.1 L526.5,265.8 L544.3,242.4 L562.1,261.3 L579.9,252.4 L597.7,248.7 L615.5,261.2 L633.3,238.7 L651.1,267.2 L668.8,281.8 L686.6,280.9 L704.4,279.7 L722.2,283.4 L740.0,239.1" stroke-width="2" stroke-linejoin="round"/>
-<circle class="f0 dot" cx="740.0" cy="239.1" r="5" stroke-width="2"><title>スニダン 取引平均 (全状態) 2026-10-22 ¥25,059</title></circle>
-<path class="s1" fill="none" d="M64.0,88.8 L81.8,190.6 L99.6,321.1 L117.4,259.1 L135.2,234.9 L152.9,238.0 L170.7,235.7 L188.5,238.4 L206.3,244.8 L224.1,243.5 L241.9,257.4 L259.7,259.8 L277.5,262.5 L295.3,264.8 L313.1,269.8 L330.8,267.4 L348.6,263.7 L366.4,265.3 L384.2,255.3 L402.0,260.3 L419.8,255.7 L437.6,263.9 L455.4,266.2 L473.2,263.7 L490.9,251.7 L508.7,263.0 L526.5,264.0 L544.3,244.6 L562.1,261.2 L579.9,249.9 L597.7,253.4 L615.5,255.9 L633.3,258.4 L651.1,265.4 L668.8,275.7 L686.6,278.2 L704.4,280.9 L722.2,285.3 L740.0,289.9" stroke-width="2" stroke-linejoin="round"/>
-<circle class="f1 dot" cx="740.0" cy="289.9" r="5" stroke-width="2"><title>スニダン 取引平均 (状態A) 2026-10-22 ¥17,475</title></circle>
-<path class="s2" fill="none" d="M704.4,267.6 L722.2,267.6 L740.0,274.3" stroke-width="2" stroke-linejoin="round"/>
-<circle class="f2 dot" cx="740.0" cy="274.3" r="5" stroke-width="2"><title>カードラッシュ 販売価格 2026-10-22 ¥19,800</title></circle>
-<path class="s3" fill="none" d="M704.4,306.6 L722.2,310.0 L740.0,313.2" stroke-width="2" stroke-linejoin="round"/>
-<circle class="f3 dot" cx="740.0" cy="313.2" r="5" stroke-width="2"><title>スニダン 最安出品 2026-10-22 ¥14,000</title></circle>
+<text class="t2" x="168.0" y="358" font-size="11" text-anchor="middle">09/20</text>
+<text class="t2" x="272.0" y="358" font-size="11" text-anchor="middle">09/26</text>
+<text class="t2" x="376.0" y="358" font-size="11" text-anchor="middle">10/02</text>
+<text class="t2" x="480.0" y="358" font-size="11" text-anchor="middle">10/08</text>
+<text class="t2" x="584.0" y="358" font-size="11" text-anchor="middle">10/14</text>
+<text class="t2" x="688.0" y="358" font-size="11" text-anchor="middle">10/20</text>
+<path class="s0" fill="none" d="M64.0,132.3 L81.3,189.3 L98.7,322.4 L116.0,262.5 L133.3,237.1 L150.7,240.1 L168.0,237.4 L185.3,243.2 L202.7,249.5 L220.0,253.1 L237.3,261.9 L254.7,272.8 L272.0,272.0 L289.3,271.7 L306.7,273.9 L324.0,264.7 L341.3,271.7 L358.7,275.8 L376.0,265.4 L393.3,267.9 L410.7,264.0 L428.0,268.4 L445.3,265.8 L462.7,268.5 L480.0,244.4 L497.3,241.1 L514.7,265.8 L532.0,242.4 L549.3,261.3 L566.7,252.4 L584.0,248.7 L601.3,261.2 L618.7,238.7 L636.0,267.3 L653.3,282.0 L670.7,280.1 L688.0,279.7 L705.3,283.1 L722.7,219.9 L740.0,299.9" stroke-width="2" stroke-linejoin="round"/>
+<circle class="f0 dot" cx="740.0" cy="299.9" r="5" stroke-width="2"><title>スニダン 取引平均 (全状態) 2026-10-23 ¥15,978</title></circle>
+<path class="s1" fill="none" d="M64.0,88.8 L81.3,190.6 L98.7,321.1 L116.0,259.1 L133.3,234.9 L150.7,238.0 L168.0,235.7 L185.3,238.4 L202.7,244.8 L220.0,243.5 L237.3,257.4 L254.7,259.8 L272.0,262.5 L289.3,264.8 L306.7,269.8 L324.0,267.4 L341.3,263.7 L358.7,265.3 L376.0,255.3 L393.3,260.3 L410.7,255.7 L428.0,263.9 L445.3,266.2 L462.7,263.7 L480.0,251.7 L497.3,263.0 L514.7,264.0 L532.0,244.6 L549.3,261.2 L566.7,249.9 L584.0,253.4 L601.3,255.9 L618.7,258.4 L636.0,265.4 L653.3,275.7 L670.7,277.8 L688.0,280.9 L705.3,285.1 L722.7,289.8 L740.0,292.5" stroke-width="2" stroke-linejoin="round"/>
+<circle class="f1 dot" cx="740.0" cy="292.5" r="5" stroke-width="2"><title>スニダン 取引平均 (状態A) 2026-10-23 ¥17,093</title></circle>
+<path class="s2" fill="none" d="M688.0,267.6 L705.3,267.6 L722.7,274.3 L740.0,284.4" stroke-width="2" stroke-linejoin="round"/>
+<circle class="f2 dot" cx="740.0" cy="284.4" r="5" stroke-width="2"><title>カードラッシュ 販売価格 2026-10-23 ¥18,300</title></circle>
+<path class="s3" fill="none" d="M688.0,306.6 L705.3,310.0 L722.7,313.2 L740.0,317.2" stroke-width="2" stroke-linejoin="round"/>
+<circle class="f3 dot" cx="740.0" cy="317.2" r="5" stroke-width="2"><title>スニダン 最安出品 2026-10-23 ¥13,400</title></circle>
 </svg>
